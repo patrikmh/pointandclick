@@ -9,6 +9,28 @@
 <script src="./support.js"></script>
 </head>
 <body>
+<script>
+(function () {
+  var ua = navigator.userAgent || "";
+  var isMobileUA = /Android|iPhone|iPod|Windows Phone|Mobile|IEMobile|BlackBerry|Opera Mini/i.test(ua);
+  var isCoarseAndNarrow = window.matchMedia
+    && window.matchMedia("(pointer: coarse)").matches
+    && Math.min(window.innerWidth, window.innerHeight) < 700;
+  if (!isMobileUA && !isCoarseAndNarrow) return;
+
+  var overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;z-index:999999;background:#05080e;color:oklch(0.9 0.012 80);"
+    + "display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;"
+    + "font-family:'Work Sans',Helvetica,Arial,sans-serif";
+  overlay.innerHTML =
+    '<div style="max-width:420px;display:flex;flex-direction:column;gap:14px;align-items:center">'
+    + '<div style="font-family:Georgia,serif;font-weight:700;font-size:22px;letter-spacing:0.04em;color:oklch(0.95 0.03 90)">DET SJUNKNA ÄVENTYRET</div>'
+    + '<div style="font-size:15px;line-height:1.6;color:oklch(0.85 0.015 80)">Det här äventyret styrs med tangentbord och mus och går just nu bara att spela på en dator. Kom tillbaka på en större skärm!</div>'
+    + "</div>";
+  document.documentElement.classList.add("mobile-blocked");
+  document.body.appendChild(overlay);
+})();
+</script>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -312,17 +334,9 @@
       <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid oklch(0.4 0.02 60 / 0.5)">
         <img src="{{ chatImg }}" alt="" style="width:28px;height:28px;object-fit:contain">
         <select value="{{ chatChar }}" onChange="{{ chatSelect }}" aria-label="Välj karaktär att prata med" title="Välj karaktär" style="flex:1;min-width:0;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:0.04em;color:oklch(0.9 0.05 90);background:oklch(0.22 0.014 60);border:1px solid oklch(0.42 0.02 60);border-radius:7px;padding:6px 8px">
-          <option value="moon">MÅNEN</option>
-          <option value="seal">SÄLEN</option>
-          <option value="octo">BLÄCKFISKEN</option>
-          <option value="badger">GRÄVLINGEN</option>
-          <option value="otter">UTTERN</option>
-          <option value="gull">FISKMÅSEN</option>
-          <option value="crab">KRABBAN</option>
-          <option value="cod">TORSKEN</option>
-          <option value="sub">UBÅTSKATTEN</option>
-          <option value="sheep">FÅRET</option>
-          <option value="shrimp">RÄKDELEGATIONEN</option>
+          <sc-for list="{{ discoveredPersonaList }}" as="p" hint-placeholder-count="0">
+            <option value="{{ p.id }}">{{ p.label }}</option>
+          </sc-for>
         </select>
         <button onClick="{{ chatClose }}" style="width:26px;height:26px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:13px;line-height:1;cursor:pointer">✕</button>
       </div>
@@ -377,6 +391,7 @@ class Component extends DCLogic {
     moonOff: { x: 0, y: 0 },
     moonDragging: false,
     introActive: true,
+    discovered: {},
     crabFreed: false,
     crabFrame: "hidden",
     gullFrame: "closed",
@@ -744,8 +759,18 @@ class Component extends DCLogic {
     },
   };
 
+  discoverChar(charId) {
+    if (this.state.discovered[charId]) return;
+    this.setState((s) => ({ discovered: { ...s.discovered, [charId]: true } }));
+  }
+
   toggleChat(charId, forceOpen = false) {
+    if (this.state.moonState === "asleep") {
+      this.say("", "Det är ingen idé att försöka prata ännu. Väck månen först.", null);
+      return;
+    }
     const char = charId && this.personas[charId] ? charId : "moon";
+    this.discoverChar(char);
     const persona = this.personas[char];
     if (!this.chatLogs) this.chatLogs = {};
     if (!this.chatLogs[char]) this.chatLogs[char] = [{ role: "char", text: persona.greeting }];
@@ -875,10 +900,14 @@ class Component extends DCLogic {
   }
 
   useItemOn(defId, target, targetUid) {
+    const characterTargets = ["crab", "gull", "seal", "octo", "otter", "badger"];
+    if (characterTargets.includes(target)) {
+      if (this.state.moonState === "asleep") { this.say("", "Det händer ingenting.", null); return; }
+      this.discoverChar(target);
+    }
     this.sfx("drop");
     if (defId === "bucket" && target === "crab") {
       if (this.state.crabFreed) { this.say("", "Krabban är redan fri.", null); return; }
-      if (this.state.moonState === "asleep") { this.say("", "Det händer ingenting.", null); return; }
       this.throwWater();
       return;
     }
@@ -1072,6 +1101,11 @@ class Component extends DCLogic {
 
   badgerClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En grävling i slips sitter orörlig vid lägerelden.", null);
+      return;
+    }
+    this.discoverChar("badger");
     if (this.badgerMouthLoop) this.badgerMouthLoop();
     clearTimeout(this.badgerClickEnd);
     if (this.badgerNode) {
@@ -1109,6 +1143,11 @@ class Component extends DCLogic {
 
   otterClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En utter i klänning, fast med en flaska på huvudet, vilar stilla.", null);
+      return;
+    }
+    this.discoverChar("otter");
     if (this.otterMouthLoop) this.otterMouthLoop();
     clearTimeout(this.otterClickEnd);
     const lines = [
@@ -1138,6 +1177,11 @@ class Component extends DCLogic {
 
   subClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "Ubåtskatten ligger och slumrar bakom rodret.", null);
+      return;
+    }
+    this.discoverChar("sub");
     this.subClicking = true;
     this.setState({ subFrame: "roar" });
     if (this.subNode) {
@@ -1186,6 +1230,11 @@ class Component extends DCLogic {
 
   sealClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "Sälen ligger och slumrar, cigaretten fortfarande i mungipan.", null);
+      return;
+    }
+    this.discoverChar("seal");
     this.sealClicking = true;
     clearTimeout(this.sealPuffEnd);
     this.setState({ sealFrame: "open" });
@@ -1370,6 +1419,7 @@ class Component extends DCLogic {
     if (this.state.moonState !== "asleep") return;
     if (this.snore) this.snore.pause();
     this.setState({ moonState: "awake", moonFrame: "awake" });
+    this.discoverChar("moon");
     if (this.moonNode) {
       this.moonNode.animate(
         [
@@ -1475,6 +1525,11 @@ class Component extends DCLogic {
 
   codClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En torsk med basker svävar stilla över sin tomma duk.", null);
+      return;
+    }
+    this.discoverChar("cod");
     this.codTalk();
     if (this.state.codDone) {
       this.say("Torsken", "Min vän! Skolans stolthet! Kom tillbaka när du vill måla mer.", null);
@@ -1553,6 +1608,7 @@ class Component extends DCLogic {
   }
 
   sheepTalk() {
+    this.discoverChar("sheep");
     if (!this.sheepVoice) this.sheepVoice = new Audio("assets/sheep.mp3");
     this.sheepVoice.volume = 0.7;
     this.sheepVoice.currentTime = 0;
@@ -1665,6 +1721,11 @@ class Component extends DCLogic {
 
   octoClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En bläckfisk med hög hatt vilar bland stenarna, alldeles orörlig.", null);
+      return;
+    }
+    this.discoverChar("octo");
     if (this.octoVoice) this.octoVoice.pause();
     this.octoVoiceIdx = (this.octoVoiceIdx == null) ? 0 : (this.octoVoiceIdx + 1) % 4;
     this.octoVoice = new Audio("assets/octo-voice-" + (this.octoVoiceIdx + 1) + ".mp3");
@@ -1704,6 +1765,11 @@ class Component extends DCLogic {
 
   gullClick(e) {
     e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En intrasslad mås. Den kastar en misstänksam blick men säger inget.", null);
+      return;
+    }
+    this.discoverChar("gull");
     if (this.gullVoice) this.gullVoice.pause();
     this.gullVoice = new Audio("assets/gull-voice.mp3");
     this.gullVoice.volume = 0.95;
@@ -2116,6 +2182,7 @@ class Component extends DCLogic {
       this.say("", "En hög med sjögräs. Den rör sig... lite.", null);
       return;
     }
+    this.discoverChar("crab");
     if (this.state.crabFreed) {
       this.crabSpeak("Puh! Tack igen, vännen. Havet känns mycket bättre utan sjögräs i munnen.");
       return;
@@ -2438,6 +2505,7 @@ class Component extends DCLogic {
       moonOff: { x: 0, y: 0 },
       moonDragging: false,
       introActive: true,
+      discovered: {},
       crabFreed: false,
       crabFrame: "hidden",
       gullFrame: "closed",
@@ -2639,6 +2707,9 @@ class Component extends DCLogic {
       moonEnter: () => this.moonEnter(),
       moonLeave: () => this.moonLeave(),
       chatOpen: S.chatOpen,
+      discoveredPersonaList: Object.keys(this.personas)
+        .filter((id) => S.discovered[id])
+        .map((id) => ({ id, label: this.personas[id].name })),
       chatBusy: S.chatBusy,
       chatInput: S.chatInput,
       chatChar: S.chatChar,
@@ -2708,6 +2779,7 @@ class Component extends DCLogic {
       sheepSrc: "assets/sheep-" + (S.sheepFrame || "closed") + ".png",
       sheepClick: (e) => { e.stopPropagation(); this.sheepTalk(); },
       shrimpEnter: () => {
+        if (this.state.moonState !== "asleep") this.discoverChar("shrimp");
         if (!this.shrimpSound) { this.shrimpSound = new Audio("assets/shrimp-protest.mp3?v=2"); this.shrimpSound.loop = true; }
         this.shrimpSound.volume = 0.55;
         this.shrimpSound.play().catch(() => {});
