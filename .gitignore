@@ -7,3 +7,4 @@ test-results/
 .playwright-cli/
 .DS_Store
 .claude/settings.local.json
+/new_sounds/
