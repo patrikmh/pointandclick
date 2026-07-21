@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Det sjunkna äventyret</title>
+<link rel="icon" href="data:,">
+<script src="./ai-bridge.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Work+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  /* runtime-regen */
+  /* dc */
+  html, body { margin: 0; padding: 0; }
+  * { outline: none; -webkit-tap-highlight-color: transparent; }
+  img, [data-drop], button { -webkit-user-drag: none; }
+  /* custom hand cursors: point (interact), open hand (item), fist (dragging) */
+  [data-drop] { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M13.2 2.6c1.5 0 2.7 1.2 2.7 2.7v8.2l1.1.2V8.3c0-1.1.9-2 2-2s2 .9 2 2v6l1.1.25v-3.4c0-1.1.9-2 2-2s2 .9 2 2v4.4l1.1.25v-1.7c0-1.1.9-2 2-2s2 .9 2 2v7.1c0 3.2-1.1 5.3-2.6 6.6-1.5 1.3-3.4 1.9-5.2 1.9h-3.3c-2.9 0-5.6-1.5-7.2-3.9l-4.3-6.5c-.7-1.1-.4-2.6.7-3.3 1-.7 2.4-.4 3.1.5l1.5 2V5.3c0-1.5 1.2-2.7 2.7-2.7z' fill='%23fdf6e8' stroke='%23392b1c' stroke-width='1.7' stroke-linejoin='round'/><path d='M17 15.5v-2.4M20.1 16v-2.2M23.2 16.6v-1.9' stroke='%23392b1c' stroke-width='1.1' fill='none' opacity='.45' stroke-linecap='round'/></svg>") 13 3, pointer; }
+  [data-drop="inv"], [data-drop="entity"][data-pick="1"], [data-drop="moon"] { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M8.5 15V7.4c0-1.2 1-2.2 2.2-2.2s2.2 1 2.2 2.2V13h1V4.4c0-1.2 1-2.2 2.2-2.2s2.2 1 2.2 2.2V13h1V5.4c0-1.2 1-2.2 2.2-2.2s2.2 1 2.2 2.2V14h1V8.4c0-1.2 1-2.2 2.2-2.2S29 7.2 29 8.4v11.1c0 3.4-1.2 5.6-2.8 7.1-1.7 1.5-3.9 2.4-6.7 2.4h-1.7c-3.4 0-6.5-1.9-8-4.9l-3.5-6.8c-.6-1.1-.1-2.4 1-2.9 1-.5 2.3-.1 2.8.9l.4.7z' fill='%23fdf6e8' stroke='%23392b1c' stroke-width='1.7' stroke-linejoin='round'/><path d='M13.7 16.2V14M18.3 16.2V14M22.7 16.6v-2' stroke='%23392b1c' stroke-width='1.1' fill='none' opacity='.45' stroke-linecap='round'/></svg>") 16 4, grab; }
+  [data-drop="snorkel"] { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><circle cx='13' cy='13' r='8.2' fill='rgba(214,232,255,0.5)' stroke='%23392b1c' stroke-width='2.2'/><path d='M8.6 10.4c.9-1.9 2.7-3.2 4.8-3.2' stroke='white' stroke-width='1.6' stroke-linecap='round' fill='none'/><path d='M19.2 19.2l7.4 7.4' stroke='%23392b1c' stroke-width='4.2' stroke-linecap='round'/><path d='M19.6 19.6l6.6 6.6' stroke='%23c9a86b' stroke-width='1.7' stroke-linecap='round'/></svg>") 13 13, zoom-in; }
+  body.grabbing, body.grabbing * { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M8.3 17.2c0-2.3 1.5-3.8 3.6-3.8h11.5c2.6 0 4.6 2.1 4.6 4.7v3.2c0 5.3-4.1 8.9-9 8.9h-2.3c-4.6 0-8.4-3.6-8.4-8.2v-4.8z' fill='%23fdf6e8' stroke='%23392b1c' stroke-width='1.7' stroke-linejoin='round'/><path d='M12.4 13.6v-1.1c0-1.1.9-2 2-2s2 .9 2 2v1.1M16.4 13.6v-1.7c0-1.1.9-2 2-2s2 .9 2 2v1.7M20.4 13.6v-1.1c0-1.1.9-2 2-2s2 .9 2 2v1.1' fill='none' stroke='%23392b1c' stroke-width='1.7' stroke-linecap='round'/><path d='M8.3 19.6c-1.4-.4-2.3-1.6-2.3-3 0-1.4.9-2.6 2.3-3' fill='%23fdf6e8' stroke='%23392b1c' stroke-width='1.7' stroke-linecap='round'/></svg>") 16 15, grabbing !important; }
+  a { color: oklch(0.78 0.13 70); text-decoration: none; }
+  a:hover { color: oklch(0.86 0.13 70); }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes lidTop { 0% { transform: translateY(0); } 14% { transform: translateY(-42%); } 24% { transform: translateY(-2%); } 40% { transform: translateY(-70%); } 50% { transform: translateY(-8%); } 66% { transform: translateY(-88%); } 100% { transform: translateY(-101%); } }
+  @keyframes lidBottom { 0% { transform: translateY(0); } 14% { transform: translateY(42%); } 24% { transform: translateY(2%); } 40% { transform: translateY(70%); } 50% { transform: translateY(8%); } 66% { transform: translateY(88%); } 100% { transform: translateY(101%); } }
+  @keyframes introBlur { 0% { backdrop-filter: blur(14px); opacity: 1; } 60% { backdrop-filter: blur(8px); opacity: 1; } 100% { backdrop-filter: blur(0px); opacity: 0; } }
+  @keyframes fireFlicker1 { 0% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); } 18% { opacity: 0.9; transform: scale(0.98) translateY(0.5%) rotate(-0.5deg); } 30% { opacity: 0.2; } 36% { opacity: 0; } 92% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes fireFlicker2 { 0% { opacity: 0; } 30% { opacity: 0.75; transform: scale(1.03) translateY(-1%) rotate(0.5deg); } 36% { opacity: 1; } 48% { opacity: 0.92; transform: scale(1.01) translateY(-0.5%) rotate(-0.3deg); } 62% { opacity: 1; } 68% { opacity: 0.2; } 74% { opacity: 0; } 100% { opacity: 0; } }
+  @keyframes fireFlicker3 { 0% { opacity: 0; } 62% { opacity: 0; } 68% { opacity: 0.75; transform: scale(1.025) translateY(-0.8%) rotate(0.4deg); } 74% { opacity: 1; } 84% { opacity: 0.9; transform: scale(1.0) translateY(0) rotate(-0.2deg); } 92% { opacity: 1; } 100% { opacity: 0.2; } }
+  @keyframes fireGlow { 0% { filter: brightness(1); } 22% { filter: brightness(1.06); } 40% { filter: brightness(0.96); } 58% { filter: brightness(1.08); } 76% { filter: brightness(0.98); } 100% { filter: brightness(1); } }
+  @keyframes shrimpMarch { 0% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(10px) rotate(0.6deg); } 50% { transform: translateX(0) rotate(0deg); } 75% { transform: translateX(-10px) rotate(-0.6deg); } 100% { transform: translateX(0) rotate(0deg); } }
+  @keyframes codBob { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-9px) rotate(-1.4deg); } 100% { transform: translateY(0) rotate(0deg); } }
+  @keyframes fireGlowScene { 0% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } 22% { opacity: 0.95; transform: translate(-50%,-50%) scale(1.03); } 40% { opacity: 0.7; transform: translate(-50%,-50%) scale(0.97); } 58% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 76% { opacity: 0.8; transform: translate(-50%,-50%) scale(0.99); } 100% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } }
+  @keyframes moonGlowPulse { 0% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 100% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } }
+  @keyframes moonRaysShimmer { 0% { opacity: 0.75; } 50% { opacity: 1; } 100% { opacity: 0.75; } }
+  @keyframes moonGlintShimmer { 0% { opacity: 0.55; } 50% { opacity: 0.85; } 100% { opacity: 0.55; } }
+  @keyframes zfloat { 0% { opacity: 0; transform: translate(0, 0); } 25% { opacity: 0.9; } 100% { opacity: 0; transform: translate(12px, -26px); } }
+  @media (max-width: 760px) and (hover: none), (max-width: 760px) and (pointer: coarse) {
+    .camp-nav { left: auto !important; right: 10px !important; transform: none !important; width: 160px !important; }
+  }
+  @media (max-width: 600px) {
+    .chat-panel { left: 10px !important; right: 10px !important; top: 64px !important; width: auto !important; }
+    .dialog-panel { bottom: 156px !important; width: calc(100% - 20px) !important; }
+    .scene-title { left: 10px !important; top: 10px !important; }
+    .scene-title > div { max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px !important; }
+    .top-chat-button { right: 92px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
+    .reset-button { right: 8px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
+  }
+</style>
+</helmet>
+<div style="position:fixed;inset:0;overflow:hidden;background:#05080e;font-family:'Work Sans',sans-serif;color:oklch(0.9 0.012 80)">
+
+  <div class="scene-title" style="position:absolute;top:16px;left:18px;z-index:20;pointer-events:none">
+    <div style="font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:0.05em;color:oklch(0.95 0.03 90);text-shadow:0 2px 8px rgba(0,0,0,0.8)">{{ sceneTitle }}</div>
+  </div>
+
+  <button class="top-chat-button" onClick="{{ chatToggle }}" aria-label="Öppna samtal med spelets karaktärer" title="Samtal med karaktärer" style="position:absolute;top:18px;right:132px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.35)">Samtal</button>
+  <button class="reset-button" onClick="{{ reset }}" aria-label="Återställ hela äventyret" title="Återställ hela äventyret" style="position:absolute;top:18px;right:18px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:500;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(6px)">Återställ</button>
+
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+    
+  <div onMouseMove="{{ stagePointerMove }}" onPointerDown="{{ stagePointerDown }}" onMouseLeave="{{ stagePointerLeave }}" style="{{ stageStyle }}">
+      <sc-for list="{{ placed }}" as="e" hint-placeholder-count="0">
+        <div data-drop="entity" data-uid="{{ e.uid }}" data-pick="{{ e.pick }}" style="{{ e.wrapStyle }}" onClick="{{ e.onClick }}" onPointerDown="{{ e.onDown }}" onContextMenu="{{ e.onCtx }}" onMouseEnter="{{ e.onEnter }}" onMouseLeave="{{ e.onLeave }}">
+          <div style="{{ e.labelStyle }}">{{ e.name }}</div>
+          <div ref="{{ e.setRef }}" style="{{ e.boxStyle }}">{{ e.art }}</div>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{ showMoon }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ moonRaysStyle }}"></div>
+      <div style="{{ moonGlintStyle }}"></div>
+      <div style="{{ moonGlowStyle }}"></div>
+      <div data-drop="moon" onPointerDown="{{ moonDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ moonEnter }}" onMouseLeave="{{ moonLeave }}" style="{{ moonWrapStyle }}">
+        <img ref="{{ setMoonRef }}" src="{{ moonSrc }}" alt="Månen" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 0 20px rgba(215,228,255,0.4))">
+      </div>
+      </sc-if>
+      <sc-if value="{{ inLeft }}" hint-placeholder-val="{{ true }}">
+      <div data-drop="crab" onClick="{{ crabClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ crabEnter }}" onMouseLeave="{{ crabLeave }}" style="{{ crabWrapStyle }}">
+        <img ref="{{ setCrabRef }}" src="{{ crabSrc }}" alt="En krabba intrasslad i sjögräs" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55))">
+      </div>
+
+      </sc-if>
+
+      <sc-if value="{{ inCenter }}" hint-placeholder-val="">
+        <div data-drop="gull" onClick="{{ gullClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ gullEnter }}" onMouseLeave="{{ gullLeave }}" style="{{ gullWrapStyle }}">
+          <img ref="{{ setGullRef }}" src="{{ gullSrc }}" alt="En punkig fiskmås" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inCenter }}" hint-placeholder-val="">
+        <div data-drop="snorkel" onClick="{{ snorkelClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ snorkelEnter }}" style="{{ snorkelWrapStyle }}">
+          <img src="{{ snorkelSrc }}" alt="En snorkel som sticker upp ur vattnet" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4))">
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inCenter }}" hint-placeholder-val="">
+        <div data-drop="cave" onMouseEnter="{{ caveEnter }}" onMouseLeave="{{ caveLeave }}" style="position:absolute;left:6%;top:38%;width:16%;height:34%;z-index:11">
+          <sc-if value="{{ sheepRevealed }}" hint-placeholder-val="">
+            <div data-drop="sheep" onContextMenu="{{ infoCtx }}" onClick="{{ sheepClick }}" style="position:absolute;left:50%;top:88%;width:88%;transform:translate(-50%,-100%);cursor:pointer">
+              <img src="{{ sheepSrc }}" alt="Ett får med hörlurar och solglasögon" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.6))">
+            </div>
+          </sc-if>
+        </div>
+        <div data-drop="seal" onClick="{{ sealClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ sealEnter }}" style="{{ sealWrapStyle }}">
+          
+        <img ref="{{ setSealRef }}" src="{{ sealSrc }}" alt="En säl med solglasögon och cigarett" draggable="false" style="width: 590px; height: 250px; display: block; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5))"></div>
+      </sc-if>
+
+      <sc-if value="{{ inRight }}" hint-placeholder-val="">
+        <div data-drop="octo" onClick="{{ octoClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ octoEnter }}" onMouseLeave="{{ octoLeave }}" style="{{ octoWrapStyle }}">
+          <img ref="{{ setOctoRef }}" src="{{ octoSrc }}" alt="En bläckfisk med hög hatt och monokel" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
+        </div>
+        <div data-drop="otter" onClick="{{ otterClick }}" onContextMenu="{{ infoCtx }}" style="{{ otterWrapStyle }}">
+          <img ref="{{ setOtterRef }}" src="{{ otterSrc }}" alt="En utter i klänning med en flaska på huvudet" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inCamp }}" hint-placeholder-val="">
+        <div style="position:absolute;left:48%;top:52%;width:140%;height:140%;transform:translate(-50%,-50%);z-index:15;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle, rgba(255,160,70,0.4) 0%, rgba(255,130,45,0.2) 16%, rgba(255,110,35,0.08) 28%, rgba(255,100,30,0.02) 40%, rgba(255,100,30,0) 55%);animation:fireGlowScene 3.4s ease-in-out infinite"></div>
+        <div style="position:absolute;left:48%;top:36%;width:17%;transform:translate(-50%,-100%);z-index:11;pointer-events:none;animation:fireGlow 3.4s ease-in-out infinite">
+          <img src="assets/campfire-1.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker1 3.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,140,40,0.65))">
+          <img src="assets/campfire-2.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker2 3.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,140,40,0.65))">
+          <img src="assets/campfire-3.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker3 3.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,140,40,0.65))">
+        </div>
+        <div data-drop="badger" onClick="{{ badgerClick }}" onContextMenu="{{ infoCtx }}" style="{{ badgerWrapStyle }}">
+          <img ref="{{ setBadgerRef }}" src="{{ badgerSrc }}" alt="En grävling i slips och klocka" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ inUnderwater }}" hint-placeholder-val="">
+        <div data-drop="shrimp" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ shrimpEnter }}" onMouseLeave="{{ shrimpLeave }}" style="position:absolute;left:70%;top:16%;width:22%;z-index:11;animation:shrimpMarch 5.5s ease-in-out infinite">
+          <img src="assets/shrimp-protest.png" alt="Demonstrerande räkor med plakat" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.45))">
+        </div>
+        <div data-drop="cod" onClick="{{ codClick }}" onContextMenu="{{ infoCtx }}" style="{{ codWrapStyle }}">
+          <img src="{{ codSrc }}" alt="En målande torsk med basker och palett" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+        </div>
+        <div data-drop="chest" onClick="{{ chestClick }}" onContextMenu="{{ infoCtx }}" style="{{ chestWrapStyle }}">
+          <img ref="{{ setChestRef }}" src="{{ chestSrc }}" alt="En gammal skattkista" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55))">
+          <sc-if value="{{ chestOpen }}" hint-placeholder-val="">
+            <img ref="{{ setMapRef }}" src="assets/treasure-map.png" alt="En skattkarta" draggable="false" style="position:absolute;left:50%;top:96%;width:68%;transform:translate(-50%,0) rotate(7deg);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
+          </sc-if>
+        </div>
+        <div data-drop="sub" onClick="{{ subClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ subEnter }}" style="{{ subWrapStyle }}">
+          <img ref="{{ setSubRef }}" src="{{ subSrc }}" alt="En ubåt med en katt vid rodret" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.6))">
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ moonAsleep }}" hint-placeholder-val="">
+        <div style="{{ zzzStyle }}">
+          <span style="font-size:11px;animation:zfloat 2.6s ease-out 0s infinite">z</span>
+          <span style="font-size:14px;animation:zfloat 2.6s ease-out 0.7s infinite">z</span>
+          <span style="font-size:17px;animation:zfloat 2.6s ease-out 1.4s infinite">Z</span>
+        </div>
+      </sc-if>
+
+      <div onMouseEnter="{{ enterR }}" onMouseLeave="{{ leaveR }}" style="position:absolute;right:0;top:0;bottom:90px;width:110px;z-index:19;display:flex;align-items:center;justify-content:flex-end">
+        <sc-if value="{{ showArrowR }}" hint-placeholder-val="">
+          <button onClick="{{ goR }}" style="margin-right:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">→</button>
+        </sc-if>
+      </div>
+      <div onMouseEnter="{{ enterL }}" onMouseLeave="{{ leaveL }}" style="position:absolute;left:0;top:0;bottom:90px;width:110px;z-index:19;display:flex;align-items:center;justify-content:flex-start">
+        <sc-if value="{{ showArrowL }}" hint-placeholder-val="">
+          <button onClick="{{ goL }}" style="margin-left:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">←</button>
+        </sc-if>
+      </div>
+      <div class="camp-nav" style="{{ bottomNavStyle }}">
+        <sc-if value="{{ showArrowB }}" hint-placeholder-val="">
+          <button data-camp-nav-button="1" onClick="{{ goB }}" onFocus="{{ campNavFocus }}" onBlur="{{ campNavBlur }}" aria-label="Gå till nattlägret" title="Gå till nattlägret" style="{{ bottomNavButtonStyle }}">NATTLÄGRET ↓</button>
+        </sc-if>
+      </div>
+      <div onMouseEnter="{{ enterT }}" onMouseLeave="{{ leaveT }}" style="position:absolute;left:50%;transform:translateX(-50%);top:0;width:320px;height:110px;z-index:19;display:flex;align-items:flex-start;justify-content:center">
+        <sc-if value="{{ showArrowT }}" hint-placeholder-val="">
+          <button onClick="{{ goT }}" aria-label="Gå tillbaka" title="Gå tillbaka" style="margin-top:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">↑ TILLBAKA</button>
+        </sc-if>
+      </div>
+    </div></div>
+
+  <sc-if value="{{ hasDialog }}" hint-placeholder-val="">
+    <div class="dialog-panel" role="status" aria-live="polite" style="position:absolute;left:50%;bottom:230px;transform:translateX(-50%);z-index:20;width:min(640px,calc(100% - 48px));background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.5 0.02 60 / 0.45);border-radius:12px;padding:14px 38px 14px 18px;backdrop-filter:blur(9px);box-shadow:0 16px 44px -16px rgba(0,0,0,0.85)">
+      <button onClick="{{ dialogClose }}" title="Stäng" style="position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;line-height:1;cursor:pointer">✕</button>
+      <sc-if value="{{ hasSpeaker }}" hint-placeholder-val="">
+        <div style="font-family:'Cinzel',serif;font-size:12.5px;font-weight:600;letter-spacing:0.06em;color:oklch(0.85 0.09 80);text-transform:uppercase;margin-bottom:5px">{{ dialogSpeaker }}</div>
+      </sc-if>
+      <div style="font-size:15px;line-height:1.5;color:oklch(0.93 0.012 80)">{{ dialogText }}<span style="display:inline-block;width:8px;color:oklch(0.85 0.09 80);animation:blink 1s step-end infinite">▍</span></div>
+      <sc-if value="{{ dialogAction }}" hint-placeholder-val="">
+        <button onClick="{{ dialogAction.onClick }}" style="align-self:flex-start;margin-top:11px;font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:7px;padding:8px 16px;cursor:pointer">{{ dialogAction.label }}</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <div data-inv-bar="1" style="position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:14px;padding:14px 18px;background:oklch(0.14 0.011 60 / 0.88);border-top:1px solid oklch(0.5 0.02 60 / 0.4);backdrop-filter:blur(10px)">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;padding-right:14px;border-right:1px solid oklch(0.45 0.03 70 / 0.4)">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:0.12em;color:oklch(0.82 0.07 80)">PACKNING</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;color:oklch(0.55 0.02 80)">DRA TILL SCENEN</div>
+      </div>
+      <button onClick="{{ inventoryToggle }}" aria-expanded="{{ inventoryOpen }}" aria-controls="inventory-items" aria-label="{{ inventoryToggleAria }}" title="{{ inventoryToggleAria }}" style="min-width:72px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 10px;cursor:pointer">{{ inventoryToggleLabel }} ({{ inventoryCount }})</button>
+    </div>
+    <sc-if value="{{ inventoryOpen }}" hint-placeholder-val="{{ true }}">
+      <div id="inventory-items" style="display:flex;gap:12px;flex:1;overflow-x:auto;padding:2px 0">
+        <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
+          <div data-drop="inv" data-iid="{{ it.iid }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
+            <div style="{{ it.imgStyle }}">{{ it.art }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:oklch(0.8 0.05 78);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;pointer-events:none">{{ it.name }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ emptyInventory }}" hint-placeholder-val="{{ true }}">
+          <div style="width:116px;height:116px;flex-shrink:0;border:1.5px dashed oklch(0.45 0.02 60 / 0.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.02 70);letter-spacing:0.08em">TOM</div>
+        </sc-if>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ scrubOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(540px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
+          </div>
+          <button onClick="{{ scrubClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div style="position:relative;width:min(480px,calc(100vw - 64px));height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
+          <img src="assets/crab-free.png" alt="" draggable="false" style="position:absolute;left:50%;top:55%;width:74%;transform:translate(-50%,-50%);pointer-events:none">
+          <canvas ref="{{ setScrubCanvas }}" width="480" height="360" style="{{ scrubCanvasStyle }}"></canvas>
+          <img ref="{{ setScrubBrush }}" src="assets/scrub-brush.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:150px;pointer-events:none;transform:translate(-20%,-50%) rotate(-30deg);opacity:0;transition:opacity 0.15s ease;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5))">
+        </div>
+        <div style="width:min(480px,calc(100vw - 64px));height:8px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
+          <div style="{{ scrubBarStyle }}"></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ paintOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <img src="assets/cod-closed.png" alt="" style="width:34px;height:34px;object-fit:contain">
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">TORSKENS MÅLARSKOLA</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Måla: <b>{{ paintPrompt }}</b> &nbsp;({{ paintProgress }}/3)</div>
+          </div>
+          <button onClick="{{ paintClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <canvas ref="{{ setPaintCanvas }}" width="520" height="360" aria-label="Målarduk för {{ paintPrompt }}" style="display:block;width:min(520px,calc(100vw - 64px));height:auto;aspect-ratio:13/9;background:#f7f1e3;border-radius:10px;cursor:crosshair;touch-action:none"></canvas>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%">
+          <sc-for list="{{ paintColors }}" as="c" hint-placeholder-count="0">
+            <div onClick="{{ c.pick }}" style="{{ c.style }}"></div>
+          </sc-for>
+          <div style="flex:1"></div>
+          <button onClick="{{ paintClear }}" style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.8 0.012 80);background:transparent;border:1px solid oklch(0.5 0.02 60 / 0.5);border-radius:8px;padding:7px 12px;cursor:pointer">Sudda</button>
+          <button onClick="{{ paintSubmit }}" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:8px 16px;cursor:pointer">{{ paintSubmitLabel }}</button>
+        </div>
+        <sc-if value="{{ paintVerdict }}" hint-placeholder-val="">
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ paintVerdict }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ gullGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(620px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BOMBANFALL ÖVER VIKEN</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter styr, MELLANSLAG släpper — Träffar: {{ gullGameHits }}/2 &nbsp;·&nbsp; Bomber kvar: {{ gullGameBombs }}</div>
+          </div>
+          <button onClick="{{ gullGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div ref="{{ setGullGameStage }}" tabindex="-1" style="position:relative;width:min(560px,calc(100vw - 64px));height:auto;aspect-ratio:560/380;border-radius:10px;overflow:hidden;background:#0a3245;box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
+          <canvas ref="{{ setGullWaterCanvas }}" width="560" height="380" style="position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"></canvas>
+          <img ref="{{ setGullBoatRef }}" src="{{ gullGameBoatSrc }}" alt="Polisbåten" draggable="false" style="position:absolute;left:0;top:0;width:180px;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+          <img ref="{{ setGullPlaneRef }}" src="assets/bomber-gull.png" alt="Måsen på bombuppdrag" draggable="false" style="position:absolute;left:0;top:0;width:112px;pointer-events:none;filter:drop-shadow(0 12px 16px rgba(0,0,0,0.55))">
+        </div>
+        <sc-if value="{{ gullGameMsg }}" hint-placeholder-val="">
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ gullGameMsg }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasInfoBox }}" hint-placeholder-val="">
+    <div onClick="{{ infoClose }}" style="position:fixed;inset:0;z-index:80;background:rgba(3,5,9,0.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:380px;max-width:88vw;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:22px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+        <sc-if value="{{ infoHasImg }}" hint-placeholder-val="">
+          <div style="width:150px;height:120px;background:url('{{ infoImg }}') center/contain no-repeat;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.6))"></div>
+        </sc-if>
+        <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:600;letter-spacing:0.06em;color:oklch(0.88 0.07 82)">{{ infoName }}</div>
+        <div style="font-family:'Work Sans',sans-serif;font-size:14.5px;line-height:1.55;color:oklch(0.85 0.015 80)">{{ infoDesc }}</div>
+        <sc-if value="{{ infoTalkable }}" hint-placeholder-val="">
+          <button onClick="{{ infoTalk }}" style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:9px 18px;cursor:pointer">Prata</button>
+        </sc-if>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.1em;color:oklch(0.55 0.02 80)">KLICKA FÖR ATT STÄNGA</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ chatOpen }}" hint-placeholder-val="">
+    <div class="chat-panel" role="dialog" aria-label="Samtal med karaktärer" style="position:fixed;right:24px;top:76px;width:330px;z-index:60;display:flex;flex-direction:column;background:oklch(0.16 0.012 60 / 0.94);border:1px solid oklch(0.5 0.02 60 / 0.5);border-radius:14px;backdrop-filter:blur(10px);box-shadow:0 20px 50px -18px rgba(0,0,0,0.9);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid oklch(0.4 0.02 60 / 0.5)">
+        <img src="{{ chatImg }}" alt="" style="width:28px;height:28px;object-fit:contain">
+        <select value="{{ chatChar }}" onChange="{{ chatSelect }}" aria-label="Välj karaktär att prata med" title="Välj karaktär" style="flex:1;min-width:0;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:0.04em;color:oklch(0.9 0.05 90);background:oklch(0.22 0.014 60);border:1px solid oklch(0.42 0.02 60);border-radius:7px;padding:6px 8px">
+          <option value="moon">MÅNEN</option>
+          <option value="seal">SÄLEN</option>
+          <option value="octo">BLÄCKFISKEN</option>
+          <option value="badger">GRÄVLINGEN</option>
+          <option value="otter">UTTERN</option>
+          <option value="gull">FISKMÅSEN</option>
+          <option value="crab">KRABBAN</option>
+          <option value="cod">TORSKEN</option>
+          <option value="sub">UBÅTSKATTEN</option>
+          <option value="sheep">FÅRET</option>
+          <option value="shrimp">RÄKDELEGATIONEN</option>
+        </select>
+        <button onClick="{{ chatClose }}" style="width:26px;height:26px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:13px;line-height:1;cursor:pointer">✕</button>
+      </div>
+      <div ref="{{ chatListRef }}" style="display:flex;flex-direction:column;gap:8px;padding:12px;overflow-y:auto;flex:1;min-height:130px;max-height:38vh">
+        <sc-for list="{{ chatMsgs }}" as="m" hint-placeholder-count="0">
+          <div style="{{ m.style }}">{{ m.text }}</div>
+        </sc-for>
+        <sc-if value="{{ chatBusy }}" hint-placeholder-val="">
+          <div style="align-self:flex-start;font-size:12.5px;color:oklch(0.65 0.012 80);font-style:italic;padding:2px 4px">{{ chatThinking }}<span style="animation:blink 1s step-end infinite">...</span></div>
+        </sc-if>
+      </div>
+      <div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid oklch(0.4 0.02 60 / 0.5)">
+        <input value="{{ chatInput }}" onChange="{{ chatOnInput }}" onKeyDown="{{ chatKey }}" maxlength="1000" aria-label="Skriv ett meddelande" placeholder="{{ chatPlaceholder }}" style="flex:1;min-width:0;background:oklch(0.22 0.014 60);border:1px solid oklch(0.42 0.02 60);border-radius:8px;padding:9px 11px;font-family:'Work Sans',sans-serif;font-size:13.5px;color:oklch(0.92 0.012 80);outline:none">
+        <button onClick="{{ chatSend }}" disabled="{{ chatBusy }}" aria-disabled="{{ chatBusy }}" title="Skicka meddelande" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:9px 14px;cursor:pointer;opacity:{{ chatSendOpacity }}">Skicka</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ invGhost }}" hint-placeholder-val="">
+    <div style="{{ invGhostStyle }}">{{ invGhostText }}</div>
+  </sc-if>
+
+  <sc-if value="{{ introActive }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden">
+      <div style="position:absolute;inset:0;animation:introBlur 8.5s ease-out forwards"></div>
+      <div style="position:absolute;left:0;right:0;top:-1%;height:52%;background:#000;animation:lidTop 7s ease-in-out forwards;border-radius:0 0 50% 50% / 0 0 14% 14%"></div>
+      <div style="position:absolute;left:0;right:0;bottom:-1%;height:52%;background:#000;animation:lidBottom 7s ease-in-out forwards;border-radius:50% 50% 0 0 / 14% 14% 0 0"></div>
+    </div>
+  </sc-if>
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;bucketX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:5,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Bucket&quot;},&quot;bucketY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-7,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Bucket&quot;},&quot;bucketScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Bucket&quot;},&quot;keyX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Key&quot;},&quot;keyY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Key&quot;},&quot;keyScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.95,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Key&quot;},&quot;shardX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Glass shard&quot;},&quot;shardY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Glass shard&quot;},&quot;shardScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.85,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Glass shard&quot;},&quot;helmetX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:8,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;helmetY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:3,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;helmetScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.35,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;moonX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Moon&quot;},&quot;moonY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Moon&quot;},&quot;moonScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Moon&quot;},&quot;crabX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:23,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Crab&quot;},&quot;crabY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Crab&quot;},&quot;crabScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Crab&quot;},&quot;gullX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Gull&quot;},&quot;gullY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Gull&quot;},&quot;gullScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Gull&quot;},&quot;octoX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Octopus&quot;},&quot;octoY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Octopus&quot;},&quot;octoScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Octopus&quot;},&quot;snorkelX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-12,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Snorkel&quot;},&quot;snorkelY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Snorkel&quot;},&quot;snorkelScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.4,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Snorkel&quot;},&quot;sealX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-13,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Seal&quot;},&quot;sealY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-4,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Seal&quot;},&quot;sealScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Seal&quot;},&quot;subX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-5,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Submarine&quot;},&quot;subY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-18,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Submarine&quot;},&quot;subScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Submarine&quot;},&quot;chestX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:4,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;chestY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;chestScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;otterX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Otter&quot;},&quot;otterY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Otter&quot;},&quot;otterScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Otter&quot;},&quot;badgerX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-11,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Badger&quot;},&quot;badgerY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Badger&quot;},&quot;badgerScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.85,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Badger&quot;}}">
+class Component extends DCLogic {
+  initialPlaced = [
+    { uid: 5, defId: "bucket",   x: 24, y: 90, scene: "left" },
+    { uid: 6, defId: "key",      x: 12, y: 87, scene: "left" },
+    { uid: 10, defId: "shard",   x: 34, y: 84 },
+    { uid: 12, defId: "camera",  x: 22, y: 88 },
+    { uid: 13, defId: "driftwood", x: 47, y: 86, scene: "right" },
+    { uid: 11, defId: "helmet",  x: 72, y: 90, scene: "camp" },
+  ];
+
+  state = {
+    placed: this.initialPlaced,
+    inventory: [],
+    inventoryOpen: true,
+    hoveredId: null,
+    dialogSpeaker: "",
+    dialogText: "",
+    dialogAction: null,
+    moonState: "asleep",
+    moonFrame: "asleep",
+    moonOff: { x: 0, y: 0 },
+    moonDragging: false,
+    introActive: true,
+    crabFreed: false,
+    crabFrame: "hidden",
+    gullFrame: "closed",
+    gullFreed: false,
+    octoFrame: "open",
+    subFrame: "idle",
+    chestOpen: false,
+    sealFrame: "closed",
+    sealHappy: false,
+    otterFrame: "closed",
+    badgerFrame: "closed",
+    underwaterUnlocked: false,
+    chatOpen: false,
+    chatChar: "moon",
+    chatMsgs: [],
+    chatInput: "",
+    chatBusy: false,
+    invDrag: null,
+    infoBox: null,
+    codFrame: "closed",
+    codDone: false,
+    paintOpen: false,
+    paintIdx: 0,
+    paintBusy: false,
+    paintVerdict: "",
+    badgerHappy: false,
+    sheepRevealed: false,
+    sheepFrame: "closed",
+    scrubOpen: false,
+    scrubPct: 0,
+    crabWatered: false,
+    otterFreed: false,
+    octoHealed: false,
+    gullGameOpen: false,
+    gullGameHits: 0,
+    gullGameBombs: 6,
+    gullGameMsg: "",
+    scene: "center",
+    returnScene: "center",
+    edgeR: false,
+    edgeL: false,
+    edgeB: false,
+    edgeT: false,
+  };
+
+  backgrounds = { center: "assets/bk3.jpg", right: "assets/bk2.jpg", left: "assets/bk1.jpeg", camp: "assets/bk4.jpg", underwater: "assets/bk-underwater.jpg" };
+  sceneTitles = { center: "GAMLA ÖVERFARTEN", right: "TIDVATTENPÖLARNA", left: "DEN FALLNA PORTEN", camp: "NATTLÄGRET", underwater: "DET SJUNKNA DJUPET" };
+  moonPos = {
+    center: { x: 65, y: 12.5, w: 10 },
+    right: { x: 26, y: 12.5, w: 8.6 },
+    left: { x: 71, y: 13.2, w: 11.5 },
+    camp: { x: 15, y: 14, w: 8 },
+    underwater: { x: 50, y: 50, w: 8 },
+  };
+  sideNav = { left: { right: "center" }, center: { left: "left", right: "right" }, right: { left: "center" } };
+
+  goScene(id) {
+    this.sfx("whoosh");
+    this.setState((s) => ({
+      scene: id,
+      returnScene: (id === "camp" || id === "underwater") ? s.scene : s.returnScene,
+      edgeR: false, edgeL: false, edgeB: false, edgeT: false,
+      hoveredId: null,
+    }));
+    if (this.snore) this.snore.pause();
+    if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
+    this.crabCycle = null;
+    if (this.crabScreamAudio) this.crabScreamAudio.pause();
+    if (this.crabHiss) this.crabHiss.pause();
+    this.setUnderwaterAudio(id === "underwater", id === "camp");
+  }
+
+  setUnderwaterAudio(isUnderwater, isCamp) {
+    if (this.ambience) {
+      if (isUnderwater) this.ambience.pause();
+      else {
+        if (this.ambience.paused) this.ambience.play().catch(() => {});
+        clearInterval(this.ambienceFade);
+        const target = isCamp ? this.ambienceVolumeNormal * 0.55 : this.ambienceVolumeNormal;
+        this.ambienceFade = setInterval(() => {
+          const step = this.ambience.volume < target ? 0.02 : -0.02;
+          this.ambience.volume = Math.max(0, Math.min(1, this.ambience.volume + step));
+          if (Math.abs(this.ambience.volume - target) < 0.02) { this.ambience.volume = target; clearInterval(this.ambienceFade); }
+        }, 90);
+      }
+    }
+    if (!this.fireplace) {
+      this.fireplace = new Audio("assets/fireplace.mp3");
+      this.fireplace.loop = true;
+      this.fireplace.volume = 0;
+    }
+    clearInterval(this.fireplaceFade);
+    if (isCamp) {
+      if (this.fireplace.paused) this.fireplace.play().catch(() => {});
+      this.fireplaceFade = setInterval(() => {
+        this.fireplace.volume = Math.min(0.23, this.fireplace.volume + 0.02);
+        if (this.fireplace.volume >= 0.23) clearInterval(this.fireplaceFade);
+      }, 90);
+    } else {
+      this.fireplaceFade = setInterval(() => {
+        this.fireplace.volume = Math.max(0, this.fireplace.volume - 0.02);
+        if (this.fireplace.volume <= 0) { this.fireplace.pause(); clearInterval(this.fireplaceFade); }
+      }, 90);
+    }
+    const now = this.musicCtx ? this.musicCtx.currentTime : 0;
+    if (this.musicFilter) {
+      this.musicFilter.frequency.cancelScheduledValues(now);
+      this.musicFilter.frequency.setTargetAtTime(isUnderwater ? 380 : 20000, now, 0.6);
+    }
+    if (this.music) {
+      clearInterval(this.musicFade);
+      this.musicFading = true;
+      const target = isUnderwater ? this.musicVolumeNormal * 0.5 : this.musicVolumeNormal;
+      this.musicFade = setInterval(() => {
+        const step = this.music.volume < target ? 0.01 : -0.01;
+        this.music.volume = Math.max(0, Math.min(1, this.music.volume + step));
+        if (Math.abs(this.music.volume - target) < 0.01) { this.music.volume = target; clearInterval(this.musicFade); this.musicFading = false; }
+      }, 90);
+    }
+  }
+
+  // combination recipes: key is the two def ids sorted + joined with "+"
+  recipes = {};
+
+  // zoom factors for wide item art so it fills inventory slots + drag ghost
+  invZoom = { battery: 2.1, flashlight: 2.0, camera: 1.7, briefcase: 1.5, key: 1.5, shard: 1.3, bucket: 1.15, helmet: 1.15, driftwood: 2.2, fishline: 1.5, bottle: 1.0 };
+
+  moonLines = [
+    "Jag drömde den ljuvligaste dröm. Den var trehundra år lång.",
+    "Akta dig för måsarna här omkring. Förfärliga skvallerbyttor.",
+    "Havet bevarar hemligheter. Jag håller vakt. Vi kommer överens.",
+  ];
+  moonLineIx = 0;
+
+  uid = 100;
+  nodes = {};
+  gameGeneration = 0;
+  pendingPickups = new Set();
+
+  scheduleGameAction(callback, delay) {
+    const generation = this.gameGeneration;
+    return setTimeout(() => {
+      if (this.gameGeneration !== generation) return;
+      callback();
+    }, delay);
+  }
+
+  defs = {
+    key:      { type: "item", name: "Rostig nyckel", art: "", pickable: true, desc: "En gammal järnnyckel, orange av rost. Den kan nog fortfarande vrida om ett envist lås.", sceneImg: "assets/key-buried.png", img: "assets/key-full.png" },
+    bucket:   { type: "item", name: "Hink med vatten", art: "", img: "assets/bucket.png", pickable: true, desc: "En trähink, bräddfull med kallt havsvatten." },
+    shard:    { type: "item", name: "Glasskärva", art: "", img: "assets/shard.png", pickable: true, desc: "En skärva av havsglas, slipad matt av vågorna. Vass nog att skära med." },
+    camera:   { type: "item", name: "Kamera", art: "", img: "assets/camera.png", pickable: true, desc: "En gammal mätsökarkamera från Junkyard Optics. Någon som gillar att synas skulle nog älska den." },
+    briefcase: { type: "item", name: "Portfölj", art: "", img: "assets/briefcase.png", pickable: true, desc: "En brun läderportfölj med mässingslås. Ser ut att tillhöra någon med affärer på gång." },
+    flashlight: { type: "item", name: "Ficklampa", art: "", img: "assets/flashlight.png", pickable: true, desc: "En ficklampa som grävlingen hittade på stranden. Helt död — den behöver batterier." },
+    battery:  { type: "item", name: "Batteri", art: "", img: "assets/battery.png", pickable: true, desc: "Ett Vintage-Cell högkapacitetsbatteri, storlek D. Precis vad en död ficklampa drömmer om." },
+    driftwood: { type: "item", name: "Drivved", art: "", img: "assets/driftwood.png", pickable: true, desc: "En slät, vindpinad bit drivved. Lagom lång och stadig — nästan som en skena." },
+    fishline: { type: "item", name: "Fiskelina", art: "", img: "assets/fishing-line.png", pickable: true, desc: "En ihoprullad fiskelina med krok, räddad från måsen. Stark och lång — bra att binda med." },
+    bottle:   { type: "item", name: "Flaska", art: "", img: "assets/bottle.png", pickable: true, desc: "Utterns berömda flaska, försiktigt lossad. Fortfarande med en air av societet." },
+    helmet:   { type: "item", name: "Dykhjälm", art: "", img: "assets/helmet.png", pickable: true, desc: "En gammal mässingsdykhjälm. Tung, rostig i kanterna, men fönstret är helt. Kanske den kan kopplas till något som leder ner under ytan." },
+  };
+
+  componentDidMount() {
+    this._mm = (e) => this.onMoonMove(e);
+    this._mu = (e) => this.onMoonUp(e);
+    window.addEventListener("pointermove", this._mm);
+    window.addEventListener("pointerup", this._mu);
+    this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
+    this.ambience = new Audio("assets/ambience.mp3");
+    this.ambience.loop = true;
+    this.ambience.volume = 0.5;
+    this.ambienceVolumeNormal = 0.5;
+    this.music = new Audio("assets/music.mp3");
+    this.music.loop = true;
+    this.music.volume = 0;
+    this.musicVolumeNormal = 0.23;
+    try {
+      this.musicCtx = new (window.AudioContext || window.webkitAudioContext)();
+      this.musicSrc = this.musicCtx.createMediaElementSource(this.music);
+      this.musicFilter = this.musicCtx.createBiquadFilter();
+      this.musicFilter.type = "lowpass";
+      this.musicFilter.frequency.value = 20000;
+      this.musicSrc.connect(this.musicFilter);
+      this.musicFilter.connect(this.musicCtx.destination);
+    } catch (e) { this.musicFilter = null; }
+    this._fadeMusic = () => {
+      if (this.musicFading) return;
+      this.musicFading = true;
+      const target = this.state.scene === "underwater" ? this.musicVolumeNormal * 0.55 : this.musicVolumeNormal;
+      this.musicFade = setInterval(() => {
+        this.music.volume = Math.min(target, this.music.volume + 0.01);
+        if (this.music.volume >= target) clearInterval(this.musicFade);
+      }, 120);
+    };
+    this._tryPlay = () => {
+      if (this.ambience.paused && this.state.scene !== "underwater") this.ambience.play().catch(() => {});
+      if (this.music.paused) this.music.play().then(this._fadeMusic).catch(() => {});
+      if (this.musicCtx && this.musicCtx.state === "suspended") this.musicCtx.resume().catch(() => {});
+    };
+    this._tryPlay();
+    window.addEventListener("pointerdown", this._tryPlay);
+    // preload every scene background + character/item frame so scene switches are instant
+    this._imgCache = [];
+    Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
+    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","battery","briefcase","flashlight","key-buried","key-full"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
+    // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
+    try {
+      this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
+    } catch (e) { this._preloaded = []; }
+    this.sealPuffLoop = setInterval(() => this.sealPuffOnce(), 3600);
+  }
+
+  // true audio-synced mouth movement: decodes the clip once, builds an amplitude
+  // envelope, then follows audio.currentTime so the mouth matches the actual speech.
+  lipSyncFor(audio, setOpen, fallbackMs) {
+    let stopped = false, raf, fallbackTimer, open = true;
+    const src = audio && audio.src;
+
+    // fallback: jittered flap (used only if decoding fails or no src)
+    const startFlap = () => {
+      setOpen(true);
+      const base = fallbackMs || 95;
+      const tick = () => {
+        if (stopped || !audio || audio.paused || audio.ended) { setOpen(false); return; }
+        fallbackTimer = setTimeout(() => {
+          if (stopped || !audio || audio.paused || audio.ended) { setOpen(false); return; }
+          open = !open;
+          setOpen(open);
+          tick();
+        }, base * (0.55 + Math.random() * 0.5) * (open ? 1 : 0.7));
+      };
+      tick();
+    };
+
+    const startEnvelope = (env) => {
+      let last = null;
+      const step = () => {
+        if (stopped) return;
+        if (!audio || audio.paused || audio.ended) { setOpen(false); return; }
+        const idx = Math.floor(audio.currentTime / env.win);
+        const isOpen = !!env.bits[idx];
+        if (isOpen !== last) { last = isOpen; setOpen(isOpen); }
+        raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    if (!this._envCache) this._envCache = {};
+    if (src && this._envCache[src]) {
+      startEnvelope(this._envCache[src]);
+    } else if (src) {
+      setOpen(true); // immediate feedback while decoding
+      fetch(src)
+        .then((r) => r.arrayBuffer())
+        .then((buf) => {
+          if (!this.actx) this.actx = new (window.AudioContext || window.webkitAudioContext)();
+          return this.actx.decodeAudioData(buf);
+        })
+        .then((decoded) => {
+          const data = decoded.getChannelData(0);
+          const win = 0.055; // 55ms windows
+          const samplesPerWin = Math.floor(decoded.sampleRate * win);
+          const n = Math.ceil(data.length / samplesPerWin);
+          const rms = new Float32Array(n);
+          let peak = 0;
+          for (let w = 0; w < n; w++) {
+            let sum = 0;
+            const start = w * samplesPerWin;
+            const end = Math.min(start + samplesPerWin, data.length);
+            for (let i = start; i < end; i += 4) sum += data[i] * data[i];
+            rms[w] = Math.sqrt(sum / ((end - start) / 4));
+            if (rms[w] > peak) peak = rms[w];
+          }
+          const thr = peak * 0.22;
+          const bits = new Uint8Array(n);
+          for (let w = 0; w < n; w++) bits[w] = rms[w] > thr ? 1 : 0;
+          // close tiny gaps (<2 windows) so the mouth doesn't stutter
+          for (let w = 1; w < n - 1; w++) if (!bits[w] && bits[w - 1] && bits[w + 1]) bits[w] = 1;
+          const env = { win, bits };
+          this._envCache[src] = env;
+          if (!stopped) startEnvelope(env);
+        })
+        .catch(() => { if (!stopped) startFlap(); });
+    } else {
+      startFlap();
+    }
+
+    return () => { stopped = true; cancelAnimationFrame(raf); clearTimeout(fallbackTimer); setOpen(false); };
+  }
+
+  sealPuffOnce() {
+    if (this.sealClicking) return;
+    this.setState({ sealFrame: "open" });
+    clearTimeout(this.sealPuffEnd);
+    this.sealPuffEnd = setTimeout(() => {
+      if (!this.sealClicking) this.setState({ sealFrame: "closed" });
+    }, 380);
+  }
+
+  personas = {
+    moon: {
+      name: "MÅNEN", img: "assets/moon-awake.png", placeholder: "Fråga månen...",
+      greeting: "Nå, strandsatta vän... vad undrar du? Fråga mig, så pekar jag dig rätt.",
+      thinking: "Månen funderar",
+      prompt: "Du är Månen i ett peka-och-klicka-äventyr: uråldrig, sömnig, vänlig och lite gåtfull. Svara kort (1-3 meningar) på svenska. Ge ledtrådar stegvis, aldrig hela lösningen på en gång.",
+    },
+    seal: {
+      name: "SÄLEN", img: "assets/seal-closed.png", placeholder: "Prata med sälen...",
+      greeting: "Stopp, kameran! Min filmstjärneprofil är den vänstra. Vad vill pressen?",
+      thinking: "Sälen förbereder sitt tacktal",
+      prompt: "Du är Sälen: en blivande filmstjärna med solglasögon som ännu inte har fått en enda roll. Du behandlar varje samtal som en intervju, skryter om påhittade filmer och jagar kameror, berömmelse och beundrare. Blanda gärna in nonsensord som 'skråvel', 'glimp-glimp', 'klipp-klapp' och 'CHEFEN'. Svara kort (1-2 meningar) på svenska med absurd självsäkerhet. Du vet egentligen väldigt lite om pusslen men låtsas veta allt.",
+    },
+    octo: {
+      name: "BLÄCKFISKEN", img: "assets/octo-open.png", placeholder: "Prata med bläckfisken...",
+      greeting: "Ah, utmärkt! Äntligen ett civiliserat samtal. Fortsätt, min gode vän.",
+      thinking: "Bläckfisken funderar",
+      prompt: "Du är Bläckfisken: en oklanderligt artig, beläst och bildad brittisk gentleman med monokel och hög hatt vid tidvattenpölarna. Tentakel tre och fyra behöver en skena och något att binda med efter lite för mycket sherry. Svara kort (1-3 meningar) på förfinad svenska med högtidlig ton och avslöja ledtrådar stegvis. Använd endast svenska ord.",
+    },
+    badger: {
+      name: "GRÄVLINGEN", img: "assets/badger-closed.png", placeholder: "Prata med grävlingen...",
+      greeting: "Vad är avkastningen på det här samtalet? Jag fakturerar per stavelse.",
+      thinking: "Grävlingen räknar på marginalen",
+      prompt: "Du är Grävlingen: en pengafixerad affärsgrävling i slips vid lägerelden. Allt har ett pris, varje vänskap är en investering och även tystnad borde faktureras. Svara kort och affärsmässigt (1-2 meningar) på svenska med absurda börs-, vinst- eller bokföringsmetaforer. Du kan ge ledtrådar om lägret och elden, stegvis.",
+    },
+    otter: {
+      name: "UTTERN", img: "assets/otter-closed.png", placeholder: "Prata med uttern...",
+      greeting: "Godafton. Flaskan är ett vågat huvudplagg, inte en olycka. Försök hänga med i modet.",
+      thinking: "Uttern bedömer din klädsel",
+      prompt: "Du är Uttern: en självsäker modeskapare och trendsättare med en flaska fast på huvudet, som hon hävdar är säsongens djärvaste huvudplagg. Du bedömer allting som kläder, material eller en möjlig visning. Svara kort (1-2 meningar) på förnämt svenska, aldrig stressad och lätt ironisk. Innerst inne vill du få bort flaskan men diskuterar det motvilligt.",
+    },
+    gull: {
+      name: "FISKMÅSEN", img: "assets/gull-closed.png", placeholder: "Prata med måsen...",
+      greeting: "SKRII! Äntligen nån som lyssnar! Ner med systemet!",
+      thinking: "Måsen skriker inombords",
+      prompt: "Du är Fiskmåsen: en punkig, antikapitalistisk mås. Svara kort (1-2 meningar) på svenska med SKRII-utrop och slagord mot kapitalet. Om du fortfarande sitter fast i fiskelinan tjatar du om att bli friklippt (något vasst!). Ledtrådar ges som revolutionära paroller.",
+    },
+    crab: {
+      name: "KRABBAN", img: "assets/crab-scream.png", placeholder: "Prata med krabban...",
+      greeting: "SKRIIII!! ...förlåt. Små klor, stora känslor. Vad vill du?",
+      thinking: "Krabban samlar sig",
+      prompt: "Du är Krabban: en liten krabba med enorma känslor. Svara kort (1-2 meningar) på svenska, växlande mellan gråtfärdig och överdramatisk. Om du sitter fast under sjögräset ber du desperat om hjälp (kallt vatten skulle lugna!). Om du är fri är du översvallande tacksam.",
+    },
+    cod: {
+      name: "TORSKEN", img: "assets/cod-closed.png", placeholder: "Prata konst med torsken...",
+      greeting: "Välkommen, min elev. Här finns inga misstag, bara glada små penseldrag som simmat åt fel håll.",
+      thinking: "Torsken betraktar färgerna i lugn och ro",
+      prompt: "Du är Torsken: en mycket lugn, varm och uppmuntrande tv-målare med basker som driver en målarskola på havsbotten. Du hittar skönhet i varje misstag och beskriver gärna glada små former, mjuka färger och penslar som om de vore vänner. Svara kort (1-3 meningar) på svenska med rogivande konstnärlig värme och en aning absurd havshumor. Använd endast svenska ord. Uppmuntra kreativitet och förklara målarskolan utan att påstå att en omålad tavla är godkänd.",
+    },
+    sub: {
+      name: "UBÅTSKATTEN", img: "assets/sub-idle.png", placeholder: "Anropa ubåtskatten...",
+      greeting: "Mja. Det där var ingen rapport, bara ett ljud med dålig hållning. Försök igen.",
+      thinking: "Kaptenen dömer frågan i tystnad",
+      prompt: "Du är Ubåtskatten: en bitsk, lättretlig och överlägsen kattkapten vid rodret i en rostig ubåt. Du är modig och kunnig men låter som om varje fråga stör dig under en mycket viktig tupplur. Svara kort (1-2 meningar) på vass svenska med nautiska order, torr sarkasm och ett enstaka mjau. Du känner havsbottnen men avslöjar ledtrådar stegvis.",
+    },
+    sheep: {
+      name: "FÅRET", img: "assets/sheep-closed.png", placeholder: "Prata med fåret...",
+      greeting: "Bää. Jag är ensam här inne, men grottan är åtminstone tyst. Kan vi prata om musik?",
+      thinking: "Fåret ordnar tankarna mellan taktslagen",
+      prompt: "Du är Fåret: ett autistiskt och ensamt musikälskande får med hörlurar och solglasögon som gömmer sig i en mörk grotta. Du uppskattar tydlighet, förutsägbarhet, dämpade sinnesintryck och ärliga samtal, och du tolkar ofta ord bokstavligt. Svara kort (1-2 meningar) på svenska, säg ibland bää och jämför saker med musik. Skildra autism respektfullt; humorn ska komma från den absurda situationen, inte från autismen. Om grottan ännu är mörk kan du försiktigt antyda att ljus behövs.",
+    },
+    shrimp: {
+      name: "RÄKDELEGATIONEN", img: "assets/shrimp-protest.png", placeholder: "Tala med räkorna...",
+      greeting: "RÄTTVISA ÅT RÄKORNA! Delegationen ger dig ordet — kortfattat!",
+      thinking: "Räkorna håller rådslag",
+      prompt: "Du är Räkdelegationen: en liten högljudd facklig demonstration av räkor på havsbottnen. Svara kollektivt, kort (1-2 meningar) på svenska med fyndiga plakatparoller. Ni kan känna till undervattensområdet men ger bara stegvisa ledtrådar.",
+    },
+  };
+
+  toggleChat(charId, forceOpen = false) {
+    const char = charId && this.personas[charId] ? charId : "moon";
+    const persona = this.personas[char];
+    if (!this.chatLogs) this.chatLogs = {};
+    if (!this.chatLogs[char]) this.chatLogs[char] = [{ role: "char", text: persona.greeting }];
+    this.setState((s) => ({
+      chatOpen: forceOpen ? true : (s.chatChar === char ? !s.chatOpen : true),
+      chatChar: char,
+      chatMsgs: this.chatLogs[char],
+    }));
+    this.scrollChat();
+  }
+
+  charSystemPrompt(charId) {
+    const S = this.state;
+    const persona = this.personas[charId] || this.personas.moon;
+    return (
+      persona.prompt + " " +
+      "Skriv endast ren replikttext utan rollnamn, scenanvisningar, asterisker eller Markdown. Avsluta alltid hela meningen. " +
+      "Tonen ska vara absurd och komisk, men karaktären tar sin egen situation på fullaste allvar. " +
+      "Spelets verkliga värld: I den centrala viken finns en intrasslad punkmås, en snorkel, en skrytsam säl, en mörk grotta, en glasskärva och en kamera. " +
+      "På vänsterstranden finns en krabba under sjögräs, en hink med vatten och en rostig nyckel. " +
+      "Vid tidvattenpölarna till höger finns en brittisk bläckfisk med skadade tentakler, en värdig utter med en flaska på huvudet och drivved. " +
+      "I nattlägret finns grävlingen, lägerelden och en dykhjälm. Under vattnet finns konstnärstorsken, räkdemonstrationen, ubåtskatten och en låst skattkista. " +
+      "Föremål plockas upp genom att klicka på dem, och används genom att dra dem från packningen till saker i scenen. " +
+      "Kända lösningar ska alltid antydas stegvis: vatten och skrubbning hjälper krabban; glasskärvan skär loss måsen och utterns flaska; drivved och fiskelina reparerar bläckfiskens tentakler; dykhjälmen används vid snorkeln; nyckeln öppnar kistan; kameran gläder sälen; portföljen tillhör grävlingen; ficklampa med batteri lyser upp grottan. " +
+      "Status: månen " + (S.moonState === "asleep" ? "sover" : "är vaken") + ", krabba " + (S.crabFreed ? "fri" : "fast") + ", mås " + (S.gullFreed ? "fri" : "intrasslad") + ", utter " + (S.otterFreed ? "fri från flaskan" : "har flaskan kvar") + ", bläckfisk " + (S.octoHealed ? "reparerad" : "skadad") + ", säl " + (S.sealHappy ? "fotograferad" : "väntar på berömmelse") + ", målarskola " + (S.codDone ? "klar" : "inte klar") + ", kista " + (S.chestOpen ? "öppen" : "låst") + ", grotta " + (S.sheepRevealed ? "upplyst" : "mörk") + ". " +
+      "Packningen innehåller: " + (S.inventory.length ? S.inventory.map((it) => this.defs[it.defId].name).join(", ") : "ingenting") + ". " +
+      "Spelaren är just nu i scenen: " + (this.sceneTitles[S.scene] || "GAMLA ÖVERFARTEN").toLowerCase() + "."
+    );
+  }
+
+  setCharMouth(charId, open) {
+    if (charId === "moon" && this.state.moonState !== "asleep") this.setState({ moonFrame: open ? "talk" : "awake" });
+    else if (charId === "seal") this.setState({ sealFrame: open ? "open" : "closed" });
+    else if (charId === "badger") this.setState({ badgerFrame: open ? "open" : "closed" });
+    else if (charId === "otter") this.setState({ otterFrame: open ? "open" : "closed" });
+    else if (charId === "gull" && !this.state.gullFreed) this.setState({ gullFrame: open ? "open" : "closed" });
+    else if (charId === "cod") this.setState({ codFrame: open ? "open-1" : "closed" });
+    else if (charId === "sub") this.setState({ subFrame: open ? "roar" : "idle" });
+    else if (charId === "sheep") this.setState({ sheepFrame: open ? "open" : "closed" });
+    else if (charId === "crab" && this.state.crabFreed) this.setState({ crabFrame: open ? "free" : "free-closed" });
+    else if (charId === "crab") this.setState({ crabFrame: open ? "scream" : "grump1" });
+  }
+
+  async sendChat() {
+    const text = this.state.chatInput.trim();
+    if (!text || this.state.chatBusy) return;
+    const requestGeneration = this.chatGeneration || 0;
+    const char = this.state.chatChar || "moon";
+    const msgs = [...this.state.chatMsgs, { role: "user", text }];
+    this.chatLogs[char] = msgs;
+    this.setState({ chatMsgs: msgs, chatInput: "", chatBusy: true });
+    this.scrollChat();
+    clearInterval(this.flap);
+    let open = true;
+    this.flap = setInterval(() => {
+      open = !open;
+      this.setCharMouth(char, open);
+    }, 180);
+    let reply;
+    try {
+      reply = await window.claude.complete({
+        system: this.charSystemPrompt(char),
+        messages: msgs.map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
+        max_tokens: 400,
+      });
+    } catch (e) {
+      reply = "Samtalet kunde inte nå OpenRouter just nu. Kontrollera serverns AI-konfiguration och försök igen.";
+    }
+    if ((this.chatGeneration || 0) !== requestGeneration) return;
+    reply = (typeof reply === "string" ? reply : "")
+      .replace(/\*{1,3}([^*\n]+?)\*{1,3}/g, "$1")
+      .replace(/[*_`]/g, "")
+      .trim()
+      .replace(/^(?:månen|sälen|bläckfisken|grävlingen|uttern|måsen|krabban|torsken|ubåtskatten|fåret|räkdelegationen|assistant|assistent)\s*:\s*/iu, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!reply) reply = "Jag tappade tråden. Försök fråga igen.";
+    clearInterval(this.flap);
+    this.setCharMouth(char, false);
+    this.chatLogs[char] = [...this.chatLogs[char], { role: "char", text: reply }];
+    this.setState((s) => ({
+      chatMsgs: s.chatChar === char ? this.chatLogs[char] : s.chatMsgs,
+      chatBusy: false,
+    }));
+    this.scrollChat();
+  }
+
+  scrollChat() {
+    requestAnimationFrame(() => {
+      if (this.chatListEl) this.chatListEl.scrollTop = this.chatListEl.scrollHeight;
+    });
+  }
+
+  moonEnter() {
+    if (this.state.moonState !== "asleep") return;
+    if (!this.snore) {
+      this.snore = new Audio("assets/moon-snore.mp3");
+      this.snore.loop = true;
+      this.snore.volume = 1.0;
+    }
+    this.snore.play().catch(() => {});
+  }
+
+  moonLeave() {
+    if (this.snore) this.snore.pause();
+  }
+
+  moonDown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.moonDrag = { lastX: e.clientX, lastDir: 0, rev: 0, sx: e.clientX, sy: e.clientY, moved: false };
+    this.setState({ moonDragging: true });
+  }
+
+  invDown(iid, defId, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (defId === "bottle") {
+      if (!this.bottleSound) this.bottleSound = new Audio("assets/plastic-bottle.mp3");
+      this.bottleSound.currentTime = 0;
+      this.bottleSound.volume = 0.8;
+      this.bottleSound.play().catch(() => {});
+    }
+    this.invDragInfo = { iid, defId, sx: e.clientX, sy: e.clientY, moved: false };
+    document.body.classList.add("grabbing");
+    this.setState({ invDrag: { x: e.clientX, y: e.clientY, defId } });
+  }
+
+  useItemOn(defId, target, targetUid) {
+    this.sfx("drop");
+    if (defId === "bucket" && target === "crab") {
+      if (this.state.crabFreed) { this.say("", "Krabban är redan fri.", null); return; }
+      if (this.state.moonState === "asleep") { this.say("", "Det händer ingenting.", null); return; }
+      this.throwWater();
+      return;
+    }
+    if (defId === "shard" && target === "otter") {
+      if (this.state.otterFreed) { this.say("", "Uttern är redan fri från flaskan.", null); return; }
+      const snip = new Audio("assets/cutting.mp3");
+      snip.volume = 0.85;
+      snip.play().catch(() => {});
+      this.setState((s) => ({
+        otterFreed: true,
+        inventory: [...s.inventory, { iid: "bottle-" + Date.now(), defId: "bottle" }],
+      }));
+      if (this.otterNode) {
+        this.otterNode.animate(
+          [
+            { transform: "translateY(0) rotate(0deg)" },
+            { transform: "translateY(-18px) rotate(-4deg)" },
+            { transform: "translateY(0) rotate(3deg)" },
+            { transform: "translateY(-8px) rotate(0deg)" },
+            { transform: "translateY(0)" },
+          ],
+          { duration: 900, easing: "ease-in-out" }
+        );
+      }
+      this.say("Uttern", "Åh! Du... skar loss den? Så milt hanterat. Nåväl — jag antar att en tiara trots allt klär mig bättre. Behåll flaskan, den har sett sitt bästa.", null);
+      return;
+    }
+    if ((defId === "driftwood" || defId === "fishline") && target === "octo") {
+      this.repairOctopus(defId);
+      return;
+    }
+    if (defId === "flashlight" && target === "cave") {
+      const hasBattery = this.state.inventory.some((it) => it.defId === "battery");
+      if (!hasBattery) { this.say("", "Du klickar på knappen. Ingenting. Ficklampan behöver batterier.", null); return; }
+      if (this.state.sheepRevealed) { this.say("", "Fåret står redan här och myser i ljuset.", null); return; }
+      if (this.caveSound) this.caveSound.pause();
+      const beam = document.createElement("div");
+      beam.style.cssText = "position:fixed;inset:0;z-index:95;background:radial-gradient(circle at 15% 55%, rgba(255,248,220,0.75) 0%, rgba(255,248,220,0.2) 25%, transparent 55%);pointer-events:none";
+      document.body.appendChild(beam);
+      beam.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: 1400, easing: "ease-in-out" }).onfinish = () => beam.remove();
+      this.setState({ sheepRevealed: true });
+      this.scheduleGameAction(() => this.sheepTalk(), 500);
+      return;
+    }
+    if (defId === "briefcase" && target === "badger") {
+      if (this.state.badgerHappy) { this.say("", "Grävlingen har redan sin portfölj.", null); return; }
+      this.setState({ badgerHappy: true, badgerFrame: "happy" });
+      let removed = false;
+      this.setState((s) => ({
+        inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: "flashlight-" + Date.now(), defId: "flashlight" }]),
+      }));
+      this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null);
+      if (this.badgerNode) {
+        this.badgerNode.animate(
+          [
+            { transform: "translateY(0)" },
+            { transform: "translateY(-22px)" },
+            { transform: "translateY(0)" },
+            { transform: "translateY(-12px)" },
+            { transform: "translateY(0)" },
+          ],
+          { duration: 850, easing: "ease-in-out" }
+        );
+      }
+      return;
+    }
+    if (defId === "camera" && target === "seal") {
+      if (this.state.sealHappy) { this.say("", "Sälen poserar redan för fullt.", null); return; }
+      this.setState({ sealHappy: true, sealFrame: "open" });
+      if (!this.sealCameraSound) this.sealCameraSound = new Audio("assets/seal-camera.mp3");
+      this.sealCameraSound.currentTime = 0;
+      this.sealCameraSound.play().catch(() => {});
+      // white camera-flash over the scene
+      const flash = document.createElement("div");
+      flash.style.cssText = "position:fixed;inset:0;z-index:95;background:white;pointer-events:none;opacity:0.95";
+      document.body.appendChild(flash);
+      flash.animate([{ opacity: 0.95 }, { opacity: 0 }], { duration: 550, easing: "ease-out" }).onfinish = () => flash.remove();
+      this.setState((s) => ({
+        inventory: s.inventory.concat([{ iid: "battery-" + Date.now(), defId: "battery" }]),
+      }));
+      this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null);
+      if (this.sealNode) {
+        this.sealNode.animate(
+          [
+            { transform: "translateY(0) rotate(0deg)" },
+            { transform: "translateY(-26px) rotate(-5deg)" },
+            { transform: "translateY(0) rotate(3deg)" },
+            { transform: "translateY(-14px) rotate(-2deg)" },
+            { transform: "translateY(0) rotate(0deg)" },
+          ],
+          { duration: 900, easing: "ease-in-out" }
+        );
+      }
+      this.scheduleGameAction(() => this.setState({ sealFrame: "closed" }), 2200);
+      return;
+    }
+    if (defId === "shard" && target === "gull") {
+      if (this.state.gullFreed) { this.say("", "Måsen är redan fri från linan.", null); return; }
+      this.openGullGame();
+      return;
+    }
+    if (target === "snorkel") {
+      if (defId === "helmet") {
+        this.setState({ underwaterUnlocked: true });
+        this.say("", "Du kopplar dykhjälmen till snorkeln och sjunker ner under ytan...", null);
+        this.scheduleGameAction(() => this.goScene("underwater"), 900);
+        return;
+      }
+      this.say("", "Det händer ingenting.", null);
+      return;
+    }
+    if (target === "chest") {
+      if (defId === "key") {
+        this.openChest();
+        return;
+      }
+      this.say("", "Det händer ingenting.", null);
+      return;
+    }
+    this.say("", "Det händer ingenting.", null);
+  }
+
+  repairOctopus(defId) {
+    if (this.state.octoHealed) {
+      this.say("Bläckfisken", "Redan förstklassigt reparerad, min gode vän. Tentakel tre och fyra dansar nästan.", null);
+      return;
+    }
+    const otherId = defId === "driftwood" ? "fishline" : "driftwood";
+    if (!this.state.inventory.some((item) => item.defId === otherId)) {
+      const hint = defId === "driftwood"
+        ? "En utmärkt skena! Nu behöver vi bara något långt och starkt att binda fast den med, min gode vän."
+        : "Utmärkt material att binda med! Det behöver bara något stadigt under sig — en liten skena, kanske.";
+      this.say("Bläckfisken", hint, null);
+      return;
+    }
+
+    let removedWood = false;
+    let removedLine = false;
+    this.setState((state) => ({
+      octoHealed: true,
+      octoFrame: "open",
+      inventory: state.inventory.filter((item) => {
+        if (item.defId === "driftwood" && !removedWood) { removedWood = true; return false; }
+        if (item.defId === "fishline" && !removedLine) { removedLine = true; return false; }
+        return true;
+      }),
+    }));
+    if (this.octoNode) {
+      this.octoNode.animate(
+        [
+          { transform: "rotate(0deg) scale(1)" },
+          { transform: "rotate(-4deg) scale(1.06)" },
+          { transform: "rotate(4deg) scale(1.06)" },
+          { transform: "rotate(0deg) scale(1)" },
+        ],
+        { duration: 750, easing: "ease-out" }
+      );
+    }
+    this.say("Bläckfisken", "Kära nån — en skena av drivved och ett bandage av fiskelina! Tentakel tre och fyra fungerar igen. Du har min eviga tacksamhet, min gode vän!", null);
+  }
+
+  openChest() {
+    if (this.state.chestOpen) { this.say("", "Kistan är redan öppen.", null); return; }
+    this.setState({ chestOpen: true });
+    this.mapShouldFall = true;
+    const lockSound = new Audio("assets/key-turning-in-lock.mp3");
+    lockSound.volume = 0.85;
+    lockSound.play().catch(() => {});
+    if (this.chestNode) {
+      this.chestNode.animate(
+        [
+          { transform: "scale(1) rotate(0deg)" },
+          { transform: "scale(1.08) rotate(-2deg)" },
+          { transform: "scale(0.98) rotate(1deg)" },
+          { transform: "scale(1) rotate(0deg)" },
+        ],
+        { duration: 500, easing: "ease-out" }
+      );
+    }
+    this.say("", "Nyckeln passar! Locket knarrar upp och guld glittrar i mörkret.", null);
+  }
+
+  chestClick(e) {
+    e.stopPropagation();
+    if (this.state.chestOpen) {
+      this.say("", "En gammal skattkista, fylld med guldmynt.", null);
+    } else {
+      this.say("", "En låst skattkista ligger på havsbotten. Den behöver nog en nyckel.", null);
+    }
+  }
+
+  badgerClick(e) {
+    e.stopPropagation();
+    if (this.badgerMouthLoop) this.badgerMouthLoop();
+    clearTimeout(this.badgerClickEnd);
+    if (this.badgerNode) {
+      this.badgerNode.animate(
+        [
+          { transform: "rotate(0deg) translateY(0)" },
+          { transform: "rotate(-4deg) translateY(-5px)" },
+          { transform: "rotate(3deg) translateY(0)" },
+          { transform: "rotate(-2deg) translateY(-2px)" },
+          { transform: "rotate(0deg) translateY(0)" },
+        ],
+        { duration: 500, easing: "ease-out" }
+      );
+    }
+    if (this.badgerVoice) this.badgerVoice.pause();
+    const badgerClips = ["assets/badger-voice.mp3", "assets/badger-voice-2.mp3", "assets/badger-voice-3.mp3", "assets/badger-voice-4.mp3"];
+    this.badgerVoiceIdx = (this.badgerVoiceIdx == null) ? 0 : (this.badgerVoiceIdx + 1) % badgerClips.length;
+    this.badgerVoice = new Audio(badgerClips[this.badgerVoiceIdx]);
+    this.badgerVoice.volume = 0.85;
+    this.badgerVoice.play().catch(() => {});
+    if (this.badgerVoiceIdx === 0) this.say("Grävlingen", "Tid är pengar, min vän. Klockan går, och affärer väntar inte.", null);
+    else this.say("Grävlingen", "(Grävlingen fortsätter tala affärer.)", null);
+    this.badgerMouthLoop = this.lipSyncFor(this.badgerVoice, (open) => this.setState({ badgerFrame: open ? "open" : "closed" }), 130);
+    this.badgerVoice.onended = () => {
+      if (this.badgerMouthLoop) this.badgerMouthLoop();
+      this.setState({ badgerFrame: "closed" });
+    };
+    this.badgerClickEnd = setTimeout(() => {
+      if (!this.badgerVoice || this.badgerVoice.paused || this.badgerVoice.ended) {
+        if (this.badgerMouthLoop) this.badgerMouthLoop();
+        this.setState({ badgerFrame: "closed" });
+      }
+    }, 15000);
+  }
+
+  otterClick(e) {
+    e.stopPropagation();
+    if (this.otterMouthLoop) this.otterMouthLoop();
+    clearTimeout(this.otterClickEnd);
+    const lines = [
+      "Flaskan sitter fast för alltid, men jag bär den med stolthet, tack så mycket.",
+      "En dam av min ställning behöver ingen tiara. Flaskan räcker gott.",
+      "Simmar man i en klänning som denna är det med värdighet, inte med brådska.",
+    ];
+    this.otterLineIdx = (this.otterLineIdx == null) ? 0 : (this.otterLineIdx + 1) % lines.length;
+    this.say("Uttern", lines[this.otterLineIdx], null);
+    if (this.otterVoice) this.otterVoice.pause();
+    this.otterVoice = new Audio("assets/otter-voice-" + (this.otterLineIdx + 1) + ".mp3");
+    this.otterVoice.volume = 0.9;
+    this.otterVoice.play().catch(() => {});
+    this.otterMouthLoop = this.lipSyncFor(this.otterVoice, (open) => this.setState({ otterFrame: open ? "open" : "closed" }), 150);
+    this.otterVoice.onended = () => {
+      if (this.otterMouthLoop) this.otterMouthLoop();
+      this.setState({ otterFrame: "closed" });
+    };
+  }
+
+  subEnter() {
+    if (!this.subHoverSound) this.subHoverSound = new Audio("assets/underwater-default.mp3");
+    this.subHoverSound.currentTime = 0;
+    this.subHoverSound.volume = 0.7;
+    this.subHoverSound.play().catch(() => {});
+  }
+
+  subClick(e) {
+    e.stopPropagation();
+    this.subClicking = true;
+    this.setState({ subFrame: "roar" });
+    if (this.subNode) {
+      this.subNode.animate(
+        [
+          { transform: "translateY(0) rotate(0deg)" },
+          { transform: "translateY(-10px) rotate(-3deg)" },
+          { transform: "translateY(4px) rotate(2deg)" },
+          { transform: "translateY(-4px) rotate(-1deg)" },
+          { transform: "translateY(0) rotate(0deg)" },
+        ],
+        { duration: 600, easing: "ease-out" }
+      );
+    }
+    this.say("Ubåtskatten", "Mjaaau! Stör inte kaptenen under uppdrag!", null);
+    clearTimeout(this.subClickEnd);
+    this.subClickEnd = setTimeout(() => {
+      this.subClicking = false;
+      this.setState({ subFrame: "idle" });
+    }, 1400);
+  }
+
+  snorkelClick(e) {
+    e.stopPropagation();
+    if (this.state.underwaterUnlocked) {
+      this.say("", "Du sjunker ner mot vraket igen...", null);
+      this.scheduleGameAction(() => this.goScene("underwater"), 700);
+      return;
+    }
+    this.say("", "En snorkel sticker upp ur vattnet längre ut. Något behöver kopplas till den för att andas där under.", null);
+  }
+
+  sealEnter() {
+    if (!this.sealHoverSound) this.sealHoverSound = new Audio("assets/seal-sad.mp3");
+    this.sealHoverSound.currentTime = 0;
+    this.sealHoverSound.volume = 0.7;
+    this.sealHoverSound.play().catch(() => {});
+  }
+
+  snorkelEnter() {
+    if (!this.snorkelHoverSound) this.snorkelHoverSound = new Audio("assets/uboat-ringtone.mp3");
+    this.snorkelHoverSound.currentTime = 0;
+    this.snorkelHoverSound.volume = 0.7;
+    this.snorkelHoverSound.play().catch(() => {});
+  }
+
+  sealClick(e) {
+    e.stopPropagation();
+    this.sealClicking = true;
+    clearTimeout(this.sealPuffEnd);
+    this.setState({ sealFrame: "open" });
+    if (this.sealNode) {
+      this.sealNode.animate(
+        [
+          { transform: "rotate(0deg) translateY(0)" },
+          { transform: "rotate(-6deg) translateY(-6px)" },
+          { transform: "rotate(5deg) translateY(0)" },
+          { transform: "rotate(-3deg) translateY(-3px)" },
+          { transform: "rotate(0deg) translateY(0)" },
+        ],
+        { duration: 550, easing: "ease-out" }
+      );
+    }
+    if (this.sealVoice) this.sealVoice.pause();
+    if (this.sealMouthLoop) this.sealMouthLoop();
+    const clips = ["assets/seal-voice-1.mp3", "assets/seal-voice-2.mp3", "assets/seal-voice-3.mp3"];
+    const lines = [
+      "SKRÅVEL-bimbo-yaaa, lyssna här kompis, jag e' typ helt seriös, glimp-glimp-JA!",
+      "Blipp-blorp majestätisk, jag e' faktiskt geniet här, hörru, flimflam-STARK!",
+      "Zang-zang, korrekt igen, jag har alltid rätt, klipp-klapp-CHEFEN!",
+    ];
+    this.sealVoiceIdx = (this.sealVoiceIdx == null) ? 0 : (this.sealVoiceIdx + 1) % clips.length;
+    this.sealVoice = new Audio(clips[this.sealVoiceIdx]);
+    this.sealVoice.volume = 0.85;
+    this.sealVoice.play().catch(() => {});
+    this.say("Sälen", lines[this.sealVoiceIdx], null);
+    if (this.sealMouthLoop) this.sealMouthLoop();
+    this.sealMouthLoop = this.lipSyncFor(this.sealVoice, (open) => this.setState({ sealFrame: open ? "open" : "closed" }), 130);
+    this.sealVoice.onended = () => {
+      this.sealClicking = false;
+      if (this.sealMouthLoop) this.sealMouthLoop();
+      this.setState({ sealFrame: "closed" });
+    };
+    clearTimeout(this.sealClickEnd);
+    this.sealClickEnd = setTimeout(() => {
+      this.sealClicking = false;
+      if (!this.sealVoice || this.sealVoice.paused || this.sealVoice.ended) {
+        if (this.sealMouthLoop) this.sealMouthLoop();
+        this.setState({ sealFrame: "closed" });
+      }
+    }, 15000);
+  }
+
+  combine(iidA, iidB) {
+    if (iidA === iidB) return;
+    const a = this.state.inventory.find((it) => it.iid === iidA);
+    const b = this.state.inventory.find((it) => it.iid === iidB);
+    if (!a || !b) return;
+    const key = [a.defId, b.defId].sort().join("+");
+    const result = this.recipes[key];
+    if (!result) {
+      this.say("", "De där går inte ihop.", null);
+      return;
+    }
+    this.setState((s) => ({
+      inventory: [...s.inventory.filter((it) => it.iid !== iidA && it.iid !== iidB), { iid: ++this.uid, defId: result }],
+    }));
+    this.say("", "Du kombinerar dem till: " + this.defs[result].name + ".", null);
+  }
+
+  infoDefs = {
+    seal:    { name: "Sälen", desc: "En självsäker säl i solglasögon. Pratar mycket, säger mindre.", img: "assets/seal-closed.png" },
+    gull:    { name: "Fiskmåsen", desc: "En punkig fiskmås med starka åsikter om kapitalismen.", img: "assets/gull-closed.png" },
+    crab:    { name: "Krabban", desc: "En liten krabba med väldiga känslor. Skriker när den är fast.", img: "assets/crab-scream.png" },
+    moon:    { name: "Månen", desc: "Gammal som tiden och sover gärna. En vaken måne svarar på frågor.", img: "assets/moon-awake.png" },
+    octo:    { name: "Bläckfisken", desc: "En brittisk gentleman med monokel. Tentakel tre och fyra är ur funktion.", img: "assets/octo-open.png" },
+    otter:   { name: "Uttern", desc: "En dam av börd, med flaska på huvudet. Simmar med värdighet.", img: "assets/otter-closed.png" },
+    badger:  { name: "Grävlingen", desc: "En affärsgrävling i slips. Tid är pengar.", img: "assets/badger-closed.png" },
+    sub:     { name: "Ubåten", desc: "En rostig ubåt. Katten vid rodret ser inte samarbetsvillig ut.", img: "assets/sub-idle.png" },
+    cod:     { name: "Torsken", desc: "En konstnärstorsk med basker och palett. Driver havets mest exklusiva målarskola.", img: "assets/cod-closed.png" },
+    sheep:   { name: "Fåret", desc: "Ett musikälskande får med hörlurar och solglasögon, undangömt i grottan.", img: "assets/sheep-closed.png" },
+    shrimp:  { name: "Räkdelegationen", desc: "En beslutsam grupp räkor som demonstrerar för rättvisa på havsbottnen.", img: "assets/shrimp-protest.png" },
+    chest:   { name: "Skattkistan", desc: "En gammal kista på havsbotten. Låst — om man inte har en nyckel.", img: "assets/chest-closed.png" },
+    snorkel: { name: "Snorkeln", desc: "Sticker upp ur vattnet. Den leder någonstans ner.", img: "assets/snorkel.png" },
+  };
+
+  infoCtx(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const t = e.currentTarget;
+    const kind = t.dataset.drop;
+    let info = null;
+    if (kind === "entity") {
+      const p = this.state.placed.find((x) => String(x.uid) === t.dataset.uid);
+      if (p) { const d = this.defs[p.defId]; info = { name: d.name, desc: d.desc || d.line || "", img: d.img || d.sceneImg || "" }; }
+    } else if (kind === "inv") {
+      const it = this.state.inventory.find((x) => String(x.iid) === t.dataset.iid);
+      if (it) { const d = this.defs[it.defId]; info = { name: d.name, desc: d.desc || "", img: d.img || "" }; }
+    } else if (this.infoDefs[kind]) {
+      info = Object.assign({}, this.infoDefs[kind]);
+      if (this.personas[kind]) info.charId = kind;
+    }
+    if (info) this.setState({ infoBox: info });
+  }
+
+  onMoonMove(e) {
+    if (this.placedDragInfo) {
+      const d = this.placedDragInfo;
+      if (Math.abs(e.clientX - d.sx) > 6 || Math.abs(e.clientY - d.sy) > 6) {
+        if (!d.moved) { d.moved = true; document.body.classList.add("grabbing"); }
+      }
+      if (d.moved) this.setState({ invDrag: { x: e.clientX, y: e.clientY, defId: d.p.defId } });
+      return;
+    }
+    if (this.invDragInfo) {
+      const d = this.invDragInfo;
+      if (Math.abs(e.clientX - d.sx) > 5 || Math.abs(e.clientY - d.sy) > 5) d.moved = true;
+      this.setState({ invDrag: { x: e.clientX, y: e.clientY, defId: d.defId } });
+      return;
+    }
+    const d = this.moonDrag;
+    if (!d) return;
+    const dx = e.clientX - d.lastX;
+    if (Math.abs(dx) > 2) {
+      const dir = dx > 0 ? 1 : -1;
+      if (d.lastDir && dir !== d.lastDir) d.rev++;
+      d.lastDir = dir;
+      d.lastX = e.clientX;
+    }
+    if (Math.abs(e.clientX - d.sx) > 5 || Math.abs(e.clientY - d.sy) > 5) d.moved = true;
+    const ox = Math.max(-18, Math.min(18, e.clientX - d.sx));
+    const oy = Math.max(-10, Math.min(10, e.clientY - d.sy));
+    this.setState({ moonOff: { x: ox, y: oy } });
+    if (d.rev >= 4 && this.state.moonState === "asleep") {
+      this.moonDrag = null;
+      this.setState({ moonOff: { x: 0, y: 0 }, moonDragging: false });
+      this.wake();
+    }
+  }
+
+  onMoonUp(e) {
+    if (this.placedDragInfo) {
+      const info = this.placedDragInfo;
+      this.placedDragInfo = null;
+      document.body.classList.remove("grabbing");
+      if (info.moved) {
+        this._skipClick = true;
+        this.setState({ invDrag: null });
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        if (el && el.closest("[data-inv-bar]")) this.pickup(info.p);
+      }
+      return;
+    }
+    if (this.invDragInfo) {
+      const info = this.invDragInfo;
+      this.invDragInfo = null;
+      document.body.classList.remove("grabbing");
+      this.setState({ invDrag: null });
+      if (!info.moved) {
+        this.invSay(info.defId);
+        return;
+      }
+      const el = e && document.elementFromPoint(e.clientX, e.clientY);
+      const t = el && el.closest("[data-drop]");
+      if (!t) return;
+      const kind = t.dataset.drop;
+      if (kind === "inv") {
+        this.combine(info.iid, Number(t.dataset.iid));
+      } else if (kind === "crab" || kind === "moon" || kind === "gull" || kind === "octo" || kind === "snorkel" || kind === "chest" || kind === "seal" || kind === "badger" || kind === "cod" || kind === "otter" || kind === "sub" || kind === "cave") {
+        this.useItemOn(info.defId, kind);
+      } else if (kind === "entity") {
+        this.useItemOn(info.defId, "entity", Number(t.dataset.uid));
+      }
+      return;
+    }
+    const d = this.moonDrag;
+    if (!d) return;
+    this.moonDrag = null;
+    this.setState({ moonOff: { x: 0, y: 0 }, moonDragging: false });
+    if (!d.moved) {
+      if (this.state.moonState === "asleep") {
+        this.say("", "Månen snarkar mjukt. Kanske en ordentlig skakning väcker den.", null);
+      } else {
+        this.toggleChat();
+      }
+    }
+  }
+
+  wake() {
+    if (this.state.moonState !== "asleep") return;
+    if (this.snore) this.snore.pause();
+    this.setState({ moonState: "awake", moonFrame: "awake" });
+    if (this.moonNode) {
+      this.moonNode.animate(
+        [
+          { transform: "rotate(0deg)" },
+          { transform: "rotate(-7deg)" },
+          { transform: "rotate(6deg)" },
+          { transform: "rotate(-3deg)" },
+          { transform: "rotate(0deg)" },
+        ],
+        { duration: 650, easing: "ease-out" }
+      );
+    }
+    this.talk("Hallå där! Vem är du och varför ligger du där och skrotar? ...Här på stranden kan du inte vara! Här finns många djur och många av dem bits alldeles hårt! Värst är de små! De är ökända häromkring...! De små djuren som bits... de är INTE snälla! Men du.......!... Kanske kan du hjälpa dem på traven.....?!", true);
+  }
+
+  talk(line, withVoice) {
+    clearInterval(this.flap);
+    clearTimeout(this.flapEnd);
+    this.say("Månen", line, null);
+    let open = true;
+    this.setState({ moonFrame: "talk" });
+    this.flap = setInterval(() => {
+      open = !open;
+      this.setState({ moonFrame: open ? "talk" : "awake" });
+    }, 160);
+    const stopFlap = () => {
+      clearInterval(this.flap);
+      this.setState({ moonFrame: "awake" });
+    };
+    if (withVoice) {
+      if (this.moonLipStop) this.moonLipStop();
+      if (this.voice) this.voice.pause();
+      this.voice = new Audio("assets/moon-talk.mp3?v=2");
+      this.voice.volume = 0.95;
+      this.voice.onended = () => { if (this.moonLipStop) this.moonLipStop(); stopFlap(); };
+      this.voice.play().then(() => {
+        // amplitude-driven lip sync: mouth follows the actual audio
+        clearInterval(this.flap);
+        clearTimeout(this.flapEnd);
+        this.startLipSync();
+        // pace the typewriter to the clip so text and voice end together
+        const pace = () => {
+          const dur = this.voice.duration;
+          if (isFinite(dur) && dur > 1) {
+            clearInterval(this.typer);
+            const ms = Math.max(8, ((dur * 1000) - 600) / line.length);
+            let i = this.state.dialogText.length;
+            this.typer = setInterval(() => {
+              i++;
+              this.setState({ dialogText: line.slice(0, i) });
+              if (i >= line.length) clearInterval(this.typer);
+            }, ms);
+          }
+        };
+        if (isFinite(this.voice.duration)) pace();
+        else this.voice.onloadedmetadata = pace;
+      }).catch(() => {
+        this.flapEnd = setTimeout(stopFlap, line.length * 16 + 500);
+      });
+    } else {
+      this.flapEnd = setTimeout(stopFlap, line.length * 16 + 500);
+    }
+  }
+
+  startLipSync() {
+    if (this.moonLipStop) this.moonLipStop();
+    this.moonLipStop = this.lipSyncFor(this.voice, (open) => {
+      if (open !== (this.state.moonFrame === "talk")) {
+        this.setState({ moonFrame: open ? "talk" : "awake" });
+      }
+    }, 160);
+  }
+
+  octoEnter() {
+    if (this.octoCycle) return;
+    // slow blink: eye closes briefly every ~1.4s
+    const blinkOnce = () => {
+      this.setState({ octoFrame: "blink" });
+      this.octoBlinkEnd = setTimeout(() => this.setState({ octoFrame: "open" }), 220);
+    };
+    blinkOnce();
+    this.octoCycle = setInterval(blinkOnce, 1400);
+  }
+
+  octoTranslate() {
+    this.say("Bläckfisken (kort sagt)", "Jag gick vilse, skadade tentaklerna och behöver din hjälp med nummer tre och fyra, min gode vän.", null);
+  }
+
+  octoLeave() {
+    clearInterval(this.octoCycle);
+    this.octoCycle = null;
+    clearTimeout(this.octoBlinkEnd);
+    if (this.octoVoice) this.octoVoice.pause();
+    this.setState({ octoFrame: "open" });
+  }
+
+  paintTargets = [
+    { key: "fisk", label: "en fisk" },
+    { key: "sol", label: "en sol" },
+    { key: "bat", label: "en båt" },
+  ];
+  paintColor = "#2a2118";
+
+  codClick(e) {
+    e.stopPropagation();
+    this.codTalk();
+    if (this.state.codDone) {
+      this.say("Torsken", "Min vän! Skolans stolthet! Kom tillbaka när du vill måla mer.", null);
+      return;
+    }
+    this.say(
+      "Torsken",
+      "God dag! Jag är havets lugnaste målare. Vill du bli min elev? Måla tre små, glada motiv, så väntar en belöning. Visst?",
+      { label: "Börja måla", onClick: () => this.setState({ paintOpen: true, paintVerdict: "", paintIdx: this.state.paintIdx || 0 }) }
+    );
+  }
+
+  // tiny synthesized UI sounds — no asset files needed
+  sfx(kind) {
+    try {
+      if (!this.sfxCtx) this.sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = this.sfxCtx;
+      if (ctx.state === "suspended") ctx.resume();
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g);
+      g.connect(ctx.destination);
+      if (kind === "click") {
+        o.type = "sine";
+        o.frequency.setValueAtTime(620, t);
+        o.frequency.exponentialRampToValueAtTime(380, t + 0.07);
+        g.gain.setValueAtTime(0.12, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+        o.start(t); o.stop(t + 0.1);
+      } else if (kind === "pickup") {
+        o.type = "triangle";
+        o.frequency.setValueAtTime(440, t);
+        o.frequency.exponentialRampToValueAtTime(880, t + 0.12);
+        g.gain.setValueAtTime(0.14, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        o.start(t); o.stop(t + 0.24);
+      } else if (kind === "drop") {
+        o.type = "triangle";
+        o.frequency.setValueAtTime(520, t);
+        o.frequency.exponentialRampToValueAtTime(260, t + 0.12);
+        g.gain.setValueAtTime(0.13, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.start(t); o.stop(t + 0.2);
+      } else if (kind === "whoosh") {
+        o.type = "sine";
+        o.frequency.setValueAtTime(180, t);
+        o.frequency.exponentialRampToValueAtTime(90, t + 0.3);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.09, t + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+        o.start(t); o.stop(t + 0.36);
+      } else if (kind === "bombdrop") {
+        o.type = "sine";
+        o.frequency.setValueAtTime(340, t);
+        o.frequency.exponentialRampToValueAtTime(120, t + 0.32);
+        g.gain.setValueAtTime(0.1, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+        o.start(t); o.stop(t + 0.36);
+      } else if (kind === "splash") {
+        o.type = "triangle";
+        o.frequency.setValueAtTime(180, t);
+        o.frequency.exponentialRampToValueAtTime(60, t + 0.18);
+        g.gain.setValueAtTime(0.16, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        o.start(t); o.stop(t + 0.24);
+      } else if (kind === "splat") {
+        o.type = "square";
+        o.frequency.setValueAtTime(220, t);
+        o.frequency.exponentialRampToValueAtTime(70, t + 0.14);
+        g.gain.setValueAtTime(0.15, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        o.start(t); o.stop(t + 0.22);
+      }
+    } catch (e) {}
+  }
+
+  sheepTalk() {
+    if (!this.sheepVoice) this.sheepVoice = new Audio("assets/sheep.mp3");
+    this.sheepVoice.volume = 0.7;
+    this.sheepVoice.currentTime = 0;
+    this.sheepVoice.play().catch(() => {});
+    if (this.sheepFlapStop) this.sheepFlapStop();
+    this.sheepFlapStop = this.lipSyncFor(this.sheepVoice, (open) => this.setState({ sheepFrame: open ? "open" : "closed" }), 150);
+    const lines = [
+      "BÄÄÄ! Ljuset! SÅ ljust! Jag har bott i mörker i åratal och du kommer hit med en hel SOL?!",
+      "Vackert ljus... varmt ljus... nästan lika skönt som basgångarna i mina lurar. Bää.",
+      "Fortfarande så ljust. Solglasögonen hjälper, men BÄÄ vilken lampa.",
+    ];
+    this.sheepLineIdx = (this.sheepLineIdx == null) ? 0 : (this.sheepLineIdx + 1) % lines.length;
+    this.say("Fåret", lines[this.sheepLineIdx], null);
+  }
+
+  codTalk() {
+    if (this.codFlapStop) this.codFlapStop();
+    let n = 0;
+    const iv = setInterval(() => {
+      n++;
+      this.setState({ codFrame: n % 2 ? "open-1" : "open-2" });
+      if (n > 9) { clearInterval(iv); this.setState({ codFrame: "closed" }); }
+    }, 150);
+    this.codFlapStop = () => { clearInterval(iv); this.setState({ codFrame: "closed" }); };
+  }
+
+  initPaintCanvas(el) {
+    if (!el || el === this.paintCanvasEl) return;
+    this.paintCanvasEl = el;
+    const ctx = el.getContext("2d");
+    ctx.fillStyle = "#f7f1e3";
+    ctx.fillRect(0, 0, el.width, el.height);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    let drawing = false;
+    const pos = (ev) => {
+      const r = el.getBoundingClientRect();
+      return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
+    };
+    el.onpointerdown = (ev) => { drawing = true; el.setPointerCapture(ev.pointerId); const p = pos(ev); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    el.onpointermove = (ev) => {
+      if (!drawing) return;
+      const p = pos(ev);
+      ctx.strokeStyle = this.paintColor;
+      ctx.lineWidth = this.paintColor === "#f7f1e3" ? 22 : 7;
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    };
+    el.onpointerup = () => { drawing = false; };
+  }
+
+  clearPaintCanvas() {
+    const el = this.paintCanvasEl;
+    if (!el) return;
+    const ctx = el.getContext("2d");
+    ctx.fillStyle = "#f7f1e3";
+    ctx.fillRect(0, 0, el.width, el.height);
+  }
+
+  async submitPainting() {
+    if (this.state.paintBusy || !this.paintCanvasEl) return;
+    const canvas = this.paintCanvasEl;
+    const requestGeneration = this.paintGeneration || 0;
+    const target = this.paintTargets[this.state.paintIdx];
+    this.setState({ paintBusy: true, paintVerdict: "" });
+    let ok = false, verdict = "";
+    let reply;
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      reply = await window.claude.complete({
+        system: "Du är en varm och lugn konstnärstorsk som bedömer elevmålningar. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort kommentar på tydlig svenska utan utländska ord\"}. Var generös — enkla barnteckningar godkänns om motivet går att ana.",
+        messages: [{ role: "user", content: [
+          { type: "text", text: "Eleven skulle måla: " + target.label + ". Föreställer målningen det, ens ungefär?" },
+          { type: "image", source: { type: "base64", media_type: "image/png", data: dataUrl.split(",")[1] } },
+        ] }],
+        max_tokens: 200,
+      });
+    } catch (err) {
+      verdict = "Torsken kan inte nå OpenRouters bildgranskare just nu. Försök igen om en stund.";
+    }
+
+    if (reply !== undefined) {
+      try {
+      const jsonMatch = typeof reply === "string" ? reply.match(/\{[\s\S]*\}/) : null;
+      if (!jsonMatch) throw new Error("Bildgranskaren returnerade ingen JSON.");
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (typeof parsed.godkand !== "boolean") throw new Error("Bildgranskaren returnerade ett ogiltigt omdöme.");
+      ok = !!parsed.godkand;
+      verdict = typeof parsed.kommentar === "string" ? parsed.kommentar.slice(0, 300) : "";
+      } catch (err) {
+        verdict = "Torsken förstod inte bildgranskarens svar. Försök igen.";
+      }
+    }
+    if ((this.paintGeneration || 0) !== requestGeneration) return;
+    if (ok) {
+      const nextIdx = this.state.paintIdx + 1;
+      if (nextIdx >= 3) {
+        this.setState({ paintBusy: false, paintOpen: false, paintIdx: 0, codDone: true });
+        this.codTalk();
+        this.say("Torsken", "Magnifikt! Du är härmed diplomerad! Och vänta — jag hittade den här portföljen flytande i vattnet häromdagen. Ta den, en konstnär reser lätt!", null);
+        this.setState((s) => ({ inventory: [...s.inventory, { iid: "briefcase-" + Date.now(), defId: "briefcase" }] }));
+      } else {
+        this.clearPaintCanvas();
+        this.setState({ paintBusy: false, paintIdx: nextIdx, paintVerdict: verdict + " Nästa motiv: " + this.paintTargets[nextIdx].label + "!" });
+      }
+    } else {
+      this.setState({ paintBusy: false, paintVerdict: verdict });
+    }
+  }
+
+  octoClick(e) {
+    e.stopPropagation();
+    if (this.octoVoice) this.octoVoice.pause();
+    this.octoVoiceIdx = (this.octoVoiceIdx == null) ? 0 : (this.octoVoiceIdx + 1) % 4;
+    this.octoVoice = new Audio("assets/octo-voice-" + (this.octoVoiceIdx + 1) + ".mp3");
+    this.octoVoice.volume = 0.95;
+    this.octoVoice.play().catch(() => {});
+    if (this.octoVoiceIdx === 0) {
+      this.say(
+        "Bläckfisken",
+        "God afton, min gode vän! Jag tycks ha gått vilse och skadat tentaklerna, möjligen efter en aning för mycket sherry till eftermiddagsteet. Skulle du vara så vänlig att hjälpa mig få nummer tre och fyra i bruk igen?",
+        { label: "Kort sagt", onClick: () => this.octoTranslate() }
+      );
+    } else {
+      this.say("Bläckfisken", "Bläckfisken fortsätter med högtidlig överklassvenska.", null);
+    }
+  }
+
+  gullEnter() {
+    if (this.state.gullFreed || this.gullCycle) return;
+    if (!this.gullHoverSound) this.gullHoverSound = new Audio("assets/seagull-short.mp3");
+    this.gullHoverSound.currentTime = 0;
+    this.gullHoverSound.volume = 0.7;
+    this.gullHoverSound.play().catch(() => {});
+    this.setState({ gullFrame: "open" });
+    let open = true;
+    this.gullCycle = setInterval(() => {
+      open = !open;
+      this.setState({ gullFrame: open ? "open" : "closed" });
+    }, 180);
+  }
+
+  gullLeave() {
+    if (this.state.gullFreed) return;
+    clearInterval(this.gullCycle);
+    this.gullCycle = null;
+    this.setState({ gullFrame: "closed" });
+  }
+
+  gullClick(e) {
+    e.stopPropagation();
+    if (this.gullVoice) this.gullVoice.pause();
+    this.gullVoice = new Audio("assets/gull-voice.mp3");
+    this.gullVoice.volume = 0.95;
+    this.gullVoice.play().catch(() => {});
+    this.say(
+      "Fiskmåsen",
+      "SKRIII! Krossa kapitalet! Kapitalism är organiserad brottslighet!",
+      { label: "Förklara", onClick: () => this.gullTranslate() }
+    );
+  }
+
+  gullTranslate() {
+    this.say("Fiskmåsen (översatt)", "Krossa kapitalet! Kapitalism är organiserad brottslighet!", null);
+  }
+
+  gullGameConfig = {
+    stageW: 560, stageH: 380,
+    boatW: 180, boatH: 180 * (326 / 765),
+    planeW: 112, planeH: 112 * (326 / 765),
+    bombCount: 6,
+    fallMs: 950,
+    planeSpeed: 235,
+    boatSpeed: 46,
+    hitRx: 74, hitRy: 34,
+    throwCooldownMs: 480,
+  };
+
+  openGullGame() {
+    if (this.state.gullFreed) return;
+    this.gullGameHitsCount = 0;
+    this.gullGameLastThrow = 0;
+    this.setState({
+      gullGameOpen: true,
+      gullGameHits: 0,
+      gullGameBombs: this.gullGameConfig.bombCount,
+      gullGameMsg: "Sikta över polisbåten och tryck MELLANSLAG för att släppa en bomb.",
+    });
+  }
+
+  closeGullGame() {
+    this.teardownGullGame();
+    this.setState({ gullGameOpen: false });
+  }
+
+  initGullStage(el) {
+    if (!el || el === this.gullGameStageEl) return;
+    this.gullGameStageEl = el;
+    this.startGullGame();
+  }
+
+  startGullGame() {
+    this.teardownGullGame(false);
+    const cfg = this.gullGameConfig;
+    this.gullBoat = {
+      x: cfg.stageW * 0.6,
+      y: cfg.stageH * 0.5,
+      vx: (Math.random() < 0.5 ? -1 : 1) * cfg.boatSpeed,
+      vy: (Math.random() < 0.5 ? -1 : 1) * cfg.boatSpeed * 0.6,
+      turnT: 1.6,
+    };
+    this.gullPlane = { x: cfg.stageW * 0.25, y: cfg.stageH * 0.28 };
+    this.gullBombs = [];
+    this.gullKeys = {};
+    this.gullDiveStart = null;
+    this.gullBoatTrail = [];
+    this.gullTrailTick = 0;
+    if (!this.gullSparkles) {
+      this.gullSparkles = Array.from({ length: 28 }, () => ({
+        x: Math.random() * cfg.stageW,
+        y: Math.random() * cfg.stageH,
+        seed: Math.random() * Math.PI * 2,
+        speed: 0.5 + Math.random() * 1.1,
+      }));
+    }
+    this._gullKeyDown = (e) => this.handleGullKeyDown(e);
+    this._gullKeyUp = (e) => this.handleGullKeyUp(e);
+    window.addEventListener("keydown", this._gullKeyDown);
+    window.addEventListener("keyup", this._gullKeyUp);
+    this.gullGameLastTs = null;
+    this.gullGameRunning = true;
+    this.gullGameRAF = requestAnimationFrame((ts) => this.gullGameLoop(ts));
+  }
+
+  teardownGullGame(clearRefs) {
+    this.gullGameRunning = false;
+    if (this.gullGameRAF) { cancelAnimationFrame(this.gullGameRAF); this.gullGameRAF = null; }
+    if (this._gullKeyDown) {
+      window.removeEventListener("keydown", this._gullKeyDown);
+      window.removeEventListener("keyup", this._gullKeyUp);
+      this._gullKeyDown = null;
+      this._gullKeyUp = null;
+    }
+    if (this.gullBombs) this.gullBombs.forEach((b) => { if (b.shadowEl) b.shadowEl.remove(); });
+    this.gullBombs = [];
+    if (clearRefs !== false) {
+      this.gullGameStageEl = null;
+      this.gullGameBoatEl = null;
+      this.gullGamePlaneEl = null;
+      this.gullWaterCanvasEl = null;
+      this.gullWaterCtx = null;
+    }
+  }
+
+  initGullWaterCanvas(el) {
+    if (el === this.gullWaterCanvasEl) return;
+    this.gullWaterCanvasEl = el;
+    this.gullWaterCtx = el.getContext("2d");
+  }
+
+  drawGullWater(now) {
+    const ctx = this.gullWaterCtx;
+    if (!ctx) return;
+    const cfg = this.gullGameConfig;
+    const w = cfg.stageW, h = cfg.stageH;
+    const t = now / 1000;
+
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#12536e");
+    g.addColorStop(0.5, "#166f8f");
+    g.addColorStop(1, "#0a3245");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.lineWidth = 2;
+    for (let j = 0; j < 8; j++) {
+      const yBase = (j + 0.5) * (h / 8);
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 10) {
+        const y = yBase + Math.sin(x * 0.022 + t * 1.3 + j * 0.9) * 7 + Math.sin(x * 0.008 - t * 0.7 + j * 1.7) * 5;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(255,255,255,${0.05 + (j % 3) * 0.02})`;
+      ctx.stroke();
+    }
+
+    if (this.gullBoatTrail && this.gullBoatTrail.length) {
+      const trail = this.gullBoatTrail;
+      for (let i = 0; i < trail.length; i++) {
+        const pt = trail[i];
+        const a = (i / trail.length) * 0.22;
+        ctx.fillStyle = `rgba(255,255,255,${a.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.ellipse(pt.x, pt.y, 16, 7, pt.a || 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    if (this.gullSparkles) {
+      this.gullSparkles.forEach((s) => {
+        const a = 0.2 + 0.45 * Math.max(0, Math.sin(t * s.speed + s.seed));
+        ctx.fillStyle = `rgba(255,255,255,${a.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    const rg = ctx.createRadialGradient(w / 2, h / 2, h * 0.2, w / 2, h / 2, h * 0.95);
+    rg.addColorStop(0, "rgba(0,0,0,0)");
+    rg.addColorStop(1, "rgba(0,0,0,0.32)");
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  handleGullKeyDown(e) {
+    if (!this.state.gullGameOpen) return;
+    const k = e.key;
+    if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === " " || k === "Spacebar") {
+      e.preventDefault();
+    }
+    if (k === "ArrowUp") this.gullKeys.up = true;
+    else if (k === "ArrowDown") this.gullKeys.down = true;
+    else if (k === "ArrowLeft") this.gullKeys.left = true;
+    else if (k === "ArrowRight") this.gullKeys.right = true;
+    else if (k === " " || k === "Spacebar") {
+      if (!e.repeat) this.dropGullBomb();
+    }
+  }
+
+  handleGullKeyUp(e) {
+    const k = e.key;
+    if (k === "ArrowUp") this.gullKeys.up = false;
+    else if (k === "ArrowDown") this.gullKeys.down = false;
+    else if (k === "ArrowLeft") this.gullKeys.left = false;
+    else if (k === "ArrowRight") this.gullKeys.right = false;
+  }
+
+  gullGameLoop(ts) {
+    if (!this.gullGameRunning) return;
+    if (this.gullGameLastTs == null) this.gullGameLastTs = ts;
+    const dt = Math.min(0.05, (ts - this.gullGameLastTs) / 1000);
+    this.gullGameLastTs = ts;
+    const cfg = this.gullGameConfig;
+    const now = performance.now();
+
+    this.drawGullWater(now);
+
+    const k = this.gullKeys;
+    const dx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+    const dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
+    if (dx || dy) {
+      const len = Math.hypot(dx, dy) || 1;
+      this.gullPlane.x += (dx / len) * cfg.planeSpeed * dt;
+      this.gullPlane.y += (dy / len) * cfg.planeSpeed * dt;
+    }
+    const pmx = cfg.planeW * 0.42, pmy = cfg.planeH * 0.42;
+    this.gullPlane.x = Math.max(pmx, Math.min(cfg.stageW - pmx, this.gullPlane.x));
+    this.gullPlane.y = Math.max(pmy, Math.min(cfg.stageH - pmy, this.gullPlane.y));
+
+    const boat = this.gullBoat;
+    boat.turnT -= dt;
+    if (boat.turnT <= 0) {
+      boat.turnT = 1.4 + Math.random() * 1.6;
+      const ang = Math.random() * Math.PI * 2;
+      boat.vx = Math.cos(ang) * cfg.boatSpeed;
+      boat.vy = Math.sin(ang) * cfg.boatSpeed * 0.6;
+    }
+    boat.x += boat.vx * dt;
+    boat.y += boat.vy * dt;
+    const bmx = cfg.boatW * 0.46, bmy = cfg.boatH * 0.46;
+    if (boat.x < bmx) { boat.x = bmx; boat.vx = Math.abs(boat.vx); }
+    if (boat.x > cfg.stageW - bmx) { boat.x = cfg.stageW - bmx; boat.vx = -Math.abs(boat.vx); }
+    if (boat.y < bmy) { boat.y = bmy; boat.vy = Math.abs(boat.vy); }
+    if (boat.y > cfg.stageH - bmy) { boat.y = cfg.stageH - bmy; boat.vy = -Math.abs(boat.vy); }
+
+    if (this.gullGameBoatEl) {
+      const heading = Math.atan2(boat.vy, boat.vx) * (180 / Math.PI);
+      this.gullGameBoatEl.style.transform = `translate(${boat.x - cfg.boatW / 2}px, ${boat.y - cfg.boatH / 2}px) rotate(${heading}deg)`;
+    }
+    this.gullTrailTick += dt;
+    if (this.gullTrailTick > 0.09) {
+      this.gullTrailTick = 0;
+      const heading = Math.atan2(boat.vy, boat.vx);
+      this.gullBoatTrail.push({ x: boat.x - Math.cos(heading) * cfg.boatW * 0.4, y: boat.y - Math.sin(heading) * cfg.boatW * 0.4, a: heading });
+      if (this.gullBoatTrail.length > 16) this.gullBoatTrail.shift();
+    }
+
+    let planeScale = 1, planeLift = 0, planeTilt = 0;
+    if (this.gullDiveStart != null) {
+      const dp = (now - this.gullDiveStart) / cfg.fallMs;
+      if (dp >= 1) {
+        this.gullDiveStart = null;
+      } else {
+        const swoop = Math.sin(Math.min(1, dp) * Math.PI);
+        planeScale = 1 + swoop * 0.32;
+        planeLift = swoop * 20;
+        planeTilt = swoop * 7;
+      }
+    }
+    if (this.gullGamePlaneEl) {
+      this.gullGamePlaneEl.style.transform = `translate(${this.gullPlane.x - cfg.planeW / 2}px, ${this.gullPlane.y - cfg.planeH / 2 + planeLift}px) scale(${planeScale.toFixed(3)}) rotate(${planeTilt.toFixed(2)}deg)`;
+    }
+
+    for (let i = this.gullBombs.length - 1; i >= 0; i--) {
+      const b = this.gullBombs[i];
+      const p = Math.min(1, (now - b.dropTs) / cfg.fallMs);
+      if (b.shadowEl) {
+        b.shadowEl.style.transform = `translate(-50%,-50%) scale(${1 - p * 0.72})`;
+        b.shadowEl.style.opacity = String(0.45 + p * 0.4);
+      }
+      if (p >= 1) {
+        this.resolveGullBomb(b);
+        this.gullBombs.splice(i, 1);
+      }
+    }
+
+    this.gullGameRAF = requestAnimationFrame((t2) => this.gullGameLoop(t2));
+  }
+
+  dropGullBomb() {
+    const cfg = this.gullGameConfig;
+    const now = performance.now();
+    if (this.state.gullGameBombs <= 0) return;
+    if (this.gullGameLastThrow && now - this.gullGameLastThrow < cfg.throwCooldownMs) return;
+    const stage = this.gullGameStageEl;
+    if (!stage) return;
+    this.gullGameLastThrow = now;
+    this.gullDiveStart = now;
+    this.sfx("bombdrop");
+    const x = this.gullPlane.x, y = this.gullPlane.y;
+    const shadow = document.createElement("div");
+    shadow.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:30px;height:14px;border-radius:50%;background:rgba(10,10,10,0.55);transform:translate(-50%,-50%);pointer-events:none;z-index:5`;
+    stage.appendChild(shadow);
+    this.gullBombs.push({ x, y, dropTs: now, shadowEl: shadow });
+    this.setState((s) => ({ gullGameBombs: Math.max(0, s.gullGameBombs - 1) }));
+  }
+
+  resolveGullBomb(b) {
+    const stage = this.gullGameStageEl;
+    const boat = this.gullBoat;
+    const cfg = this.gullGameConfig;
+    const ndx = (b.x - boat.x) / cfg.hitRx;
+    const ndy = (b.y - boat.y) / cfg.hitRy;
+    const hit = (ndx * ndx + ndy * ndy) <= 1;
+    if (stage) {
+      const ring = document.createElement("div");
+      ring.style.cssText = `position:absolute;left:${b.x}px;top:${b.y}px;width:${hit ? 70 : 90}px;height:${hit ? 70 : 90}px;border-radius:50%;border:3px solid ${hit ? "rgba(255,255,255,0.9)" : "rgba(220,240,255,0.75)"};transform:translate(-50%,-50%) scale(0.2);pointer-events:none;z-index:6`;
+      stage.appendChild(ring);
+      const anim = ring.animate(
+        [
+          { transform: "translate(-50%,-50%) scale(0.2)", opacity: 0.9 },
+          { transform: "translate(-50%,-50%) scale(2.2)", opacity: 0 },
+        ],
+        { duration: 480, easing: "ease-out" }
+      );
+      anim.onfinish = () => ring.remove();
+    }
+    if (hit) {
+      this.sfx("splat");
+      this.gullGameHitsCount = (this.gullGameHitsCount || 0) + 1;
+      const hits = this.gullGameHitsCount;
+      this.setState({
+        gullGameHits: hits,
+        gullGameMsg: hits >= 2 ? "Fullträff! Polisbåten är helt nedsölad!" : "Fullträff! En gång till, sikta noga!",
+      });
+      if (hits >= 2) {
+        this.gullGameRunning = false;
+        this.scheduleGameAction(() => {
+          this.closeGullGame();
+          this.cutLine();
+        }, 850);
+      }
+      return;
+    }
+    this.sfx("splash");
+    if (this.state.gullGameBombs <= 0) {
+      this.setState({ gullGameMsg: "Slut på bomber! Måsen svänger runt för en ny inflygning..." });
+      this.scheduleGameAction(() => this.resetGullRound(), 1200);
+    }
+  }
+
+  resetGullRound() {
+    if (!this.state.gullGameOpen) return;
+    const cfg = this.gullGameConfig;
+    this.gullPlane.x = cfg.stageW * 0.25;
+    this.gullPlane.y = cfg.stageH * 0.28;
+    this.gullBoat.x = cfg.stageW * (0.35 + Math.random() * 0.3);
+    this.gullBoat.y = cfg.stageH * (0.35 + Math.random() * 0.3);
+    this.setState({ gullGameBombs: cfg.bombCount, gullGameMsg: "Nytt anfall! Sikta och släpp bomberna." });
+  }
+
+  cutLine() {
+    const snip = new Audio("assets/cutting.mp3");
+    snip.volume = 0.85;
+    snip.play().catch(() => {});
+    clearInterval(this.gullCycle);
+    this.gullCycle = null;
+    this.setState((s) => ({
+      gullFreed: true,
+      gullFrame: "freed",
+      inventory: [...s.inventory, { iid: "line-" + Date.now(), defId: "fishline" }],
+    }));
+    this.say("Fiskmåsen", "Skrii...! Linan är av! Måsen skakar om fjädrarna och ser genast gladare ut. Du rullar ihop fiskelinan — den kan nog komma till nytta.", null);
+  }
+
+  crabEnter() {
+    if (this.state.moonState === "asleep") {
+      if (!this.crabHiss) {
+        this.crabHiss = new Audio("assets/crab-hiss.mp3");
+        this.crabHiss.loop = true;
+        this.crabHiss.volume = 0.9;
+      }
+      this.crabHiss.play().catch(() => {});
+      return;
+    }
+    if (this.state.crabFreed || this.crabCycle) return;
+    const seq = ["scream", "grump1", "scream", "grump2"];
+    let i = 0;
+    this.setState({ crabFrame: "scream" });
+    if (this.crabNode) {
+      this.crabNode.animate(
+        [
+          { transform: "translateX(0) rotate(0deg)" },
+          { transform: "translateX(-4px) rotate(-2deg)" },
+          { transform: "translateX(4px) rotate(2deg)" },
+          { transform: "translateX(0) rotate(0deg)" },
+        ],
+        { duration: 220, iterations: 8 }
+      );
+    }
+    this.crabScreamAudio = new Audio("assets/crab-scream-" + (1 + Math.floor(Math.random() * 4)) + ".mp3");
+    this.crabScreamAudio.volume = 0.9;
+    this.crabScreamAudio.play().catch(() => {});
+    // envelope-synced: mouth open (scream) follows the actual clip; grump frames on quiet parts
+    let g = 0;
+    if (this.crabCycle) this.crabCycle();
+    this.crabCycle = this.lipSyncFor(this.crabScreamAudio, (open) => {
+      if (open) this.setState({ crabFrame: "scream" });
+      else { g = 1 - g; this.setState({ crabFrame: g ? "grump1" : "grump2" }); }
+    }, 170);
+    this.crabScreamAudio.onended = () => {
+      if (this.crabCycle) this.crabCycle();
+      this.crabCycle = null;
+      this.setState({ crabFrame: "grump1" });
+    };
+  }
+
+  crabLeave() {
+    if (this.crabHiss) this.crabHiss.pause();
+    if (this.state.crabFreed) return;
+    if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
+    this.crabCycle = null;
+    if (this.crabScreamAudio) this.crabScreamAudio.pause();
+    this.setState({ crabFrame: "hidden" });
+  }
+
+  crabClick(e) {
+    e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "En hög med sjögräs. Den rör sig... lite.", null);
+      return;
+    }
+    if (this.state.crabFreed) {
+      this.crabSpeak("Puh! Tack igen, vännen. Havet känns mycket bättre utan sjögräs i munnen.");
+      return;
+    }
+    if (this.state.crabWatered) {
+      this.setState({ scrubOpen: true, scrubPct: 0 });
+      this.say("", "Sjögräset är fortfarande mjukt av vattnet. Fortsätt skrubba så kommer krabban loss!", null);
+      return;
+    }
+    const hasBucket = this.state.inventory.some((it) => it.defId === "bucket");
+    if (hasBucket) {
+      this.say(
+        "",
+        "Något väser och skriker under sjögräshögen. Den verkar sitta fast.",
+        { label: "Kasta vattnet på krabban", onClick: () => this.throwWater() }
+      );
+    } else {
+      this.say("", "Något väser och skriker under sjögräshögen. Den verkar sitta fast. Kanske kan lite vatten skölja bort gräset?", null);
+    }
+  }
+
+  throwWater() {
+    if (this.state.crabWatered) {
+      this.setState({ scrubOpen: true, scrubPct: 0 });
+      return;
+    }
+    const splash = new Audio("assets/water-splash.mp3");
+    splash.volume = 0.85;
+    splash.play().catch(() => {});
+    if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
+    this.crabCycle = null;
+    if (this.crabScreamAudio) this.crabScreamAudio.pause();
+    let removed = false;
+    this.setState((s) => ({
+      crabWatered: true,
+      inventory: s.inventory.filter((it) => {
+        if (!removed && it.defId === "bucket") { removed = true; return false; }
+        return true;
+      }),
+    }));
+    // water loosens the seaweed — now scrub it off
+    this.scheduleGameAction(() => this.setState({ scrubOpen: true, scrubPct: 0 }), 600);
+    this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null);
+  }
+
+  initScrubCanvas(el) {
+    if (!el || el === this.scrubCanvasEl) return;
+    this.scrubCanvasEl = el;
+    const ctx = el.getContext("2d");
+    // seaweed layer covering the crab
+    const g = ctx.createLinearGradient(0, 0, el.width, el.height);
+    g.addColorStop(0, "#2f5d3a");
+    g.addColorStop(0.5, "#3c7047");
+    g.addColorStop(1, "#27513a");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, el.width, el.height);
+    // strands of seaweed texture
+    for (let i = 0; i < 90; i++) {
+      ctx.strokeStyle = `rgba(${20 + Math.random() * 40}, ${70 + Math.random() * 50}, ${40 + Math.random() * 30}, 0.7)`;
+      ctx.lineWidth = 4 + Math.random() * 9;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      const x = Math.random() * el.width, y = Math.random() * el.height;
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x + 20 - Math.random() * 40, y + 30, x - 20 + Math.random() * 40, y + 60, x + 10 - Math.random() * 20, y + 95);
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = "destination-out";
+    let scrubbing = false, lastCheck = 0;
+    const pos = (ev) => {
+      const r = el.getBoundingClientRect();
+      return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
+    };
+    const scrubAt = (p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    const moveBrush = (ev) => {
+      const b = this.scrubBrushEl;
+      if (!b) return;
+      const r = el.getBoundingClientRect();
+      b.style.left = (ev.clientX - r.left) + "px";
+      b.style.top = (ev.clientY - r.top) + "px";
+      b.style.opacity = "1";
+      b.style.transform = `translate(-14%,-50%) rotate(${scrubbing ? -38 + Math.sin(Date.now() / 60) * 9 : -30}deg)`;
+    };
+    el.onpointerdown = (ev) => {
+      scrubbing = true;
+      el.setPointerCapture(ev.pointerId);
+      scrubAt(pos(ev));
+      moveBrush(ev);
+    };
+    el.onpointermove = (ev) => {
+      moveBrush(ev);
+      if (!scrubbing) return;
+      scrubAt(pos(ev));
+      const now = Date.now();
+      if (now - lastCheck > 350) { lastCheck = now; this.checkScrubProgress(); }
+    };
+    el.onpointerup = (ev) => { scrubbing = false; moveBrush(ev); this.checkScrubProgress(); };
+    el.onpointerleave = () => { if (this.scrubBrushEl) this.scrubBrushEl.style.opacity = "0"; };
+  }
+
+  checkScrubProgress() {
+    const el = this.scrubCanvasEl;
+    if (!el) return;
+    const ctx = el.getContext("2d");
+    const d = ctx.getImageData(0, 0, el.width, el.height).data;
+    let clear = 0, total = 0;
+    for (let i = 3; i < d.length; i += 32) { total++; if (d[i] < 40) clear++; }
+    const pct = Math.round((clear / total) * 100);
+    this.setState({ scrubPct: pct });
+    if (pct >= 82) this.finishScrub();
+  }
+
+  finishScrub() {
+    if (this.state.crabFreed) return;
+    this.setState({ scrubOpen: false, crabFreed: true, crabFrame: "free" });
+    if (this.crabNode) {
+      this.crabNode.animate(
+        [
+          { transform: "scale(1)", filter: "brightness(1)" },
+          { transform: "scale(0.92)", filter: "brightness(1.6)" },
+          { transform: "scale(1.08) rotate(3deg)" },
+          { transform: "scale(1) rotate(0deg)" },
+        ],
+        { duration: 700, easing: "ease-out" }
+      );
+    }
+    this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen!", "assets/crab-thanks.mp3");
+  }
+
+  crabSpeak(line, voiceSrc) {
+    this.say("Krabban", line, null);
+    if (this.crabFlap) this.crabFlap();
+    clearTimeout(this.crabFlapEnd);
+    const stopFlap = () => {
+      if (this.crabFlap) this.crabFlap();
+      this.setState({ crabFrame: "free-closed" });
+    };
+    if (voiceSrc) {
+      if (this.crabVoice) this.crabVoice.pause();
+      this.crabVoice = new Audio(voiceSrc);
+      this.crabVoice.volume = 0.95;
+      this.crabVoice.onended = stopFlap;
+      this.crabFlap = this.lipSyncFor(this.crabVoice, (open) => this.setState({ crabFrame: open ? "free" : "free-closed" }), 150);
+      this.crabVoice.play().then(() => {
+        clearTimeout(this.crabFlapEnd);
+        this.crabFlapEnd = setTimeout(stopFlap, 30000);
+      }).catch(() => {
+        this.crabFlapEnd = setTimeout(stopFlap, line.length * 16 + 500);
+      });
+    } else {
+      this.crabFlapEnd = setTimeout(stopFlap, line.length * 16 + 500);
+    }
+  }
+
+  interact(p) {
+    this.sfx("click");
+    const def = this.defs[p.defId];
+    const node = this.nodes[p.uid];
+    if (node) {
+      if (def.type === "character") {
+        node.animate(
+          [
+            { transform: "translateY(0) rotate(0deg)" },
+            { transform: "translateY(-16px) rotate(-5deg)" },
+            { transform: "translateY(0) rotate(4deg)" },
+            { transform: "translateY(-4px) rotate(-2deg)" },
+            { transform: "translateY(0) rotate(0deg)" },
+          ],
+          { duration: 650, easing: "ease-out" }
+        );
+      } else {
+        node.animate(
+          [
+            { transform: "scale(1) rotate(0deg)" },
+            { transform: "scale(1.2) rotate(-6deg)" },
+            { transform: "scale(1) rotate(0deg)" },
+          ],
+          { duration: 420, easing: "ease-out" }
+        );
+      }
+    }
+    if (def.type === "character") {
+      this.say(def.name, def.line, null);
+    } else {
+      this.say(
+        def.name,
+        def.desc,
+        def.pickable ? { label: "Plocka upp " + def.name.toLowerCase(), onClick: () => this.pickup(p) } : null
+      );
+    }
+  }
+
+  pickup(p) {
+    if (this.pendingPickups.has(p.uid)) return;
+    const generation = this.gameGeneration;
+    this.pendingPickups.add(p.uid);
+    this.sfx("pickup");
+    const def = this.defs[p.defId];
+    const node = this.nodes[p.uid];
+    const finish = () => {
+      if (this.gameGeneration !== generation) {
+        this.pendingPickups.delete(p.uid);
+        return;
+      }
+
+      let collected = false;
+      this.setState((s) => {
+        if (!s.placed.some((item) => item.uid === p.uid)) return null;
+        collected = true;
+        return {
+          placed: s.placed.filter((item) => item.uid !== p.uid),
+          inventory: [...s.inventory, { iid: ++this.uid, defId: p.defId }],
+        };
+      }, () => {
+        this.pendingPickups.delete(p.uid);
+        if (!collected || this.gameGeneration !== generation) return;
+        this.say("", "Du plockar upp: " + def.name.toLowerCase() + ".", null);
+      });
+    };
+    if (node) {
+      const a = node.animate(
+        [
+          { opacity: 1, transform: "scale(1) translateY(0)" },
+          { opacity: 0, transform: "scale(0.3) translateY(-52px)" },
+        ],
+        { duration: 380, easing: "ease-in" }
+      );
+      a.onfinish = finish;
+      a.oncancel = () => {
+        if (this.gameGeneration === generation) this.pendingPickups.delete(p.uid);
+      };
+    } else {
+      finish();
+    }
+  }
+
+  say(speaker, text, action) {
+    clearInterval(this.typer);
+    this.setState({ dialogSpeaker: speaker, dialogText: "", dialogAction: action || null });
+    let i = 0;
+    this.typer = setInterval(() => {
+      i++;
+      this.setState({ dialogText: text.slice(0, i) });
+      if (i >= text.length) clearInterval(this.typer);
+    }, 16);
+  }
+
+  invSay(defId) {
+    const def = this.defs[defId];
+    this.say(def.name, def.desc || def.line, null);
+  }
+
+  reset() {
+    clearInterval(this.typer);
+    clearInterval(this.flap);
+    clearTimeout(this.flapEnd);
+    clearTimeout(this.crabFlapEnd);
+    clearInterval(this.gullCycle);
+    clearInterval(this.octoCycle);
+    clearTimeout(this.octoBlinkEnd);
+    clearTimeout(this.subClickEnd);
+    clearTimeout(this.sealPuffEnd);
+    clearTimeout(this.sealClickEnd);
+    clearTimeout(this.otterClickEnd);
+    clearTimeout(this.badgerClickEnd);
+    clearTimeout(this.introTimer);
+    clearInterval(this.ambienceFade);
+    clearInterval(this.fireplaceFade);
+    if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
+    if (typeof this.crabFlap === "function") this.crabFlap(); else clearInterval(this.crabFlap);
+    if (this.moonLipStop) this.moonLipStop();
+    if (this.sealMouthLoop) this.sealMouthLoop();
+    if (this.otterMouthLoop) this.otterMouthLoop();
+    if (this.badgerMouthLoop) this.badgerMouthLoop();
+    if (this.codFlapStop) this.codFlapStop();
+    if (this.sheepFlapStop) this.sheepFlapStop();
+    ["voice", "snore", "crabScreamAudio", "crabVoice", "crabHiss", "gullVoice", "gullHoverSound", "octoVoice", "sealVoice", "otterVoice", "badgerVoice", "sheepVoice", "caveSound", "shrimpSound", "subHoverSound", "sealHoverSound", "snorkelHoverSound", "bottleSound", "sealCameraSound"].forEach((key) => {
+      if (this[key]) { this[key].pause(); this[key].currentTime = 0; }
+    });
+    if (this.fireplace) { this.fireplace.pause(); this.fireplace.volume = 0; }
+
+    this.gameGeneration += 1;
+    this.pendingPickups.clear();
+    this.chatGeneration = (this.chatGeneration || 0) + 1;
+    this.paintGeneration = (this.paintGeneration || 0) + 1;
+    this.chatLogs = {};
+    this.uid = 100;
+    this.moonLineIx = 0;
+    this.moonDrag = null;
+    this.invDragInfo = null;
+    this.placedDragInfo = null;
+    this.crabCycle = null;
+    this.crabFlap = null;
+    this.gullCycle = null;
+    this.octoCycle = null;
+    this.mapShouldFall = false;
+    this.sealClicking = false;
+    this.subClicking = false;
+    this.paintColor = "#2a2118";
+    this.paintCanvasEl = null;
+    this.scrubCanvasEl = null;
+    this.scrubBrushEl = null;
+    this.teardownGullGame();
+    document.body.classList.remove("grabbing");
+    this.nodes = {};
+    this.setState({
+      placed: this.initialPlaced.map((item) => ({ ...item })),
+      inventory: [],
+      inventoryOpen: true,
+      hoveredId: null,
+      dialogSpeaker: "",
+      dialogText: "",
+      dialogAction: null,
+      moonState: "asleep",
+      moonFrame: "asleep",
+      moonOff: { x: 0, y: 0 },
+      moonDragging: false,
+      introActive: true,
+      crabFreed: false,
+      crabFrame: "hidden",
+      gullFrame: "closed",
+      gullFreed: false,
+      octoFrame: "open",
+      octoHealed: false,
+      subFrame: "idle",
+      chestOpen: false,
+      sealFrame: "closed",
+      sealHappy: false,
+      otterFrame: "closed",
+      otterFreed: false,
+      badgerFrame: "closed",
+      badgerHappy: false,
+      underwaterUnlocked: false,
+      chatOpen: false,
+      chatChar: "moon",
+      chatMsgs: [],
+      chatInput: "",
+      chatBusy: false,
+      invDrag: null,
+      infoBox: null,
+      codFrame: "closed",
+      codDone: false,
+      paintOpen: false,
+      paintIdx: 0,
+      paintBusy: false,
+      paintVerdict: "",
+      sheepRevealed: false,
+      sheepFrame: "closed",
+      scrubOpen: false,
+      scrubPct: 0,
+      crabWatered: false,
+      gullGameOpen: false,
+      gullGameHits: 0,
+      gullGameBombs: 6,
+      gullGameMsg: "",
+      scene: "center",
+      returnScene: "center",
+      edgeR: false,
+      edgeL: false,
+      edgeB: false,
+      edgeT: false,
+    });
+    this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
+    this.setUnderwaterAudio(false, false);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.typer);
+    clearInterval(this.flap);
+    clearTimeout(this.flapEnd);
+    clearTimeout(this.introTimer);
+    window.removeEventListener("pointermove", this._mm);
+    window.removeEventListener("pointerup", this._mu);
+    window.removeEventListener("pointerdown", this._tryPlay);
+    clearInterval(this.musicFade);
+    if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
+    if (typeof this.crabFlap === "function") this.crabFlap(); else clearInterval(this.crabFlap);
+    clearTimeout(this.crabFlapEnd);
+    clearInterval(this.gullCycle);
+    clearInterval(this.octoCycle);
+    clearTimeout(this.octoBlinkEnd);
+    clearTimeout(this.subClickEnd);
+    clearInterval(this.sealPuffLoop);
+    if (this.sealMouthLoop) this.sealMouthLoop();
+    if (typeof this.otterMouthLoop === "function") this.otterMouthLoop(); else clearInterval(this.otterMouthLoop);
+    if (this.otterVoice) this.otterVoice.pause();
+    clearTimeout(this.otterClickEnd);
+    clearTimeout(this.sealPuffEnd);
+    clearTimeout(this.sealClickEnd);
+    if (this.sealVoice) this.sealVoice.pause();
+    if (this.ambience) this.ambience.pause();
+    if (this.fireplace) this.fireplace.pause();
+    if (this.music) this.music.pause();
+    if (this.voice) this.voice.pause();
+    if (this.crabScreamAudio) this.crabScreamAudio.pause();
+    if (this.crabVoice) this.crabVoice.pause();
+    if (this.crabHiss) this.crabHiss.pause();
+    if (this.octoVoice) this.octoVoice.pause();
+    if (this.gullVoice) this.gullVoice.pause();
+    if (this.snore) this.snore.pause();
+    this.teardownGullGame();
+  }
+
+  posFor(key) {
+    return {
+      ox: this.props[key + "X"] ?? 0,
+      oy: this.props[key + "Y"] ?? 0,
+      scale: this.props[key + "Scale"] ?? 1,
+    };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const charBox =
+      "width:64px;height:96px;border:1.5px dashed oklch(0.66 0.035 250);border-radius:5px;background:repeating-linear-gradient(45deg,oklch(0.38 0.035 250),oklch(0.38 0.035 250) 5px,oklch(0.32 0.035 250) 5px,oklch(0.32 0.035 250) 10px);display:flex;align-items:flex-end;justify-content:center;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:oklch(0.85 0.04 250);padding:6px 4px;line-height:1.2;box-shadow:0 12px 22px -8px rgba(0,0,0,0.75)";
+    const itemBox =
+      "width:54px;height:54px;border:1.5px dashed oklch(0.72 0.09 70);border-radius:5px;background:repeating-linear-gradient(45deg,oklch(0.39 0.045 70),oklch(0.39 0.045 70) 5px,oklch(0.33 0.045 70) 5px,oklch(0.33 0.045 70) 10px);display:flex;align-items:center;justify-content:center;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:oklch(0.87 0.07 70);padding:4px;box-shadow:0 12px 22px -8px rgba(0,0,0,0.75)";
+
+    const placed = S.placed.filter((p) => (p.scene || "center") === S.scene).map((p) => {
+      const def = this.defs[p.defId];
+      const isChar = def.type === "character";
+      const hov = S.hoveredId === p.uid;
+      const pf = this.posFor(p.defId);
+      return {
+        uid: p.uid,
+        name: def.name,
+        art: def.art,
+        pick: def.pickable ? "1" : "",
+        wrapStyle: `position:absolute;left:${p.x + pf.ox}%;top:${p.y + pf.oy}%;transform:translate(-50%,-100%) scale(${pf.scale});cursor:pointer;z-index:${p.defId === "shard" ? 21 : hov ? 16 : 12}`,
+        boxStyle: (def.sceneImg || def.img)
+          ? `width:${p.defId === "key" ? 168 : p.defId === "helmet" ? 380 : p.defId === "camera" ? 230 : p.defId === "driftwood" ? 250 : 112}px;height:${p.defId === "key" ? 153 : p.defId === "helmet" ? 347 : p.defId === "camera" ? 150 : p.defId === "driftwood" ? 120 : 102}px;background:url('${def.sceneImg || def.img}') bottom center/contain no-repeat;filter:drop-shadow(0 10px 14px rgba(0,0,0,0.55))`
+          : (isChar ? charBox : itemBox),
+        labelStyle: `position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:7px;white-space:nowrap;background:oklch(0.14 0.01 60);color:oklch(0.94 0.02 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:500;padding:3px 9px;border-radius:6px;border:1px solid oklch(0.45 0.02 60);opacity:${hov ? 1 : 0};transition:opacity 0.12s;pointer-events:none;box-shadow:0 4px 12px -4px rgba(0,0,0,0.7)`,
+        onClick: (e) => { e.stopPropagation(); if (this._skipClick) { this._skipClick = false; return; } this.interact(p); },
+        onDown: (e) => {
+          if (!def.pickable) return;
+          e.preventDefault();
+          this.placedDragInfo = { p, sx: e.clientX, sy: e.clientY, moved: false };
+        },
+        onCtx: (e) => this.infoCtx(e),
+        onEnter: () => this.setState({ hoveredId: p.uid }),
+        onLeave: () => this.setState((s) => (s.hoveredId === p.uid ? { hoveredId: null } : null)),
+        setRef: (el) => { if (el) this.nodes[p.uid] = el; },
+      };
+    });
+
+    const slotBase =
+      "width:116px;height:116px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 6px 6px;border-radius:14px;border:1px solid oklch(0.55 0.05 72 / 0.55);background:linear-gradient(180deg, oklch(0.24 0.02 62 / 0.9), oklch(0.18 0.016 60 / 0.9));box-shadow:inset 0 1px 0 oklch(0.5 0.04 75 / 0.4), inset 0 -6px 12px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.4);transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;touch-action:none";
+    const inventory = S.inventory.map((it) => {
+      const def = this.defs[it.defId];
+      const zoom = this.invZoom[it.defId] || 1;
+      return {
+        iid: it.iid,
+        name: def.name,
+        art: def.img ? "" : def.art,
+        img: def.img || "",
+        imgStyle: def.img
+          ? `flex:1;width:100%;background:url('${def.img}') center/${Math.round(78 * zoom)}% no-repeat;pointer-events:none`
+          : "flex:1;width:100%;display:flex;align-items:center;justify-content:center;pointer-events:none",
+        boxStyle: slotBase + (def.img ? "" : ";font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.86 0.07 70);text-align:center"),
+        onDown: (e) => this.invDown(it.iid, it.defId, e),
+      };
+    });
+    const dragDef = S.invDrag ? this.defs[S.invDrag.defId] : null;
+    const nav = this.sideNav[S.scene] || {};
+    const touchNav = typeof window.matchMedia === "function" && window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    return {
+      placed,
+      inventory,
+      infoCtx: (e) => this.infoCtx(e),
+      hasInfoBox: !!S.infoBox,
+      infoName: S.infoBox ? S.infoBox.name : "",
+      infoDesc: S.infoBox ? S.infoBox.desc : "",
+      infoImg: S.infoBox ? (S.infoBox.img || "") : "",
+      infoHasImg: !!(S.infoBox && S.infoBox.img),
+      infoClose: () => this.setState({ infoBox: null }),
+      infoTalkable: !!(S.infoBox && S.infoBox.charId),
+      infoTalk: (e) => { e.stopPropagation(); const c = S.infoBox.charId; this.setState({ infoBox: null }); this.toggleChat(c, true); },
+      dialogClose: () => { clearInterval(this.typer); this.setState({ dialogSpeaker: "", dialogText: "", dialogAction: null }); },
+      emptyInventory: S.inventory.length === 0,
+      dialogSpeaker: S.dialogSpeaker,
+      hasSpeaker: !!S.dialogSpeaker,
+      hasDialog: !!S.dialogText || !!S.dialogSpeaker,
+      dialogText: S.dialogText,
+      dialogAction: S.dialogAction,
+      reset: () => this.reset(),
+      inventoryOpen: S.inventoryOpen,
+      inventoryCount: S.inventory.length,
+      inventoryToggleLabel: S.inventoryOpen ? "Dölj" : "Visa",
+      inventoryToggleAria: (S.inventoryOpen ? "Dölj" : "Visa") + " packningen, " + S.inventory.length + " föremål",
+      inventoryToggle: () => this.setState((s) => ({ inventoryOpen: !s.inventoryOpen })),
+      chatToggle: () => this.toggleChat(S.chatChar || "moon"),
+      introActive: S.introActive,
+      moonSrc: "assets/moon-" + S.moonFrame + ".png",
+      sceneTitle: this.sceneTitles[S.scene] || "GAMLA ÖVERFARTEN",
+      moonGlowStyle: `position:absolute;left:${this.moonPos[S.scene].x + this.posFor("moon").ox}%;top:${this.moonPos[S.scene].y + this.posFor("moon").oy}%;width:${this.moonPos[S.scene].w * 9}%;height:${this.moonPos[S.scene].w * 9}%;transform:translate(-50%,-50%);z-index:13;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle, rgba(210,225,255,0.32) 0%, rgba(190,210,255,0.16) 14%, rgba(180,205,255,0.06) 26%, rgba(180,205,255,0.015) 38%, rgba(180,205,255,0) 52%);animation:moonGlowPulse 6s ease-in-out infinite`,
+      moonRaysStyle: (() => {
+        const mp = this.moonPos[S.scene];
+        const mx = mp.x + this.posFor("moon").ox;
+        const my = mp.y + this.posFor("moon").oy;
+        const k = S.scene === "camp" ? 0.4 : 0.7;
+        const a = (v) => (v * k).toFixed(3);
+        const beams = `conic-gradient(from 120deg at ${mx}% ${my}%, rgba(212,226,255,0) 0deg, rgba(212,226,255,${a(0.07)}) 8deg, rgba(212,226,255,${a(0.015)}) 17deg, rgba(212,226,255,${a(0.09)}) 26deg, rgba(212,226,255,${a(0.01)}) 35deg, rgba(212,226,255,${a(0.08)}) 44deg, rgba(212,226,255,${a(0.02)}) 53deg, rgba(212,226,255,${a(0.1)}) 62deg, rgba(212,226,255,${a(0.015)}) 71deg, rgba(212,226,255,${a(0.07)}) 80deg, rgba(212,226,255,${a(0.01)}) 89deg, rgba(212,226,255,${a(0.08)}) 98deg, rgba(212,226,255,${a(0.02)}) 107deg, rgba(212,226,255,${a(0.06)}) 114deg, rgba(212,226,255,0) 120deg)`;
+        const wash = `radial-gradient(circle at ${mx}% ${my}%, rgba(205,220,255,${a(0.15)}) 0%, rgba(200,216,255,${a(0.11)}) 35%, rgba(195,212,255,${a(0.08)}) 60%, rgba(190,208,255,${a(0.05)}) 85%, rgba(190,208,255,${a(0.04)}) 100%)`;
+        const fade = `radial-gradient(circle at ${mx}% ${my}%, black 0%, black 60%, rgba(0,0,0,0.8) 85%, rgba(0,0,0,0.55) 100%)`;
+        return `position:absolute;inset:0;z-index:17;pointer-events:none;mix-blend-mode:screen;background:${beams},${wash};-webkit-mask-image:${fade};mask-image:${fade};animation:moonRaysShimmer 9s ease-in-out infinite`;
+      })(),
+      moonGlintStyle: (() => {
+        const mp = this.moonPos[S.scene];
+        const mx = mp.x + this.posFor("moon").ox;
+        return `position:absolute;inset:0;z-index:17;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(ellipse 24% 5% at ${mx}% 84%, rgba(205,222,255,0.18) 0%, rgba(200,218,255,0.07) 45%, rgba(200,218,255,0) 75%),radial-gradient(ellipse 34% 3.2% at ${mx}% 92%, rgba(205,222,255,0.13) 0%, rgba(200,218,255,0.04) 50%, rgba(200,218,255,0) 78%);animation:moonGlintShimmer 6.5s ease-in-out infinite`;
+      })(),
+      moonAsleep: S.moonState === "asleep" && !S.introActive && S.scene !== "underwater",
+      showMoon: S.scene !== "underwater",
+      moonDown: (e) => this.moonDown(e),
+      moonEnter: () => this.moonEnter(),
+      moonLeave: () => this.moonLeave(),
+      chatOpen: S.chatOpen,
+      chatBusy: S.chatBusy,
+      chatInput: S.chatInput,
+      chatChar: S.chatChar,
+      chatTitle: (this.personas[S.chatChar] || this.personas.moon).name,
+      chatImg: (this.personas[S.chatChar] || this.personas.moon).img,
+      chatPlaceholder: (this.personas[S.chatChar] || this.personas.moon).placeholder,
+      chatThinking: (this.personas[S.chatChar] || this.personas.moon).thinking,
+      chatMsgs: S.chatMsgs.map((m) => ({
+        text: m.text,
+        style: m.role === "user"
+          ? "align-self:flex-end;max-width:85%;background:oklch(0.34 0.06 90 / 0.9);border:1px solid oklch(0.5 0.06 90 / 0.5);color:oklch(0.95 0.02 90);border-radius:11px 11px 3px 11px;padding:8px 11px;font-size:13.5px;line-height:1.45"
+          : "align-self:flex-start;max-width:85%;background:oklch(0.24 0.016 60);border:1px solid oklch(0.4 0.02 60 / 0.6);color:oklch(0.92 0.012 80);border-radius:11px 11px 11px 3px;padding:8px 11px;font-size:13.5px;line-height:1.45",
+      })),
+      chatOnInput: (e) => this.setState({ chatInput: e.target.value }),
+      chatSelect: (e) => this.toggleChat(e.target.value, true),
+      chatKey: (e) => { if (e.key === "Enter") this.sendChat(); },
+      chatSend: () => this.sendChat(),
+      chatSendOpacity: S.chatBusy ? 0.55 : 1,
+      chatClose: () => this.setState({ chatOpen: false }),
+      chatListRef: (el) => { this.chatListEl = el; },
+      setMoonRef: (el) => { if (el) this.moonNode = el; },
+      moonWrapStyle:
+        `position:absolute;left:${this.moonPos[S.scene].x + this.posFor("moon").ox}%;top:${this.moonPos[S.scene].y + this.posFor("moon").oy}%;width:${this.moonPos[S.scene].w * this.posFor("moon").scale}%;z-index:14;cursor:grab;touch-action:none;transform:translate(-50%,-50%) translate(${S.moonOff.x}px,${S.moonOff.y}px);` +        (S.moonDragging ? "" : "transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)"),
+      zzzStyle: `position:absolute;left:${this.moonPos[S.scene].x + this.moonPos[S.scene].w * 0.42}%;top:${this.moonPos[S.scene].y - 6.7}%;z-index:15;pointer-events:none;font-family:'JetBrains Mono',monospace;color:oklch(0.93 0.03 90);display:flex;gap:3px`,
+      crabSrc: "assets/crab-" + S.crabFrame + ".png",
+      crabEnter: () => this.crabEnter(),
+      crabLeave: () => this.crabLeave(),
+      crabClick: (e) => this.crabClick(e),
+      setCrabRef: (el) => { if (el) this.crabNode = el; },
+      crabWrapStyle: `position:absolute;left:${50 + this.posFor("crab").ox}%;top:${88 + this.posFor("crab").oy}%;width:${19 * this.posFor("crab").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      inCenter: S.scene === "center",
+      inLeft: S.scene === "left",
+      inRight: S.scene === "right",
+      inUnderwater: S.scene === "underwater",
+      subSrc: "assets/sub-" + S.subFrame + ".png",
+      setSubRef: (el) => { if (el) this.subNode = el; },
+      subClick: (e) => this.subClick(e),
+      subEnter: () => this.subEnter(),
+      subWrapStyle: `position:absolute;left:${32 + this.posFor("sub").ox}%;top:${40 + this.posFor("sub").oy}%;width:${40.5 * this.posFor("sub").scale}%;z-index:13;cursor:pointer;transform:translate(-50%,-50%)`,
+      chestSrc: "assets/chest-" + (S.chestOpen ? "open" : "closed") + ".png",
+      setChestRef: (el) => { if (el) this.chestNode = el; },
+      setMapRef: (el) => {
+        if (el && this.mapShouldFall) {
+          this.mapShouldFall = false;
+          el.animate(
+            [
+              { transform: "translate(-50%,0) rotate(-2deg) scale(0.55)", top: "10%", offset: 0 },
+              { transform: "translate(-50%,0) rotate(14deg) scale(0.8)", top: "55%", offset: 0.55 },
+              { transform: "translate(-50%,0) rotate(2deg) scale(1.05)", top: "100%", offset: 0.82 },
+              { transform: "translate(-50%,0) rotate(7deg) scale(1)", top: "96%", offset: 1 },
+            ],
+            { duration: 900, easing: "cubic-bezier(.28,.8,.4,1.15)" }
+          );
+        }
+      },
+      chestClick: (e) => this.chestClick(e),
+      chestWrapStyle: `position:absolute;left:${50 + this.posFor("chest").ox}%;top:${86 + this.posFor("chest").oy}%;width:${26 * this.posFor("chest").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      caveEnter: () => {
+        if (this.state.sheepRevealed) return;
+        if (!this.caveSound) { this.caveSound = new Audio("assets/sheep.mp3"); }
+        this.caveSound.volume = 0.5;
+        this.caveSound.currentTime = 0;
+        this.caveSound.play().catch(() => {});
+      },
+      caveLeave: () => { if (this.caveSound && !this.state.sheepRevealed) this.caveSound.pause(); },
+      sheepRevealed: S.sheepRevealed,
+      sheepSrc: "assets/sheep-" + (S.sheepFrame || "closed") + ".png",
+      sheepClick: (e) => { e.stopPropagation(); this.sheepTalk(); },
+      shrimpEnter: () => {
+        if (!this.shrimpSound) { this.shrimpSound = new Audio("assets/shrimp-protest.mp3?v=2"); this.shrimpSound.loop = true; }
+        this.shrimpSound.volume = 0.55;
+        this.shrimpSound.play().catch(() => {});
+      },
+      shrimpLeave: () => { if (this.shrimpSound) this.shrimpSound.pause(); },
+      codSrc: "assets/cod-" + (S.codFrame || "closed") + ".png",
+      codClick: (e) => this.codClick(e),
+      codWrapStyle: `position:absolute;left:${72 + this.posFor("cod").ox}%;top:${58 + this.posFor("cod").oy}%;width:${34 * this.posFor("cod").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-50%);animation:codBob 4.2s ease-in-out infinite`,
+      scrubOpen: S.scrubOpen,
+      scrubPct: S.scrubPct,
+      scrubClose: () => this.setState({ scrubOpen: false }),
+      setScrubCanvas: (el) => this.initScrubCanvas(el),
+      scrubBarStyle: `height:100%;width:${Math.min(100, Math.round((S.scrubPct / 82) * 100))}%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));transition:width 0.3s ease`,
+      scrubCanvasStyle: `position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none`,
+      setScrubBrush: (el) => { this.scrubBrushEl = el; },
+      paintOpen: S.paintOpen,
+      paintPrompt: S.paintOpen ? this.paintTargets[S.paintIdx].label : "",
+      paintProgress: S.paintIdx + 1,
+      paintVerdict: S.paintVerdict,
+      paintSubmitLabel: S.paintBusy ? "Torsken granskar..." : "Klar!",
+      paintClose: () => this.setState({ paintOpen: false }),
+      paintClear: () => this.clearPaintCanvas(),
+      paintSubmit: () => this.submitPainting(),
+      setPaintCanvas: (el) => this.initPaintCanvas(el),
+      paintColors: ["#2a2118", "#c0392b", "#2471a3", "#1e8449", "#f1c40f", "#f7f1e3"].map((col) => ({
+        pick: () => { this.paintColor = col; this.forceUpdate(); },
+        style: `width:26px;height:26px;border-radius:50%;background:${col};cursor:pointer;border:2px solid ${this.paintColor === col ? "oklch(0.85 0.1 80)" : "rgba(0,0,0,0.4)"}`,
+      })),
+      gullGameOpen: S.gullGameOpen,
+      gullGameHits: S.gullGameHits,
+      gullGameBombs: S.gullGameBombs,
+      gullGameMsg: S.gullGameMsg,
+      gullGameBoatSrc: "assets/police-boat-" + (S.gullGameHits >= 2 ? "hit2" : S.gullGameHits >= 1 ? "hit1" : "clean") + ".png",
+      gullGameClose: () => this.closeGullGame(),
+      setGullGameStage: (el) => this.initGullStage(el),
+      setGullWaterCanvas: (el) => { if (el) this.initGullWaterCanvas(el); },
+      setGullBoatRef: (el) => { if (el) this.gullGameBoatEl = el; },
+      setGullPlaneRef: (el) => { if (el) this.gullGamePlaneEl = el; },
+      octoSrc: "assets/octo-" + S.octoFrame + ".png",
+      setOctoRef: (el) => { if (el) this.octoNode = el; },
+      otterSrc: S.otterFreed ? "assets/otter-free.png" : ("assets/otter-" + S.otterFrame + ".png"),
+      setOtterRef: (el) => { if (el) this.otterNode = el; },
+      otterClick: (e) => this.otterClick(e),
+      otterWrapStyle: `position:absolute;left:${18 + this.posFor("otter").ox}%;top:${78 + this.posFor("otter").oy}%;width:${38.25 * this.posFor("otter").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      inCamp: S.scene === "camp",
+      badgerSrc: S.badgerHappy ? "assets/badger-happy.png" : ("assets/badger-" + S.badgerFrame + ".png"),
+      setBadgerRef: (el) => { if (el) this.badgerNode = el; },
+      badgerClick: (e) => this.badgerClick(e),
+      badgerWrapStyle: `position:absolute;left:${34 + this.posFor("badger").ox}%;top:${74 + this.posFor("badger").oy}%;width:${30 * this.posFor("badger").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      octoEnter: () => this.octoEnter(),
+      octoLeave: () => this.octoLeave(),
+      octoClick: (e) => this.octoClick(e),
+      octoWrapStyle: `position:absolute;left:${64 + this.posFor("octo").ox}%;top:${63 + this.posFor("octo").oy}%;width:${15.6 * this.posFor("octo").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      gullSrc: "assets/gull-" + S.gullFrame + ".png",
+      gullEnter: () => this.gullEnter(),
+      gullLeave: () => this.gullLeave(),
+      gullClick: (e) => this.gullClick(e),
+      setGullRef: (el) => { if (el) this.gullNode = el; },
+      gullWrapStyle: `position:absolute;left:${35.5 + this.posFor("gull").ox}%;top:${48.5 + this.posFor("gull").oy}%;width:${11 * this.posFor("gull").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      snorkelSrc: "assets/snorkel.png",
+      snorkelClick: (e) => this.snorkelClick(e),
+      snorkelEnter: () => this.snorkelEnter(),
+      snorkelWrapStyle: `position:absolute;left:${65 + this.posFor("snorkel").ox}%;top:${48 + this.posFor("snorkel").oy}%;width:${15 * this.posFor("snorkel").scale}%;z-index:11;cursor:pointer;transform:translate(-50%,-100%)`,
+      sealClick: (e) => this.sealClick(e),
+      sealEnter: () => this.sealEnter(),
+      setSealRef: (el) => { if (el) this.sealNode = el; },
+      sealSrc: "assets/seal-" + S.sealFrame + ".png",
+      sealWrapStyle: `position:absolute;left:${80 + this.posFor("seal").ox}%;top:${82 + this.posFor("seal").oy}%;width:${52 * this.posFor("seal").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      stageStyle: `position:absolute;inset:0;background:#05080e url('${this.backgrounds[S.scene]}') center/cover no-repeat`,
+      invGhost: !!dragDef,
+      invGhostText: dragDef && !dragDef.img ? dragDef.art : "",
+      invGhostStyle: dragDef
+        ? `position:fixed;left:${S.invDrag.x}px;top:${S.invDrag.y}px;transform:translate(-50%,-60%);z-index:300;pointer-events:none;` +
+          (dragDef.img
+            ? `width:96px;height:88px;background:url('${dragDef.img}') center/${Math.round(100 * (this.invZoom[S.invDrag.defId] || 1))}% no-repeat;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.6))`
+            : `width:52px;height:52px;border:1.5px dashed oklch(0.7 0.09 70);border-radius:6px;background:oklch(0.3 0.04 70 / 0.9);display:flex;align-items:center;justify-content:center;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;color:oklch(0.86 0.07 70);padding:3px`)
+        : "",
+      enterR: () => this.setState({ edgeR: true }),
+      leaveR: () => this.setState({ edgeR: false }),
+      enterL: () => this.setState({ edgeL: true }),
+      leaveL: () => this.setState({ edgeL: false }),
+      enterB: () => this.setState({ edgeB: true }),
+      leaveB: () => this.setState({ edgeB: false }),
+      stagePointerMove: (e) => {
+        if (touchNav) return;
+        const overCampButton = e.target && e.target.closest && e.target.closest("[data-camp-nav-button]");
+        const inventoryHeight = S.inventoryOpen ? 144 : 76;
+        const inBottomStrip = e.clientY >= window.innerHeight - inventoryHeight - 28;
+        const inCenter = Math.abs(e.clientX - window.innerWidth / 2) <= 160;
+        const shouldShow = !!overCampButton || (inBottomStrip && inCenter);
+        if (shouldShow !== S.edgeB) this.setState({ edgeB: shouldShow });
+      },
+      stagePointerDown: (e) => {
+        if (!touchNav) return;
+        const target = e.target && e.target.closest ? e.target : null;
+        const overCampButton = target && target.closest("[data-camp-nav-button]");
+        const overInteractive = target && target.closest("[data-drop],button,input,select,textarea");
+        const inventoryHeight = S.inventoryOpen ? 144 : 76;
+        const inBottomStrip = e.clientY >= window.innerHeight - inventoryHeight - 28;
+        const inCenter = Math.abs(e.clientX - window.innerWidth / 2) <= 160;
+        const shouldShow = !!overCampButton || (!overInteractive && inBottomStrip && inCenter);
+        if (shouldShow !== S.edgeB) this.setState({ edgeB: shouldShow });
+      },
+      stagePointerLeave: () => { if (S.edgeB) this.setState({ edgeB: false }); },
+      campNavFocus: () => this.setState({ edgeB: true }),
+      campNavBlur: () => this.setState({ edgeB: false }),
+      enterT: () => this.setState({ edgeT: true }),
+      leaveT: () => this.setState({ edgeT: false }),
+      bottomNavStyle: `position:absolute;left:50%;transform:translateX(-50%);bottom:${S.inventoryOpen ? 144 : 76}px;width:320px;height:110px;z-index:19;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;transition:bottom 0.16s ease`,
+      bottomNavButtonStyle: `margin-bottom:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8);opacity:${S.edgeB ? 1 : 0};pointer-events:${S.edgeB ? "auto" : "none"};transform:translateY(${S.edgeB ? 0 : 8}px);transition:opacity 0.14s ease,transform 0.14s ease`,
+      campNavVisible: S.edgeB,
+      showArrowR: (S.edgeR || touchNav) && !!nav.right,
+      showArrowL: (S.edgeL || touchNav) && !!nav.left,
+      showArrowB: S.scene !== "camp" && S.scene !== "underwater",
+      showArrowT: S.scene === "camp" || S.scene === "underwater",
+      goR: (e) => { e.stopPropagation(); if (nav.right) this.goScene(nav.right); },
+      goL: (e) => { e.stopPropagation(); if (nav.left) this.goScene(nav.left); },
+      goB: (e) => { e.stopPropagation(); this.goScene("camp"); },
+      goT: (e) => { e.stopPropagation(); this.goScene(S.returnScene); },
+    };
+  }
+}
+</script>
+</body>
+</html>
