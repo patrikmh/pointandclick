@@ -80,12 +80,38 @@
 </helmet>
 <div style="position:fixed;inset:0;overflow:hidden;background:#05080e;font-family:'Work Sans',sans-serif;color:oklch(0.9 0.012 80)">
 
-  <div class="scene-title" style="position:absolute;top:16px;left:18px;z-index:20;pointer-events:none">
+  <div class="scene-title" style="position:absolute;top:16px;left:18px;z-index:20;pointer-events:none;display:flex;flex-direction:column;gap:6px">
     <div style="font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:0.05em;color:oklch(0.95 0.03 90);text-shadow:0 2px 8px rgba(0,0,0,0.8)">{{ sceneTitle }}</div>
+    <div title="{{ progressLabel }}" style="display:flex;align-items:center;gap:6px;background:oklch(0.15 0.011 60 / 0.6);border:1px solid oklch(0.5 0.02 60 / 0.4);border-radius:999px;padding:4px 10px 4px 8px;backdrop-filter:blur(4px)">
+      <div style="width:64px;height:5px;border-radius:999px;background:oklch(0.3 0.015 60 / 0.7);overflow:hidden">
+        <div style="{{ progressBarStyle }}"></div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:oklch(0.82 0.05 80)">{{ progressLabel }}</div>
+    </div>
   </div>
 
+  <button class="settings-button" onClick="{{ settingsToggle }}" aria-label="Inställningar" title="Inställningar" style="position:absolute;top:18px;right:222px;z-index:20;width:36px;height:36px;font-family:'Work Sans',sans-serif;font-size:15px;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;cursor:pointer;backdrop-filter:blur(6px)">⚙</button>
   <button class="top-chat-button" onClick="{{ chatToggle }}" aria-label="Öppna samtal med spelets karaktärer" title="Samtal med karaktärer" style="position:absolute;top:18px;right:132px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.35)">Samtal</button>
   <button class="reset-button" onClick="{{ reset }}" aria-label="Återställ hela äventyret" title="Återställ hela äventyret" style="position:absolute;top:18px;right:18px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:500;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(6px)">Återställ</button>
+
+  <sc-if value="{{ settingsOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:92;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(360px,calc(100vw - 32px));background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1;font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">INSTÄLLNINGAR</div>
+          <button onClick="{{ settingsClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Musik &amp; ambiens</span><span>{{ musicVolPct }}%</span></div>
+          <input type="range" min="0" max="100" value="{{ musicVolPct }}" onInput="{{ musicVolChange }}" aria-label="Musikvolym" style="width:100%">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Ljudeffekter</span><span>{{ sfxVolPct }}%</span></div>
+          <input type="range" min="0" max="100" value="{{ sfxVolPct }}" onInput="{{ sfxVolChange }}" aria-label="Ljudeffektsvolym" style="width:100%">
+        </div>
+      </div>
+    </div>
+  </sc-if>
 
   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
     
@@ -392,6 +418,7 @@ class Component extends DCLogic {
     moonDragging: false,
     introActive: true,
     discovered: {},
+    settingsOpen: false,
     crabFreed: false,
     crabFrame: "hidden",
     gullFrame: "closed",
@@ -480,6 +507,7 @@ class Component extends DCLogic {
     }
     if (!this.fireplace) {
       this.fireplace = new Audio("assets/fireplace.mp3");
+      this.fireplace.__channel = "music";
       this.fireplace.loop = true;
       this.fireplace.volume = 0;
     }
@@ -554,16 +582,19 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    this.installAudioMix();
     this._mm = (e) => this.onMoonMove(e);
     this._mu = (e) => this.onMoonUp(e);
     window.addEventListener("pointermove", this._mm);
     window.addEventListener("pointerup", this._mu);
     this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
     this.ambience = new Audio("assets/ambience.mp3");
+    this.ambience.__channel = "music";
     this.ambience.loop = true;
     this.ambience.volume = 0.5;
     this.ambienceVolumeNormal = 0.5;
     this.music = new Audio("assets/music.mp3");
+    this.music.__channel = "music";
     this.music.loop = true;
     this.music.volume = 0;
     this.musicVolumeNormal = 0.23;
@@ -762,6 +793,26 @@ class Component extends DCLogic {
   discoverChar(charId) {
     if (this.state.discovered[charId]) return;
     this.setState((s) => ({ discovered: { ...s.discovered, [charId]: true } }));
+  }
+
+  helpedTotal = 11;
+
+  helpedCount(S) {
+    const d = S.discovered;
+    const helped = {
+      moon: d.moon,
+      seal: S.sealHappy,
+      octo: S.octoHealed,
+      badger: S.badgerHappy,
+      otter: S.otterFreed,
+      gull: S.gullFreed,
+      crab: S.crabFreed,
+      cod: S.codDone,
+      sub: d.sub,
+      sheep: d.sheep,
+      shrimp: d.shrimp,
+    };
+    return Object.values(helped).filter(Boolean).length;
   }
 
   toggleChat(charId, forceOpen = false) {
@@ -1543,16 +1594,85 @@ class Component extends DCLogic {
   }
 
   // tiny synthesized UI sounds — no asset files needed
+  installAudioMix() {
+    if (window.__audioMixInstalled) return;
+    window.__audioMixInstalled = true;
+    const saved = this.loadAudioSettings();
+    window.__audioMix = { music: saved.music, sfx: saved.sfx };
+    window.__audioRegistry = [];
+    const proto = HTMLMediaElement.prototype;
+    const nativeDesc = Object.getOwnPropertyDescriptor(proto, "volume");
+    window.__nativeVolumeDesc = nativeDesc;
+    Object.defineProperty(proto, "volume", {
+      configurable: true,
+      get() { return this.__baseVolume != null ? this.__baseVolume : nativeDesc.get.call(this); },
+      set(v) {
+        this.__baseVolume = Math.max(0, Math.min(1, v));
+        if (!this.__mixRegistered) { this.__mixRegistered = true; window.__audioRegistry.push(this); }
+        const mul = this.__channel === "music" ? window.__audioMix.music : window.__audioMix.sfx;
+        nativeDesc.set.call(this, this.__baseVolume * mul);
+      },
+    });
+  }
+
+  refreshAudioMix() {
+    const desc = window.__nativeVolumeDesc;
+    if (!desc || !window.__audioRegistry) return;
+    window.__audioRegistry.forEach((el) => {
+      if (el.__baseVolume == null) return;
+      const mul = el.__channel === "music" ? window.__audioMix.music : window.__audioMix.sfx;
+      desc.set.call(el, el.__baseVolume * mul);
+    });
+    if (this.sfxSynthGain) this.sfxSynthGain.gain.value = window.__audioMix.sfx;
+  }
+
+  loadAudioSettings() {
+    try {
+      const raw = JSON.parse(localStorage.getItem("gullAudioSettings") || "{}");
+      return {
+        music: typeof raw.music === "number" ? raw.music : 0.6,
+        sfx: typeof raw.sfx === "number" ? raw.sfx : 1,
+      };
+    } catch (e) {
+      return { music: 0.6, sfx: 1 };
+    }
+  }
+
+  saveAudioSettings() {
+    try {
+      localStorage.setItem("gullAudioSettings", JSON.stringify(window.__audioMix));
+    } catch (e) {}
+  }
+
+  setMusicVol(v) {
+    window.__audioMix.music = v;
+    this.refreshAudioMix();
+    this.saveAudioSettings();
+    this.forceUpdate();
+  }
+
+  setSfxVol(v) {
+    window.__audioMix.sfx = v;
+    this.refreshAudioMix();
+    this.saveAudioSettings();
+    this.forceUpdate();
+  }
+
   sfx(kind) {
     try {
       if (!this.sfxCtx) this.sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
       const ctx = this.sfxCtx;
       if (ctx.state === "suspended") ctx.resume();
+      if (!this.sfxSynthGain) {
+        this.sfxSynthGain = ctx.createGain();
+        this.sfxSynthGain.gain.value = window.__audioMix ? window.__audioMix.sfx : 1;
+        this.sfxSynthGain.connect(ctx.destination);
+      }
       const t = ctx.currentTime;
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.connect(g);
-      g.connect(ctx.destination);
+      g.connect(this.sfxSynthGain);
       if (kind === "click") {
         o.type = "sine";
         o.frequency.setValueAtTime(620, t);
@@ -1789,13 +1909,16 @@ class Component extends DCLogic {
     stageW: 840, stageH: 520,
     boatW: 250, boatH: 250 * (326 / 765),
     planeW: 150, planeH: 150 * (326 / 765),
-    bombCount: 8,
-    fallMs: 950,
+    bombCount: 9,
+    fallMs: 1050,
     planeSpeed: 320,
-    boatSpeedBase: 68,
-    boatSpeedPerHit: 24,
+    planeAccel: 750,
+    planeDrag: 2.6,
+    planeTurnRate: 9,
+    boatSpeedBase: 78,
+    boatSpeedPerHit: 28,
     winHits: 3,
-    hitRx: 100, hitRy: 46,
+    hitRx: 76, hitRy: 34,
     throwCooldownMs: 480,
   };
 
@@ -1808,7 +1931,7 @@ class Component extends DCLogic {
     const boat = this.gullBoat;
     const cfg = this.gullGameConfig;
     const speed = this.boatSpeedFor(this.gullGameHitsCount || 0);
-    boat.turnT = 1.2 + Math.random() * 1.4;
+    boat.turnT = 0.75 + Math.random() * 0.95;
     const ang = Math.random() * Math.PI * 2;
     boat.vx = Math.cos(ang) * speed;
     boat.vy = Math.sin(ang) * speed * 0.6;
@@ -1848,7 +1971,7 @@ class Component extends DCLogic {
       vy: (Math.random() < 0.5 ? -1 : 1) * speed * 0.6,
       turnT: 1.6,
     };
-    this.gullPlane = { x: cfg.stageW * 0.25, y: cfg.stageH * 0.28 };
+    this.gullPlane = { x: cfg.stageW * 0.25, y: cfg.stageH * 0.28, vx: 0, vy: 0, angle: -90 };
     this.gullBombs = [];
     this.gullKeys = {};
     this.gullDiveStart = null;
@@ -1997,14 +2120,37 @@ class Component extends DCLogic {
     const k = this.gullKeys;
     const dx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
     const dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
-    if (dx || dy) {
-      const len = Math.hypot(dx, dy) || 1;
-      this.gullPlane.x += (dx / len) * cfg.planeSpeed * dt;
-      this.gullPlane.y += (dy / len) * cfg.planeSpeed * dt;
+    const inputLen = Math.hypot(dx, dy);
+    if (inputLen > 0) {
+      this.gullPlane.vx += (dx / inputLen) * cfg.planeAccel * dt;
+      this.gullPlane.vy += (dy / inputLen) * cfg.planeAccel * dt;
+    } else {
+      const damp = Math.max(0, 1 - cfg.planeDrag * dt);
+      this.gullPlane.vx *= damp;
+      this.gullPlane.vy *= damp;
     }
+    const pSpeed = Math.hypot(this.gullPlane.vx, this.gullPlane.vy);
+    if (pSpeed > cfg.planeSpeed) {
+      const s = cfg.planeSpeed / pSpeed;
+      this.gullPlane.vx *= s;
+      this.gullPlane.vy *= s;
+    }
+    this.gullPlane.x += this.gullPlane.vx * dt;
+    this.gullPlane.y += this.gullPlane.vy * dt;
     const pmx = cfg.planeW * 0.42, pmy = cfg.planeH * 0.42;
-    this.gullPlane.x = Math.max(pmx, Math.min(cfg.stageW - pmx, this.gullPlane.x));
-    this.gullPlane.y = Math.max(pmy, Math.min(cfg.stageH - pmy, this.gullPlane.y));
+    if (this.gullPlane.x < pmx) { this.gullPlane.x = pmx; this.gullPlane.vx = Math.abs(this.gullPlane.vx) * 0.4; }
+    if (this.gullPlane.x > cfg.stageW - pmx) { this.gullPlane.x = cfg.stageW - pmx; this.gullPlane.vx = -Math.abs(this.gullPlane.vx) * 0.4; }
+    if (this.gullPlane.y < pmy) { this.gullPlane.y = pmy; this.gullPlane.vy = Math.abs(this.gullPlane.vy) * 0.4; }
+    if (this.gullPlane.y > cfg.stageH - pmy) { this.gullPlane.y = cfg.stageH - pmy; this.gullPlane.vy = -Math.abs(this.gullPlane.vy) * 0.4; }
+
+    let bank = 0;
+    if (pSpeed > 12) {
+      const targetAngle = Math.atan2(this.gullPlane.vy, this.gullPlane.vx) * (180 / Math.PI);
+      let diff = targetAngle - this.gullPlane.angle;
+      diff = ((diff + 540) % 360) - 180;
+      this.gullPlane.angle += diff * Math.min(1, dt * cfg.planeTurnRate);
+      bank = Math.max(-1, Math.min(1, diff / 90)) * 16;
+    }
 
     const boat = this.gullBoat;
     boat.turnT -= dt;
@@ -2031,7 +2177,7 @@ class Component extends DCLogic {
       if (this.gullBoatTrail.length > 16) this.gullBoatTrail.shift();
     }
 
-    let planeScale = 1, planeLift = 0, planeTilt = 0;
+    let planeScale = 1, planeLift = 0, planeDiveTilt = 0;
     if (this.gullDiveStart != null) {
       const dp = (now - this.gullDiveStart) / cfg.fallMs;
       if (dp >= 1) {
@@ -2040,11 +2186,14 @@ class Component extends DCLogic {
         const swoop = Math.sin(Math.min(1, dp) * Math.PI);
         planeScale = 1 + swoop * 0.32;
         planeLift = swoop * 20;
-        planeTilt = swoop * 7;
+        planeDiveTilt = swoop * 7;
       }
     }
+    const bobAmp = 3 + (pSpeed / cfg.planeSpeed) * 4;
+    const bob = Math.sin(now / 220) * bobAmp;
     if (this.gullGamePlaneEl) {
-      this.gullGamePlaneEl.style.transform = `translate(${this.gullPlane.x - cfg.planeW / 2}px, ${this.gullPlane.y - cfg.planeH / 2 + planeLift}px) scale(${planeScale.toFixed(3)}) rotate(${planeTilt.toFixed(2)}deg)`;
+      const rot = this.gullPlane.angle + 90 + bank + planeDiveTilt;
+      this.gullGamePlaneEl.style.transform = `translate(${this.gullPlane.x - cfg.planeW / 2}px, ${this.gullPlane.y - cfg.planeH / 2 + planeLift + bob}px) rotate(${rot.toFixed(2)}deg) scale(${planeScale.toFixed(3)})`;
     }
 
     for (let i = this.gullBombs.length - 1; i >= 0; i--) {
@@ -2053,6 +2202,23 @@ class Component extends DCLogic {
       if (b.shadowEl) {
         b.shadowEl.style.transform = `translate(-50%,-50%) scale(${1 - p * 0.72})`;
         b.shadowEl.style.opacity = String(0.45 + p * 0.4);
+      }
+      if (b.poopEl) {
+        const fallLift = (1 - p) * 46;
+        b.poopEl.style.transform = `translate(-50%,-50%) translateY(-${fallLift.toFixed(1)}px) scale(${(0.35 + p * 0.85).toFixed(2)}) rotate(${(p * 70).toFixed(1)}deg)`;
+        b.poopEl.style.opacity = String(0.5 + p * 0.5);
+      }
+      if (!b.evaded && p > 0.55) {
+        const edx = boat.x - b.x, edy = boat.y - b.y;
+        const evadeR = Math.hypot(cfg.hitRx, cfg.hitRy) * 1.7;
+        if (Math.hypot(edx, edy) < evadeR) {
+          b.evaded = true;
+          const away = Math.atan2(edy, edx) + Math.PI;
+          const burst = this.boatSpeedFor(this.gullGameHitsCount || 0) * 1.9;
+          boat.vx = Math.cos(away) * burst;
+          boat.vy = Math.sin(away) * burst * 0.6;
+          boat.turnT = 0.6 + Math.random() * 0.5;
+        }
       }
       if (p >= 1) {
         this.resolveGullBomb(b);
@@ -2084,30 +2250,58 @@ class Component extends DCLogic {
     const shadow = document.createElement("div");
     shadow.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:30px;height:14px;border-radius:50%;background:rgba(10,10,10,0.55);transform:translate(-50%,-50%);pointer-events:none;z-index:5`;
     stage.appendChild(shadow);
-    this.gullBombs.push({ x, y, dropTs: now, shadowEl: shadow });
+    const poop = document.createElement("div");
+    poop.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:13px;height:17px;border-radius:50% 50% 50% 0;background:radial-gradient(circle at 35% 30%, #fffef8, #f2f0e4 55%, #d8d5c4);box-shadow:0 2px 3px rgba(0,0,0,0.35);pointer-events:none;z-index:8`;
+    stage.appendChild(poop);
+    this.gullBombs.push({ x, y, dropTs: now, shadowEl: shadow, poopEl: poop, evaded: false });
     this.setState((s) => ({ gullGameBombs: Math.max(0, s.gullGameBombs - 1) }));
   }
 
-  resolveGullBomb(b) {
+  spawnGullSplash(x, y, hit) {
     const stage = this.gullGameStageEl;
+    if (!stage) return;
+    const wrap = document.createElement("div");
+    wrap.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:0;height:0;pointer-events:none;z-index:7`;
+    const dropCount = hit ? 7 : 10;
+    const spread = hit ? 32 : 52;
+    const color = hit ? "rgba(252,252,247,0.95)" : "rgba(228,242,255,0.85)";
+    for (let i = 0; i < dropCount; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 6 + Math.random() * spread;
+      const size = hit ? (4 + Math.random() * 8) : (3 + Math.random() * 6);
+      const dot = document.createElement("div");
+      const dx = Math.cos(a) * r, dy = Math.sin(a) * r * (hit ? 0.6 : 1);
+      dot.style.cssText = `position:absolute;left:${dx}px;top:${dy}px;width:${size}px;height:${size}px;border-radius:${hit ? "40% 60% 55% 45%" : "50%"};background:${color};transform:translate(-50%,-50%)`;
+      wrap.appendChild(dot);
+    }
+    const core = document.createElement("div");
+    if (hit) {
+      core.style.cssText = `position:absolute;left:0;top:0;width:24px;height:19px;border-radius:50% 50% 45% 55% / 60% 60% 40% 40%;background:${color};transform:translate(-50%,-50%)`;
+    } else {
+      core.style.cssText = `position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;border:2px solid ${color};background:transparent;transform:translate(-50%,-50%)`;
+    }
+    wrap.appendChild(core);
+    stage.appendChild(wrap);
+    const anim = wrap.animate(
+      [
+        { transform: "scale(0.35)", opacity: 1 },
+        { transform: "scale(1.1)", opacity: 1, offset: 0.35 },
+        { transform: "scale(1.3)", opacity: 0 },
+      ],
+      { duration: hit ? 650 : 750, easing: "ease-out" }
+    );
+    anim.onfinish = () => wrap.remove();
+  }
+
+  resolveGullBomb(b) {
+    if (b.shadowEl) b.shadowEl.remove();
+    if (b.poopEl) b.poopEl.remove();
     const boat = this.gullBoat;
     const cfg = this.gullGameConfig;
     const ndx = (b.x - boat.x) / cfg.hitRx;
     const ndy = (b.y - boat.y) / cfg.hitRy;
     const hit = (ndx * ndx + ndy * ndy) <= 1;
-    if (stage) {
-      const ring = document.createElement("div");
-      ring.style.cssText = `position:absolute;left:${b.x}px;top:${b.y}px;width:${hit ? 70 : 90}px;height:${hit ? 70 : 90}px;border-radius:50%;border:3px solid ${hit ? "rgba(255,255,255,0.9)" : "rgba(220,240,255,0.75)"};transform:translate(-50%,-50%) scale(0.2);pointer-events:none;z-index:6`;
-      stage.appendChild(ring);
-      const anim = ring.animate(
-        [
-          { transform: "translate(-50%,-50%) scale(0.2)", opacity: 0.9 },
-          { transform: "translate(-50%,-50%) scale(2.2)", opacity: 0 },
-        ],
-        { duration: 480, easing: "ease-out" }
-      );
-      anim.onfinish = () => ring.remove();
-    }
+    this.spawnGullSplash(b.x, b.y, hit);
     if (hit) {
       this.sfx("splat");
       if (!this.gullHornSnd) this.gullHornSnd = new Audio("assets/boat-horn.mp3");
@@ -2548,6 +2742,7 @@ class Component extends DCLogic {
       moonDragging: false,
       introActive: true,
       discovered: {},
+      settingsOpen: false,
       crabFreed: false,
       crabFrame: "hidden",
       gullFrame: "closed",
@@ -2717,6 +2912,15 @@ class Component extends DCLogic {
       dialogText: S.dialogText,
       dialogAction: S.dialogAction,
       reset: () => this.reset(),
+      settingsOpen: S.settingsOpen,
+      settingsToggle: () => this.setState((s) => ({ settingsOpen: !s.settingsOpen })),
+      settingsClose: () => this.setState({ settingsOpen: false }),
+      musicVolPct: Math.round((window.__audioMix ? window.__audioMix.music : 0.6) * 100),
+      sfxVolPct: Math.round((window.__audioMix ? window.__audioMix.sfx : 1) * 100),
+      musicVolChange: (e) => this.setMusicVol(Number(e.target.value) / 100),
+      sfxVolChange: (e) => this.setSfxVol(Number(e.target.value) / 100),
+      progressLabel: this.helpedCount(S) + "/" + this.helpedTotal + " HJÄLPTA",
+      progressBarStyle: `height:100%;border-radius:999px;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));width:${Math.round((this.helpedCount(S) / this.helpedTotal) * 100)}%;transition:width 0.4s ease`,
       inventoryOpen: S.inventoryOpen,
       inventoryCount: S.inventory.length,
       inventoryToggleLabel: S.inventoryOpen ? "Dölj" : "Visa",
