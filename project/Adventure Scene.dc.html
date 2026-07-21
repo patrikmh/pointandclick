@@ -416,6 +416,7 @@ class Component extends DCLogic {
     moonFrame: "asleep",
     moonOff: { x: 0, y: 0 },
     moonDragging: false,
+    moonSpeechesPlayed: [],
     introActive: true,
     discovered: {},
     settingsOpen: false,
@@ -629,7 +630,7 @@ class Component extends DCLogic {
     ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","battery","briefcase","flashlight","key-buried","key-full"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
     // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
     try {
-      this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
+      this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
     } catch (e) { this._preloaded = []; }
     this.sealPuffLoop = setInterval(() => this.sealPuffOnce(), 3600);
   }
@@ -1483,7 +1484,38 @@ class Component extends DCLogic {
         { duration: 650, easing: "ease-out" }
       );
     }
-    this.talk("Hallå där! Vem är du och varför ligger du där och skrotar? ...Här på stranden kan du inte vara! Här finns många djur och många av dem bits alldeles hårt! Värst är de små! De är ökända häromkring...! De små djuren som bits... de är INTE snälla! Men du.......!... Kanske kan du hjälpa dem på traven.....?!", true);
+    this.playMoonAudio("moon-intro");
+    this.setState((s) => ({ moonSpeechesPlayed: [...s.moonSpeechesPlayed, "moon-intro"] }));
+  }
+
+  playMoonAudio(audioName) {
+    try {
+      const audio = new Audio("assets/" + audioName + ".mp3");
+      audio.__channel = "sfx";
+      audio.play();
+      this.setState({ moonFrame: "talk" });
+      audio.onended = () => {
+        this.setState({ moonFrame: "awake" });
+      };
+    } catch (e) {
+      console.error("Failed to play moon audio:", e);
+    }
+  }
+
+  playNextMoonSpeech() {
+    const speeches = ["moon-how-chat", "moon-dont-wake", "moon-not-all-mean"];
+    const played = this.state.moonSpeechesPlayed;
+    const unplayed = speeches.filter(s => !played.includes(s));
+
+    if (unplayed.length > 0) {
+      const next = unplayed[0];
+      this.playMoonAudio(next);
+      this.setState((s) => ({ moonSpeechesPlayed: [...s.moonSpeechesPlayed, next] }));
+    } else {
+      // All speeches played, play random one
+      const random = speeches[Math.floor(Math.random() * speeches.length)];
+      this.playMoonAudio(random);
+    }
   }
 
   talk(line, withVoice) {
@@ -2605,7 +2637,11 @@ class Component extends DCLogic {
       }
     }
     if (def.type === "character") {
-      this.say(def.name, def.line, null);
+      if (p.defId === "moon" && this.state.moonState === "awake") {
+        this.playNextMoonSpeech();
+      } else {
+        this.say(def.name, def.line, null);
+      }
     } else {
       this.say(
         def.name,
@@ -2740,6 +2776,7 @@ class Component extends DCLogic {
       moonFrame: "asleep",
       moonOff: { x: 0, y: 0 },
       moonDragging: false,
+      moonSpeechesPlayed: [],
       introActive: true,
       discovered: {},
       settingsOpen: false,
