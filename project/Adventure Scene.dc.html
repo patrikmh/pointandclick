@@ -917,13 +917,17 @@ class Component extends DCLogic {
   }
 
   moonEnter() {
-    if (this.state.moonState !== "asleep") return;
-    if (!this.snore) {
-      this.snore = new Audio("assets/moon-snore.mp3");
-      this.snore.loop = true;
-      this.snore.volume = 1.0;
+    if (this.state.moonState === "asleep") {
+      if (!this.snore) {
+        this.snore = new Audio("assets/moon-snore.mp3");
+        this.snore.loop = true;
+        this.snore.volume = 1.0;
+      }
+      this.snore.play().catch(() => {});
+    } else {
+      // Moon is awake - play next speech on hover
+      this.playNextMoonSpeech();
     }
-    this.snore.play().catch(() => {});
   }
 
   moonLeave() {
@@ -933,8 +937,14 @@ class Component extends DCLogic {
   moonDown(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.moonDrag = { lastX: e.clientX, lastDir: 0, rev: 0, sx: e.clientX, sy: e.clientY, moved: false };
-    this.setState({ moonDragging: true });
+    if (this.state.moonState === "awake") {
+      // Moon is awake - play next speech on click
+      this.playNextMoonSpeech();
+    } else {
+      // Moon is asleep - start dragging to shake it awake
+      this.moonDrag = { lastX: e.clientX, lastDir: 0, rev: 0, sx: e.clientX, sy: e.clientY, moved: false };
+      this.setState({ moonDragging: true });
+    }
   }
 
   invDown(iid, defId, e) {
