@@ -2855,48 +2855,44 @@ class Component extends DCLogic {
       return { img, difficulty, x, y, scale, rotation, flip, loaded: false };
     };
 
-    // Jittered position/scale/rotation/mirroring around each hand-placed
-    // anchor point, generated fresh every time the game opens — this is
-    // what breaks up the mechanical, stamped-grid look of a handful of
-    // repeated sprites and makes the coverage read as organic growth
-    // instead of a tiled pattern.
-    const pushOrganicLayer = (imgSrc, difficulty, anchorX, anchorY, baseScale, rotationRange) => {
-      const scale = baseScale * (0.85 + Math.random() * 0.35);
-      const rotation = (Math.random() * 2 - 1) * rotationRange;
-      const flip = Math.random() < 0.5;
-      const x = anchorX + (Math.random() * 2 - 1) * 20;
-      const y = anchorY + (Math.random() * 2 - 1) * 20;
-      this.scrubLayers.push(loadLayer(imgSrc, difficulty, x, y, scale, rotation, flip));
-    };
-
     // Match the larger 720x540 canvas declared in the markup
     const canvasWidth = 720;
     const canvasHeight = 540;
     el.width = canvasWidth;
     el.height = canvasHeight;
 
-    // Layer 1: Easy seaweed (background coverage) - many more layers for COMPLETE coverage
-    // Seaweed stays close to upright (gentle sway) rather than spinning freely.
-    [[-80, -40], [100, -20], [320, 0], [480, -60], [-120, 150], [200, 120], [400, 180], [120, 300], [350, 280], [500, 350]]
-      .forEach(([x, y]) => pushOrganicLayer("assets/seaweed-layer1.png", 1, x, y, 1.6, 14));
+    // Each source PNG is a single large "hero" illustration of one whole
+    // frond or one whole barnacle cluster, not a small repeatable texture
+    // tile — at the scale previously used, one instance alone covered most
+    // of the canvas, so a handful of them just stacked giant images on top
+    // of each other instead of reading as a bed of many distinct plants.
+    // Scatter many small instances across a jittered grid instead: that's
+    // what actually produces an organic, naturally-covered look. Rotation
+    // is kept mild (not a full spin) because both the seaweed (roots down)
+    // and the barnacles (cirri up) have a clear natural "up" orientation —
+    // spinning them upside-down reads as wrong, not organic.
+    const scatterLayer = (imgSrcs, difficulty, cellSize, scaleMin, scaleMax, rotationRange) => {
+      const cols = Math.ceil(canvasWidth / cellSize) + 2;
+      const rows = Math.ceil(canvasHeight / cellSize) + 2;
+      for (let r = -1; r < rows - 1; r++) {
+        for (let c = -1; c < cols - 1; c++) {
+          const x = c * cellSize + cellSize / 2 + (Math.random() * 2 - 1) * cellSize * 0.42;
+          const y = r * cellSize + cellSize / 2 + (Math.random() * 2 - 1) * cellSize * 0.42;
+          const src = imgSrcs[Math.floor(Math.random() * imgSrcs.length)];
+          const scale = scaleMin + Math.random() * (scaleMax - scaleMin);
+          const rotation = (Math.random() * 2 - 1) * rotationRange;
+          const flip = Math.random() < 0.5;
+          this.scrubLayers.push(loadLayer(src, difficulty, x, y, scale, rotation, flip));
+        }
+      }
+    };
 
-    // Layer 2: Medium seaweed patches - more extensive coverage
-    [["assets/seaweed-layer2.png", -40, 60, 1.2], ["assets/seaweed-layer2.png", 160, 20, 1.1], ["assets/seaweed-layer2.png", 360, 40, 1.0], ["assets/seaweed-layer2.png", 520, 80, 0.95],
-     ["assets/seaweed-layer3.png", 80, 180, 1.0], ["assets/seaweed-layer3.png", 280, 160, 0.95], ["assets/seaweed-layer3.png", 440, 200, 0.9],
-     ["assets/seaweed-layer2.png", 40, 320, 0.85], ["assets/seaweed-layer3.png", 200, 360, 0.8], ["assets/seaweed-layer2.png", 380, 340, 0.75], ["assets/seaweed-layer3.png", 540, 280, 0.7]]
-      .forEach(([src, x, y, scale]) => pushOrganicLayer(src, 2, x, y, scale, 18));
-
-    // Layer 3: Tough barnacles (hardest to clean) - extensive coverage with proper scaling
-    // Barnacle clusters read fine at any angle, so let them spin freely —
-    // that's also what best disguises only two source images repeating ~27 times.
-    [["assets/barnacle1.png", 30, 30, 0.25], ["assets/barnacle2.png", 100, 50, 0.28], ["assets/barnacle1.png", 180, 25, 0.22], ["assets/barnacle2.png", 260, 60, 0.26],
-     ["assets/barnacle1.png", 350, 40, 0.24], ["assets/barnacle2.png", 430, 55, 0.27], ["assets/barnacle1.png", 540, 35, 0.23], ["assets/barnacle2.png", 60, 140, 0.25],
-     ["assets/barnacle1.png", 140, 160, 0.29], ["assets/barnacle2.png", 220, 130, 0.21], ["assets/barnacle1.png", 310, 170, 0.26], ["assets/barnacle2.png", 400, 145, 0.24],
-     ["assets/barnacle1.png", 490, 165, 0.28], ["assets/barnacle2.png", 570, 125, 0.22], ["assets/barnacle1.png", 45, 260, 0.27], ["assets/barnacle2.png", 130, 290, 0.23],
-     ["assets/barnacle1.png", 210, 255, 0.25], ["assets/barnacle2.png", 300, 310, 0.26], ["assets/barnacle1.png", 390, 270, 0.24], ["assets/barnacle2.png", 475, 295, 0.28],
-     ["assets/barnacle1.png", 560, 250, 0.21], ["assets/barnacle2.png", 85, 390, 0.26], ["assets/barnacle1.png", 175, 420, 0.22], ["assets/barnacle2.png", 270, 385, 0.29],
-     ["assets/barnacle1.png", 365, 415, 0.24], ["assets/barnacle2.png", 460, 375, 0.27], ["assets/barnacle1.png", 555, 405, 0.23]]
-      .forEach(([src, x, y, scale]) => pushOrganicLayer(src, 3, x, y, scale, 180));
+    // Layer 1: easy background seaweed — small fronds, dense coverage
+    scatterLayer(["assets/seaweed-layer1.png"], 1, 190, 0.28, 0.46, 16);
+    // Layer 2: medium seaweed patches, slightly denser and smaller
+    scatterLayer(["assets/seaweed-layer2.png", "assets/seaweed-layer3.png"], 2, 165, 0.22, 0.38, 20);
+    // Layer 3: tough barnacle clusters — small, dense, only a gentle tilt
+    scatterLayer(["assets/barnacle1.png", "assets/barnacle2.png"], 3, 115, 0.09, 0.15, 22);
 
     // Draw progressively as each image finishes, and redraw on every
     // load/error — waiting for every single image before the first draw
@@ -2953,7 +2949,7 @@ class Component extends DCLogic {
       }
 
       const heatFactor = nextHeat / 100; // 0 = calm, 1 = furious
-      const scrubRadius = Math.max(8, (32 / difficulty) * (1 - heatFactor * 0.6));
+      const scrubRadius = Math.max(14, (52 / difficulty) * (1 - heatFactor * 0.5));
 
       // Play feedback occasionally based on difficulty and how hot the crab is
       const feedbackChance = 0.12 * difficulty * (0.4 + heatFactor);
