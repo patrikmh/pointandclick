@@ -2981,16 +2981,23 @@ class Component extends DCLogic {
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
+    // scrubAt() leaves the context permanently in "destination-out" mode so
+    // player strokes erase the canvas. This function runs again later too
+    // (every time a texture image finishes loading), and if it draws while
+    // that mode is still active, every layer punches a hole instead of
+    // painting — which is why textures could silently fail to appear on a
+    // cold first load. Force normal painting for the whole redraw, then put
+    // the mode back the way scrubAt() expects it.
+    const priorCompositeOp = ctx.globalCompositeOperation;
+    ctx.globalCompositeOperation = "source-over";
+
     // Solid base so the whole canvas starts covered, even where the
     // seaweed art itself has transparent gaps between strands
-    ctx.save();
-    ctx.globalCompositeOperation = "source-over";
     const baseGradient = ctx.createLinearGradient(0, 0, 0, height);
     baseGradient.addColorStop(0, "#1f4a3a");
     baseGradient.addColorStop(1, "#123024");
     ctx.fillStyle = baseGradient;
     ctx.fillRect(0, 0, width, height);
-    ctx.restore();
 
     // Draw each layer with proper scaling for the larger canvas
     const scaleFactor = width / 640; // Scale based on our new canvas size
@@ -3004,6 +3011,8 @@ class Component extends DCLogic {
         ctx.restore();
       }
     });
+
+    ctx.globalCompositeOperation = priorCompositeOp;
   }
 
   getScrubDifficultyAt(x, y) {
