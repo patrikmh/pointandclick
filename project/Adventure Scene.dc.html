@@ -270,23 +270,23 @@
 
   <sc-if value="{{ scrubOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(540px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div style="width:min(800px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.82 0.05 80);background:oklch(0.15 0.011 60 / 0.7);padding:4px 8px;border-radius:6px;border:1px solid oklch(0.5 0.05 80 / 0.5)">KÄNSLIGHET: {{ crabPatience }}%</div>
+              <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:oklch(0.82 0.05 80);background:oklch(0.15 0.011 60 / 0.7);padding:4px 8px;border-radius:6px;border:1px solid oklch(0.5 0.05 80 / 0.5)">KÄNSLIGHET: {{ crabPatience }}%</div>
             </div>
-            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:14px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
           </div>
-          <button onClick="{{ scrubClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button onClick="{{ scrubClose }}" style="width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:14px;cursor:pointer">✕</button>
         </div>
-        <div style="position:relative;width:min(480px,calc(100vw - 64px));height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
+        <div style="position:relative;width:min(720px,calc(100vw - 96px));height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
           <img src="assets/crab-free.png" alt="" draggable="false" style="position:absolute;left:50%;top:55%;width:74%;transform:translate(-50%,-50%);pointer-events:none">
-          <canvas ref="{{ setScrubCanvas }}" width="480" height="360" style="{{ scrubCanvasStyle }}"></canvas>
-          <img ref="{{ setScrubBrush }}" src="assets/scrub-brush.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:150px;pointer-events:none;transform:translate(-20%,-50%) rotate(-30deg);opacity:0;transition:opacity 0.15s ease;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.5))">
+          <canvas ref="{{ setScrubCanvas }}" width="720" height="540" style="{{ scrubCanvasStyle }}"></canvas>
+          <img ref="{{ setScrubBrush }}" src="assets/scrub-brush.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:200px;pointer-events:none;transform:translate(-20%,-50%) rotate(-30deg);opacity:0;transition:opacity 0.15s ease;filter:drop-shadow(0 6px 8px rgba(0,0,0,0.6))">
         </div>
-        <div style="width:min(480px,calc(100vw - 64px));height:8px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
+        <div style="width:min(720px,calc(100vw - 96px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
           <div style="{{ scrubBarStyle }}"></div>
         </div>
       </div>
@@ -295,7 +295,7 @@
 
   <sc-if value="{{ paintOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(580px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div style="width:min(880px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <img src="assets/cod-closed.png" alt="" style="width:34px;height:34px;object-fit:contain">
           <div style="flex:1">
@@ -304,17 +304,22 @@
           </div>
           <button onClick="{{ paintClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
-        <canvas ref="{{ setPaintCanvas }}" width="520" height="360" aria-label="Målarduk för {{ paintPrompt }}" style="display:block;width:min(520px,calc(100vw - 64px));height:auto;aspect-ratio:13/9;background:#f7f1e3;border-radius:10px;cursor:crosshair;touch-action:none"></canvas>
+        <canvas ref="{{ setPaintCanvas }}" width="780" height="540" aria-label="Målarduk för {{ paintPrompt }}" style="display:block;width:min(780px,calc(100vw - 64px));height:auto;aspect-ratio:13/9;background:#f7f1e3;border-radius:10px;cursor:crosshair;touch-action:none"></canvas>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%">
           <sc-for list="{{ paintColors }}" as="c" hint-placeholder-count="0">
             <div onClick="{{ c.pick }}" style="{{ c.style }}"></div>
           </sc-for>
+          <div style="width:1px;align-self:stretch;background:oklch(0.5 0.02 60 / 0.4);margin:0 2px"></div>
+          <sc-for list="{{ paintSizes }}" as="sz" hint-placeholder-count="0">
+            <button onClick="{{ sz.pick }}" style="{{ sz.style }}"><div style="{{ sz.dotStyle }}"></div></button>
+          </sc-for>
           <div style="flex:1"></div>
+          <button onClick="{{ paintUndo }}" style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.8 0.012 80);background:transparent;border:1px solid oklch(0.5 0.02 60 / 0.5);border-radius:8px;padding:7px 12px;cursor:pointer">Ångra</button>
           <button onClick="{{ paintClear }}" style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.8 0.012 80);background:transparent;border:1px solid oklch(0.5 0.02 60 / 0.5);border-radius:8px;padding:7px 12px;cursor:pointer">Sudda</button>
           <button onClick="{{ paintSubmit }}" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:8px 16px;cursor:pointer">{{ paintSubmitLabel }}</button>
         </div>
         <sc-if value="{{ paintVerdict }}" hint-placeholder-val="">
-          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ paintVerdict }}</div>
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:780px;text-align:center">{{ paintVerdict }}</div>
         </sc-if>
       </div>
     </div>
@@ -1622,6 +1627,7 @@ class Component extends DCLogic {
     { key: "sjudden", label: "en sjöjätt" },
   ];
   paintColor = "#2a2118";
+  paintSize = 7;
 
   codClick(e) {
     e.stopPropagation();
@@ -1812,21 +1818,39 @@ class Component extends DCLogic {
     ctx.fillRect(0, 0, el.width, el.height);
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    this.paintUndoStack = [];
     let drawing = false;
     const pos = (ev) => {
       const r = el.getBoundingClientRect();
       return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
     };
-    el.onpointerdown = (ev) => { drawing = true; el.setPointerCapture(ev.pointerId); const p = pos(ev); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    el.onpointerdown = (ev) => {
+      drawing = true;
+      el.setPointerCapture(ev.pointerId);
+      this.paintUndoStack.push(ctx.getImageData(0, 0, el.width, el.height));
+      if (this.paintUndoStack.length > 20) this.paintUndoStack.shift();
+      const p = pos(ev);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    };
     el.onpointermove = (ev) => {
       if (!drawing) return;
       const p = pos(ev);
+      const isEraser = this.paintColor === "#f7f1e3";
       ctx.strokeStyle = this.paintColor;
-      ctx.lineWidth = this.paintColor === "#f7f1e3" ? 22 : 7;
+      ctx.lineWidth = isEraser ? this.paintSize * 3 : this.paintSize;
       ctx.lineTo(p.x, p.y);
       ctx.stroke();
     };
     el.onpointerup = () => { drawing = false; };
+  }
+
+  undoPaintCanvas() {
+    const el = this.paintCanvasEl;
+    if (!el || !this.paintUndoStack || !this.paintUndoStack.length) return;
+    const ctx = el.getContext("2d");
+    const snapshot = this.paintUndoStack.pop();
+    ctx.putImageData(snapshot, 0, 0);
   }
 
   clearPaintCanvas() {
@@ -1835,6 +1859,7 @@ class Component extends DCLogic {
     const ctx = el.getContext("2d");
     ctx.fillStyle = "#f7f1e3";
     ctx.fillRect(0, 0, el.width, el.height);
+    this.paintUndoStack = [];
   }
 
   async submitPainting() {
@@ -1848,13 +1873,15 @@ class Component extends DCLogic {
     let ok = false, verdict = "";
     let reply;
 
-    // Progressive difficulty system prompts
+    // Progressive difficulty system prompts — this is a mouse/touch doodle game,
+    // not a fine-art critique, so even the later levels stay lenient about skill
+    // and only ask that the basic shape of the motif is recognizable.
     const levelPrompts = {
-      1: "Du är en varm och lugn konstnärstorsk som bedömer elevmålningar. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort kommentar på tydlig svenska utan utländska ord\"}. Var mycket generös — enkla barnteckningar godkänns om motivet går att ana, ens om det är mycket primitivt.",
-      2: "Du är en konstnärstorsk som bedömer elevmålningar. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort kommentar på tydlig svenska\"}. Var lite mer krävande — motivet ska vara igenkänligt men behöver inte vara detaljerat.",
-      3: "Du är en krävande konstnärstorsk som bedömer elevmålningar. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kritisk kommentar på svenska\"}. Var mer krävande — motivet ska vara tydligt och ha några grundläggande detaljer.",
-      4: "Du är en mycket krävande konstkritiker. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kritisk konstkommentar på svenska\"}. Var mycket krävande — sök konstnärligt uttryck, komposition och egenart. Enkla skisser godkänns ej.",
-      5: "Du är en elitskola instruktör som endast accepterar exceptionell konst. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"brutalt ärlig konstkommentar på svenska\"}. Var extremt krävande — endast verk med originalitet, stark komposition och konstnärligt djup godkänns. Allt annat avvisas."
+      1: "Du är en varm och lugn konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort uppmuntrande kommentar på tydlig svenska utan utländska ord\"}. Var extremt generös — godkänn nästan allt så länge det finns någon form av försök att avbilda motivet, även enkla streck eller klumpiga former.",
+      2: "Du är en snäll konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort uppmuntrande kommentar på tydlig svenska\"}. Var mycket generös — godkänn om man kan ana motivet i grova drag, detaljer eller precision krävs inte alls.",
+      3: "Du är en vänlig konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort kommentar på svenska\"}. Var generös — motivets grundform ska gå att känna igen, men enkla eller barnsliga teckningar godkänns fint.",
+      4: "Du är en konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort, vänlig kommentar på svenska\"}. Var fortsatt förlåtande — kom ihåg att det målas med mus eller finger, inte pensel. Godkänn så fort motivet är igenkänningsbart, oavsett hur enkelt det är.",
+      5: "Du är en varm konstskole-instruktör som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort, hjärtlig kommentar på svenska\"}. Detta är slutprovet men fortfarande ett enkelt spel — godkänn allt där motivet är rimligt igenkänningsbart. Kräv aldrig konstnärlig originalitet, komposition eller djup."
     };
 
     try {
@@ -1862,7 +1889,7 @@ class Component extends DCLogic {
       reply = await window.claude.complete({
         system: levelPrompts[level] || levelPrompts[1],
         messages: [{ role: "user", content: [
-          { type: "text", text: "Eleven skulle måla: " + target.label + ". Bedöm konstnärligt uttryck, komposition och originalitet." },
+          { type: "text", text: "Eleven skulle måla: " + target.label + ". Bedöm bara om motivet går att känna igen — det här är ett enkelt musmålningsspel, inte en konstskola på riktigt." },
           { type: "image", source: { type: "base64", media_type: "image/png", data: dataUrl.split(",")[1] } },
         ] }],
         max_tokens: 200,
@@ -2541,32 +2568,65 @@ class Component extends DCLogic {
       return { img, difficulty, x, y, scale, loaded: false };
     };
 
-    // Layer 1: Easy seaweed (background coverage) - multiple layers for full coverage
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 0, 0, 1.2));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 200, 50, 1.0));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, -50, 150, 0.9));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 300, 200, 0.85));
+    // Match the larger 720x540 canvas declared in the markup
+    const canvasWidth = 720;
+    const canvasHeight = 540;
+    el.width = canvasWidth;
+    el.height = canvasHeight;
 
-    // Layer 2: Medium seaweed patches - placed strategically to cover different areas
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 20, 80, 0.75));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 280, 40, 0.7));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 150, 220, 0.65));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 380, 120, 0.6));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 100, 280, 0.55));
+    // Layer 1: Easy seaweed (background coverage) - many more layers for COMPLETE coverage
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, -80, -40, 1.8));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 100, -20, 1.6));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 320, 0, 1.7));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 480, -60, 1.5));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, -120, 150, 1.4));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 200, 120, 1.6));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 400, 180, 1.5));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 120, 300, 1.3));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 350, 280, 1.4));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 500, 350, 1.2));
 
-    // Layer 3: Tough barnacles (hardest to clean) - many more, properly scaled
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 50, 50, 0.15));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 120, 100, 0.12));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 200, 60, 0.18));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 280, 140, 0.14));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 350, 90, 0.16));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 400, 180, 0.13));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 80, 250, 0.15));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 180, 320, 0.11));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 320, 280, 0.17));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 420, 240, 0.14));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 150, 380, 0.12));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 260, 350, 0.16));
+    // Layer 2: Medium seaweed patches - more extensive coverage
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, -40, 60, 1.2));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 160, 20, 1.1));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 360, 40, 1.0));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 520, 80, 0.95));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 80, 180, 1.0));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 280, 160, 0.95));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 440, 200, 0.9));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 40, 320, 0.85));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 200, 360, 0.8));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 380, 340, 0.75));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 540, 280, 0.7));
+
+    // Layer 3: Tough barnacles (hardest to clean) - extensive coverage with proper scaling
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 30, 30, 0.25));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 100, 50, 0.28));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 180, 25, 0.22));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 260, 60, 0.26));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 350, 40, 0.24));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 430, 55, 0.27));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 540, 35, 0.23));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 60, 140, 0.25));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 140, 160, 0.29));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 220, 130, 0.21));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 310, 170, 0.26));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 400, 145, 0.24));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 490, 165, 0.28));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 570, 125, 0.22));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 45, 260, 0.27));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 130, 290, 0.23));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 210, 255, 0.25));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 300, 310, 0.26));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 390, 270, 0.24));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 475, 295, 0.28));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 560, 250, 0.21));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 85, 390, 0.26));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 175, 420, 0.22));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 270, 385, 0.29));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 365, 415, 0.24));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 460, 375, 0.27));
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 555, 405, 0.23));
 
     // Wait for images to load then draw
     let loadedCount = 0;
@@ -2576,6 +2636,9 @@ class Component extends DCLogic {
         this.drawScrubLayers(ctx, el.width, el.height);
       }
     };
+
+    // Reset canvas state when opening the mini-game
+    this.setState({ scrubPct: 0, crabPatience: 100 });
 
     this.scrubLayers.forEach(layer => {
       if (layer.img.complete) {
@@ -2598,19 +2661,22 @@ class Component extends DCLogic {
 
     const scrubAt = (p) => {
       const difficulty = this.getScrubDifficultyAt(p.x, p.y);
-      // Progressive difficulty - harder to clean as patience decreases
-      const patienceMultiplier = 1 + (1 - (this.state.crabPatience / 100)) * 0.3; // Up to 30% harder
-      const scrubRadius = (26 / difficulty) / patienceMultiplier; // Smaller radius as patience decreases
+      // Proper sensitivity mechanic - harder to clean as patience decreases
+      const patienceFactor = this.state.crabPatience / 100; // 1.0 at full patience, 0.0 at zero
+      const patienceMultiplier = 1 + (1 - patienceFactor) * 0.8; // Up to 80% harder as patience drops
+      const scrubRadius = Math.max(8, (32 / difficulty) / patienceMultiplier); // Smaller radius as patience decreases, but never too small
 
-      // Scrubbing harder areas decreases crab patience faster
-      if (difficulty >= 2 && Math.random() < 0.2) {
-        const currentPatience = Math.max(0, this.state.crabPatience - 1);
+      // Scrubbing harder areas decreases crab patience faster based on sensitivity
+      const patienceDecrease = Math.floor(difficulty * (1.5 - patienceFactor) * 2); // More decrease when patience is low and difficulty is high
+      if (patienceDecrease > 0 && Math.random() < 0.3) {
+        const currentPatience = Math.max(0, this.state.crabPatience - patienceDecrease);
         this.setState({ crabPatience: currentPatience });
       }
 
-      // Play feedback occasionally based on difficulty
-      if (Math.random() < 0.15 * difficulty) {
-        this.playScrubFeedback(difficulty);
+      // Play feedback occasionally based on difficulty and sensitivity
+      const feedbackChance = 0.15 * difficulty * (2 - patienceFactor);
+      if (Math.random() < feedbackChance) {
+        this.playScrubFeedback(difficulty, patienceFactor);
       }
 
       ctx.beginPath();
@@ -2624,7 +2690,9 @@ class Component extends DCLogic {
       b.style.left = (ev.clientX - r.left) + "px";
       b.style.top = (ev.clientY - r.top) + "px";
       b.style.opacity = "1";
-      b.style.transform = `translate(-14%,-50%) rotate(${scrubbing ? -38 + Math.sin(Date.now() / 60) * 9 : -30}deg)`;
+      const brushAngle = scrubbing ? -38 + Math.sin(Date.now() / 50) * 12 : -30;
+      const brushScale = scrubbing ? 1.1 + Math.sin(Date.now() / 80) * 0.1 : 1.0;
+      b.style.transform = `translate(-20%,-50%) rotate(${brushAngle}deg) scale(${brushScale})`;
     };
     el.onpointerdown = (ev) => {
       scrubbing = true;
@@ -2647,12 +2715,25 @@ class Component extends DCLogic {
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Draw each layer
+    // Solid base so the whole canvas starts covered, even where the
+    // seaweed art itself has transparent gaps between strands
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+    const baseGradient = ctx.createLinearGradient(0, 0, 0, height);
+    baseGradient.addColorStop(0, "#1f4a3a");
+    baseGradient.addColorStop(1, "#123024");
+    ctx.fillStyle = baseGradient;
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+
+    // Draw each layer with proper scaling for the larger canvas
+    const scaleFactor = width / 640; // Scale based on our new canvas size
+
     this.scrubLayers.forEach(layer => {
       if (layer.loaded) {
         ctx.save();
-        ctx.translate(layer.x, layer.y);
-        ctx.scale(layer.scale, layer.scale);
+        ctx.translate(layer.x * scaleFactor, layer.y * scaleFactor);
+        ctx.scale(layer.scale * scaleFactor, layer.scale * scaleFactor);
         ctx.drawImage(layer.img, 0, 0);
         ctx.restore();
       }
@@ -2662,10 +2743,12 @@ class Component extends DCLogic {
   getScrubDifficultyAt(x, y) {
     // Check which layer pixel is being scrubbed
     let maxDifficulty = 1;
+    const scaleFactor = this.scrubCanvasEl ? this.scrubCanvasEl.width / 640 : 1;
+
     this.scrubLayers.forEach(layer => {
       if (!layer.loaded) return;
-      const localX = (x - layer.x) / layer.scale;
-      const localY = (y - layer.y) / layer.scale;
+      const localX = (x - layer.x * scaleFactor) / (layer.scale * scaleFactor);
+      const localY = (y - layer.y * scaleFactor) / (layer.scale * scaleFactor);
       if (localX >= 0 && localX <= layer.img.width && localY >= 0 && localY <= layer.img.height) {
         maxDifficulty = Math.max(maxDifficulty, layer.difficulty);
       }
@@ -2673,19 +2756,37 @@ class Component extends DCLogic {
     return maxDifficulty;
   }
 
-  playScrubFeedback(difficulty) {
+  playScrubFeedback(difficulty, patienceFactor) {
     const now = Date.now();
     if (now - (this.scrubLastFeedback || 0) < 800) return; // Don't play too frequently
     this.scrubLastFeedback = now;
 
-    // Placeholder verbal feedback based on difficulty
+    // Verbal feedback based on difficulty and patience level
     const phrases = {
-      1: ["Kliar det!", "Så där ja!", "Fortsätt så!"],
-      2: ["Lite segare!", "Kräftor vad det sitter!", "Håll ut!"],
-      3: ["Hjälp vad det sitter!", "Tufft jobb!", "Sega sillar!"]
+      1: {
+        high: ["Kliar det!", "Så där ja!", "Fortsätt så!"],
+        medium: ["Oj, noga där!", "Lugnt och fint!", "Tack!"],
+        low: ["AJ! försiktigare!", "Kliar och bränner!", "Håll tillbaka!"]
+      },
+      2: {
+        high: ["Lite segare!", "Kräftor vad det sitter!", "Håll ut!"],
+        medium: ["Hörru, varså!", "Inte för hårt!", "Oj!"],
+        low: ["AJ! lugna ner dig!", "Gör ont!", "Ta det lugnt!"]
+      },
+      3: {
+        high: ["Hjälp vad det sitter!", "Tufft jobb!", "Sega sillar!"],
+        medium: ["Oj, varså!", "Håller på att ge upp!", "Snällare!"],
+        low: ["AJAJ! Ta det lugnt!", "Gör ont!", "Stopp!"]
+      }
     };
 
-    const phraseList = phrases[difficulty] || phrases[1];
+    // Determine patience level
+    let patienceLevel;
+    if (patienceFactor > 0.7) patienceLevel = "high";
+    else if (patienceFactor > 0.4) patienceLevel = "medium";
+    else patienceLevel = "low";
+
+    const phraseList = phrases[difficulty]?.[patienceLevel] || phrases[1].high;
     const phrase = phraseList[Math.floor(Math.random() * phraseList.length)];
 
     // Simple beep as placeholder
@@ -2770,7 +2871,8 @@ class Component extends DCLogic {
     const ctx = el.getContext("2d");
     const d = ctx.getImageData(0, 0, el.width, el.height).data;
     let clear = 0, total = 0;
-    for (let i = 3; i < d.length; i += 32) { total++; if (d[i] < 40) clear++; }
+    // Sample more pixels for larger canvas to maintain accuracy
+    for (let i = 3; i < d.length; i += 48) { total++; if (d[i] < 40) clear++; }
     const pct = Math.round((clear / total) * 100);
     this.setState({ scrubPct: pct });
     if (pct >= 82) this.finishScrub();
@@ -2981,6 +3083,7 @@ class Component extends DCLogic {
     this.sealClicking = false;
     this.subClicking = false;
     this.paintColor = "#2a2118";
+    this.paintSize = 7;
     this.paintCanvasEl = null;
     this.scrubCanvasEl = null;
     this.scrubBrushEl = null;
@@ -3300,7 +3403,7 @@ class Component extends DCLogic {
       scrubClose: () => this.setState({ scrubOpen: false }),
       setScrubCanvas: (el) => this.initScrubCanvas(el),
       scrubBarStyle: `height:100%;width:${Math.min(100, Math.round((S.scrubPct / 82) * 100))}%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));transition:width 0.3s ease`,
-      scrubCanvasStyle: `position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none`,
+      scrubCanvasStyle: `position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;image-rendering:pixelated`,
       setScrubBrush: (el) => { this.scrubBrushEl = el; },
       paintOpen: S.paintOpen,
       paintPrompt: S.paintOpen ? this.paintTargets[S.paintIdx].label : "",
@@ -3309,11 +3412,17 @@ class Component extends DCLogic {
       paintSubmitLabel: S.paintBusy ? "Torsken granskar..." : "Klar!",
       paintClose: () => this.setState({ paintOpen: false }),
       paintClear: () => this.clearPaintCanvas(),
+      paintUndo: () => this.undoPaintCanvas(),
       paintSubmit: () => this.submitPainting(),
       setPaintCanvas: (el) => this.initPaintCanvas(el),
-      paintColors: ["#2a2118", "#c0392b", "#2471a3", "#1e8449", "#f1c40f", "#f7f1e3"].map((col) => ({
+      paintColors: ["#111111", "#7d5a3c", "#c0392b", "#e67e22", "#f1c40f", "#1e8449", "#16a085", "#2471a3", "#8e44ad", "#e84393", "#ffffff", "#f7f1e3"].map((col) => ({
         pick: () => { this.paintColor = col; this.forceUpdate(); },
-        style: `width:26px;height:26px;border-radius:50%;background:${col};cursor:pointer;border:2px solid ${this.paintColor === col ? "oklch(0.85 0.1 80)" : "rgba(0,0,0,0.4)"}`,
+        style: `width:24px;height:24px;border-radius:50%;background:${col};cursor:pointer;border:2px solid ${this.paintColor === col ? "oklch(0.85 0.1 80)" : "rgba(0,0,0,0.4)"}`,
+      })),
+      paintSizes: [{ label: "Tunn", size: 3 }, { label: "Mellan", size: 7 }, { label: "Tjock", size: 14 }].map((sz) => ({
+        pick: () => { this.paintSize = sz.size; this.forceUpdate(); },
+        style: `width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${this.paintSize === sz.size ? "oklch(0.3 0.03 70)" : "transparent"};border:1px solid oklch(0.5 0.02 60 / 0.5);cursor:pointer;padding:0`,
+        dotStyle: `width:${sz.size}px;height:${sz.size}px;border-radius:50%;background:oklch(0.85 0.05 82)`,
       })),
       gullGameOpen: S.gullGameOpen,
       gullGameHits: S.gullGameHits,
