@@ -289,6 +289,9 @@
         <div style="width:min(720px,calc(100vw - 96px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
           <div style="{{ scrubBarStyle }}"></div>
         </div>
+        <sc-if value="{{ scrubFeedbackMsg }}" hint-placeholder-val="">
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:720px;text-align:center">Krabban: "{{ scrubFeedbackMsg }}"</div>
+        </sc-if>
       </div>
     </div>
   </sc-if>
@@ -342,6 +345,58 @@
         </div>
         <sc-if value="{{ gullGameMsg }}" hint-placeholder-val="">
           <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ gullGameMsg }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sealGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SÄLENS FOTOSESSION</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Håll siktet över sälen tills ringen blir grön, klicka för att knäppa — Bilder: {{ sealGameShots }}/3 &nbsp;·&nbsp; Film kvar: {{ sealGameFilm }}</div>
+          </div>
+          <button onClick="{{ sealGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div ref="{{ setSealGameStage }}" onClick="{{ sealShoot }}" tabindex="-1" style="position:relative;width:min(640px,calc(100vw - 64px));height:auto;aspect-ratio:640/420;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#12536e,#0a3245);box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
+          <img ref="{{ setSealGameSeal }}" src="assets/seal-open.png" alt="Sälen" draggable="false" style="position:absolute;left:0;top:0;width:220px;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+          <div ref="{{ setSealViewfinder }}" style="position:absolute;left:0;top:0;width:150px;height:150px;border-radius:50%;border:3px solid oklch(0.85 0.05 82 / 0.6);pointer-events:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.28);transition:border-color 0.1s ease"></div>
+        </div>
+        <div style="width:min(640px,calc(100vw - 64px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
+          <div ref="{{ setSealFocusBar }}" style="height:100%;width:0%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130))"></div>
+        </div>
+        <sc-if value="{{ sealGameMsg }}" hint-placeholder-val="">
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:640px;text-align:center">{{ sealGameMsg }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ badgerGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div style="width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:14px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div style="flex:1">
+            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">PORTFÖLJENS KOMBINATIONSLÅS</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Försök kvar: {{ badgerGameAttemptsLeft }}</div>
+          </div>
+          <button onClick="{{ badgerGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div style="display:flex;gap:18px;align-items:center;justify-content:center">
+          <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+              <button onClick="{{ d.up }}" style="width:34px;height:28px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.85 0.05 82);font-size:14px;cursor:pointer">▲</button>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:oklch(0.92 0.03 90);width:44px;text-align:center;background:oklch(0.15 0.011 60 / 0.7);border-radius:8px;padding:6px 0;border:1px solid oklch(0.5 0.05 80 / 0.4)">{{ d.value }}</div>
+              <button onClick="{{ d.down }}" style="width:34px;height:28px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.85 0.05 82);font-size:14px;cursor:pointer">▼</button>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:16px;height:20px;color:{{ d.feedbackColor }}">{{ d.feedback }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ badgerGameSubmit }}" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:9px 20px;cursor:pointer">Öppna</button>
+        <sc-if value="{{ badgerGameMsg }}" hint-placeholder-val="">
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:440px;text-align:center">{{ badgerGameMsg }}</div>
         </sc-if>
       </div>
     </div>
@@ -458,6 +513,7 @@ class Component extends DCLogic {
     sheepFrame: "closed",
     scrubOpen: false,
     scrubPct: 0,
+    scrubFeedbackMsg: "",
     crabPatience: 100, // Crab's patience/sensitivity level
     crabWatered: false,
     otterFreed: false,
@@ -466,6 +522,16 @@ class Component extends DCLogic {
     gullGameHits: 0,
     gullGameBombs: 6,
     gullGameMsg: "",
+    sealGameOpen: false,
+    sealGameShots: 0,
+    sealGameFilm: 8,
+    sealGameMsg: "",
+    badgerGameOpen: false,
+    badgerGameCode: [1, 2, 3],
+    badgerGameGuess: [0, 0, 0],
+    badgerGameAttemptsLeft: 6,
+    badgerGameFeedback: ["", "", ""],
+    badgerGameMsg: "",
     scene: "center",
     returnScene: "center",
     edgeR: false,
@@ -1026,54 +1092,12 @@ class Component extends DCLogic {
     }
     if (defId === "briefcase" && target === "badger") {
       if (this.state.badgerHappy) { this.say("", "Grävlingen har redan sin portfölj.", null); return; }
-      this.setState({ badgerHappy: true, badgerFrame: "happy" });
-      let removed = false;
-      this.setState((s) => ({
-        inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: "flashlight-" + Date.now(), defId: "flashlight" }]),
-      }));
-      this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null);
-      if (this.badgerNode) {
-        this.badgerNode.animate(
-          [
-            { transform: "translateY(0)" },
-            { transform: "translateY(-22px)" },
-            { transform: "translateY(0)" },
-            { transform: "translateY(-12px)" },
-            { transform: "translateY(0)" },
-          ],
-          { duration: 850, easing: "ease-in-out" }
-        );
-      }
+      this.openBadgerGame();
       return;
     }
     if (defId === "camera" && target === "seal") {
       if (this.state.sealHappy) { this.say("", "Sälen poserar redan för fullt.", null); return; }
-      this.setState({ sealHappy: true, sealFrame: "open" });
-      if (!this.sealCameraSound) this.sealCameraSound = new Audio("assets/seal-camera.mp3");
-      this.sealCameraSound.currentTime = 0;
-      this.sealCameraSound.play().catch(() => {});
-      // white camera-flash over the scene
-      const flash = document.createElement("div");
-      flash.style.cssText = "position:fixed;inset:0;z-index:95;background:white;pointer-events:none;opacity:0.95";
-      document.body.appendChild(flash);
-      flash.animate([{ opacity: 0.95 }, { opacity: 0 }], { duration: 550, easing: "ease-out" }).onfinish = () => flash.remove();
-      this.setState((s) => ({
-        inventory: s.inventory.concat([{ iid: "battery-" + Date.now(), defId: "battery" }]),
-      }));
-      this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null);
-      if (this.sealNode) {
-        this.sealNode.animate(
-          [
-            { transform: "translateY(0) rotate(0deg)" },
-            { transform: "translateY(-26px) rotate(-5deg)" },
-            { transform: "translateY(0) rotate(3deg)" },
-            { transform: "translateY(-14px) rotate(-2deg)" },
-            { transform: "translateY(0) rotate(0deg)" },
-          ],
-          { duration: 900, easing: "ease-in-out" }
-        );
-      }
-      this.scheduleGameAction(() => this.setState({ sealFrame: "closed" }), 2200);
+      this.openSealGame();
       return;
     }
     if (defId === "shard" && target === "gull") {
@@ -1213,6 +1237,87 @@ class Component extends DCLogic {
     }, 15000);
   }
 
+  openBadgerGame() {
+    this.setState({
+      badgerGameOpen: true,
+      badgerGameCode: [0, 1, 2].map(() => 1 + Math.floor(Math.random() * 9)),
+      badgerGameGuess: [0, 0, 0],
+      badgerGameAttemptsLeft: 6,
+      badgerGameFeedback: ["", "", ""],
+      badgerGameMsg: "Grävlingens portfölj är låst med tre siffror. Gissa koden — pilen visar om siffran ska vara högre eller lägre.",
+    });
+  }
+
+  closeBadgerGame() {
+    this.setState({ badgerGameOpen: false });
+  }
+
+  bumpBadgerDial(i, delta) {
+    this.setState((s) => {
+      const guess = s.badgerGameGuess.slice();
+      guess[i] = ((guess[i] + delta) % 10 + 10) % 10;
+      return { badgerGameGuess: guess };
+    });
+  }
+
+  submitBadgerGuess() {
+    const code = this.state.badgerGameCode;
+    const guess = this.state.badgerGameGuess;
+    const feedback = guess.map((g, i) => (g === code[i] ? "✓" : g < code[i] ? "↑" : "↓"));
+    const solved = feedback.every((f) => f === "✓");
+
+    if (solved) {
+      this.setState({ badgerGameOpen: false, badgerGameFeedback: feedback });
+      this.finishBadgerReturn();
+      return;
+    }
+
+    const attemptsLeft = this.state.badgerGameAttemptsLeft - 1;
+    if (attemptsLeft <= 0) {
+      if (this.badgerVoice) this.badgerVoice.pause();
+      const badgerClips = ["assets/badger-voice.mp3", "assets/badger-voice-2.mp3", "assets/badger-voice-3.mp3", "assets/badger-voice-4.mp3"];
+      this.badgerVoiceIdx = (this.badgerVoiceIdx == null) ? 0 : (this.badgerVoiceIdx + 1) % badgerClips.length;
+      this.badgerVoice = new Audio(badgerClips[this.badgerVoiceIdx]);
+      this.badgerVoice.volume = 0.85;
+      this.badgerVoice.play().catch(() => {});
+      this.setState({
+        badgerGameCode: [0, 1, 2].map(() => 1 + Math.floor(Math.random() * 9)),
+        badgerGameGuess: [0, 0, 0],
+        badgerGameAttemptsLeft: 6,
+        badgerGameFeedback: ["", "", ""],
+        badgerGameMsg: "Tid är pengar, om och om igen! Grävlingen blandar om siffrorna. Försök igen.",
+      });
+      return;
+    }
+    this.setState({
+      badgerGameFeedback: feedback,
+      badgerGameAttemptsLeft: attemptsLeft,
+      badgerGameMsg: "Fel kod. Försök kvar: " + attemptsLeft,
+    });
+  }
+
+  finishBadgerReturn() {
+    if (this.state.badgerHappy) return;
+    this.setState({ badgerHappy: true, badgerFrame: "happy" });
+    let removed = false;
+    this.setState((s) => ({
+      inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: "flashlight-" + Date.now(), defId: "flashlight" }]),
+    }));
+    this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null);
+    if (this.badgerNode) {
+      this.badgerNode.animate(
+        [
+          { transform: "translateY(0)" },
+          { transform: "translateY(-22px)" },
+          { transform: "translateY(0)" },
+          { transform: "translateY(-12px)" },
+          { transform: "translateY(0)" },
+        ],
+        { duration: 850, easing: "ease-in-out" }
+      );
+    }
+  }
+
   otterClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
@@ -1350,6 +1455,175 @@ class Component extends DCLogic {
         this.setState({ sealFrame: "closed" });
       }
     }, 15000);
+  }
+
+  sealGameConfig = {
+    stageW: 640, stageH: 420,
+    sealW: 220, sealH: 220 * (250 / 590),
+    focusRadius: 95,
+    focusGainPerSec: 80,
+    focusDecayPerSec: 100,
+    goodShotThreshold: 70,
+    shotsToWin: 3,
+    filmPerBatch: 8,
+    driftSpeedMin: 55, driftSpeedMax: 120,
+  };
+
+  openSealGame() {
+    const cfg = this.sealGameConfig;
+    this.setState({
+      sealGameOpen: true,
+      sealGameShots: 0,
+      sealGameFilm: cfg.filmPerBatch,
+      sealGameMsg: "Håll siktet över sälen tills fokusringen blir grön, knäpp sedan bilden!",
+    });
+  }
+
+  closeSealGame() {
+    this.teardownSealGame();
+    this.setState({ sealGameOpen: false });
+  }
+
+  teardownSealGame() {
+    this.sealGameRunning = false;
+    if (this.sealGameRAF) { cancelAnimationFrame(this.sealGameRAF); this.sealGameRAF = null; }
+    this.sealGameStageEl = null;
+    this.sealGameSealEl = null;
+    this.sealViewfinderEl = null;
+    this.sealFocusBarEl = null;
+  }
+
+  initSealGameStage(el) {
+    if (!el || el === this.sealGameStageEl) return;
+    this.sealGameStageEl = el;
+    const cfg = this.sealGameConfig;
+    const speed1 = cfg.driftSpeedMin + Math.random() * (cfg.driftSpeedMax - cfg.driftSpeedMin);
+    const speed2 = cfg.driftSpeedMin + Math.random() * (cfg.driftSpeedMax - cfg.driftSpeedMin);
+    this.sealGameSeal = {
+      x: cfg.stageW * 0.5,
+      y: cfg.stageH * 0.5,
+      vx: (Math.random() < 0.5 ? -1 : 1) * speed1,
+      vy: (Math.random() < 0.5 ? -1 : 1) * speed2 * 0.6,
+    };
+    this.sealGameView = { x: cfg.stageW / 2, y: cfg.stageH / 2 };
+    this.sealGameFocusValue = 0;
+    const pos = (ev) => {
+      const r = el.getBoundingClientRect();
+      return {
+        x: (ev.clientX - r.left) * (cfg.stageW / r.width),
+        y: (ev.clientY - r.top) * (cfg.stageH / r.height),
+      };
+    };
+    el.onpointermove = (ev) => {
+      const p = pos(ev);
+      this.sealGameView.x = p.x;
+      this.sealGameView.y = p.y;
+      if (this.sealViewfinderEl) {
+        this.sealViewfinderEl.style.transform = `translate(${p.x - 75}px, ${p.y - 75}px)`;
+      }
+    };
+    this.sealGameRunning = true;
+    this.sealGameLastTs = null;
+    this.sealGameRAF = requestAnimationFrame((ts) => this.sealGameLoop(ts));
+  }
+
+  sealGameLoop(ts) {
+    if (!this.sealGameRunning) return;
+    if (this.sealGameLastTs == null) this.sealGameLastTs = ts;
+    const dt = Math.min(0.05, (ts - this.sealGameLastTs) / 1000);
+    this.sealGameLastTs = ts;
+    const cfg = this.sealGameConfig;
+    const seal = this.sealGameSeal;
+
+    seal.x += seal.vx * dt;
+    seal.y += seal.vy * dt;
+    const mx = cfg.sealW * 0.46, my = cfg.sealH * 0.46;
+    if (seal.x < mx) { seal.x = mx; seal.vx = Math.abs(seal.vx); }
+    if (seal.x > cfg.stageW - mx) { seal.x = cfg.stageW - mx; seal.vx = -Math.abs(seal.vx); }
+    if (seal.y < my) { seal.y = my; seal.vy = Math.abs(seal.vy); }
+    if (seal.y > cfg.stageH - my) { seal.y = cfg.stageH - my; seal.vy = -Math.abs(seal.vy); }
+
+    if (this.sealGameSealEl) {
+      this.sealGameSealEl.style.transform = `translate(${seal.x - cfg.sealW / 2}px, ${seal.y - cfg.sealH / 2}px)`;
+    }
+
+    const dist = Math.hypot(this.sealGameView.x - seal.x, this.sealGameView.y - seal.y);
+    const inFocus = dist < cfg.focusRadius;
+    let focus = this.sealGameFocusValue || 0;
+    focus += (inFocus ? cfg.focusGainPerSec : -cfg.focusDecayPerSec) * dt;
+    focus = Math.max(0, Math.min(100, focus));
+    this.sealGameFocusValue = focus;
+    if (this.sealFocusBarEl) this.sealFocusBarEl.style.width = focus.toFixed(1) + "%";
+    if (this.sealViewfinderEl) {
+      this.sealViewfinderEl.style.borderColor = inFocus ? "oklch(0.8 0.15 140)" : "oklch(0.85 0.05 82 / 0.6)";
+    }
+
+    this.sealGameRAF = requestAnimationFrame((t2) => this.sealGameLoop(t2));
+  }
+
+  shootSealPhoto() {
+    if (!this.state.sealGameOpen) return;
+    const cfg = this.sealGameConfig;
+    const focus = this.sealGameFocusValue || 0;
+    this.sfx("click");
+
+    if (focus >= cfg.goodShotThreshold) {
+      const shots = this.state.sealGameShots + 1;
+      if (!this.sealCameraSound) this.sealCameraSound = new Audio("assets/seal-camera.mp3");
+      this.sealCameraSound.currentTime = 0;
+      this.sealCameraSound.play().catch(() => {});
+      if (this.sealGameStageEl) {
+        const flash = document.createElement("div");
+        flash.style.cssText = "position:absolute;inset:0;z-index:5;background:white;pointer-events:none;opacity:0.9;border-radius:10px";
+        this.sealGameStageEl.appendChild(flash);
+        flash.animate([{ opacity: 0.9 }, { opacity: 0 }], { duration: 400, easing: "ease-out" }).onfinish = () => flash.remove();
+      }
+      if (shots >= cfg.shotsToWin) {
+        this.teardownSealGame();
+        this.setState({ sealGameOpen: false, sealGameShots: shots });
+        this.finishSealPhotoshoot();
+        return;
+      }
+      this.setState({ sealGameShots: shots, sealGameMsg: "Perfekt bild! Nästa: " + (shots + 1) + "/" + cfg.shotsToWin + "." });
+      return;
+    }
+
+    const film = this.state.sealGameFilm - 1;
+    if (film <= 0) {
+      this.setState({ sealGameFilm: cfg.filmPerBatch, sealGameMsg: "Suddigt! Filmen tog slut — här är en ny rulle, försök igen." });
+    } else {
+      this.setState({ sealGameFilm: film, sealGameMsg: "Suddigt! Håll siktet stilla över sälen tills mätaren är full." });
+    }
+  }
+
+  finishSealPhotoshoot() {
+    if (this.state.sealHappy) return;
+    this.setState({ sealHappy: true, sealFrame: "open" });
+    if (!this.sealCameraSound) this.sealCameraSound = new Audio("assets/seal-camera.mp3");
+    this.sealCameraSound.currentTime = 0;
+    this.sealCameraSound.play().catch(() => {});
+    // white camera-flash over the scene
+    const flash = document.createElement("div");
+    flash.style.cssText = "position:fixed;inset:0;z-index:95;background:white;pointer-events:none;opacity:0.95";
+    document.body.appendChild(flash);
+    flash.animate([{ opacity: 0.95 }, { opacity: 0 }], { duration: 550, easing: "ease-out" }).onfinish = () => flash.remove();
+    this.setState((s) => ({
+      inventory: s.inventory.concat([{ iid: "battery-" + Date.now(), defId: "battery" }]),
+    }));
+    this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null);
+    if (this.sealNode) {
+      this.sealNode.animate(
+        [
+          { transform: "translateY(0) rotate(0deg)" },
+          { transform: "translateY(-26px) rotate(-5deg)" },
+          { transform: "translateY(0) rotate(3deg)" },
+          { transform: "translateY(-14px) rotate(-2deg)" },
+          { transform: "translateY(0) rotate(0deg)" },
+        ],
+        { duration: 900, easing: "ease-in-out" }
+      );
+    }
+    this.scheduleGameAction(() => this.setState({ sealFrame: "closed" }), 2200);
   }
 
   combine(iidA, iidB) {
@@ -2517,7 +2791,6 @@ class Component extends DCLogic {
     if (this.state.crabWatered) {
       this.setState({ scrubOpen: true, scrubPct: 0, crabPatience: 100 });
       this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null);
-      this.startScrubTimer();
       return;
     }
     const hasBucket = this.state.inventory.some((it) => it.defId === "bucket");
@@ -2543,14 +2816,9 @@ class Component extends DCLogic {
     if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
     this.crabCycle = null;
     if (this.crabScreamAudio) this.crabScreamAudio.pause();
-    let removed = false;
-    this.setState((s) => ({
-      crabWatered: true,
-      inventory: s.inventory.filter((it) => {
-        if (!removed && it.defId === "bucket") { removed = true; return false; }
-        return true;
-      }),
-    }));
+    // The bucket stays in inventory until the crab is actually freed — closing
+    // the scrub game early shouldn't cost the player their water.
+    this.setState({ crabWatered: true });
     // water loosens the seaweed — now scrub it off
     this.scheduleGameAction(() => this.setState({ scrubOpen: true, scrubPct: 0 }), 600);
     this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null);
@@ -2795,77 +3063,11 @@ class Component extends DCLogic {
     // Simple beep as placeholder
     this.sfx("click");
 
-    // Show feedback text
-    this.say("Krabban", phrase, null);
-
-    // Clear feedback after a moment
-    setTimeout(() => {
-      if (this.state.dialogSpeaker === "Krabban") {
-        this.setState({ dialogSpeaker: "", dialogText: "" });
-      }
-    }, 1200);
-  }
-
-  startScrubTimer() {
-    if (this.scrubTimer) clearInterval(this.scrubTimer);
-    this.scrubTimer = setInterval(() => {
-      const currentPatience = this.state.crabPatience - 1; // Decrease patience over time
-      if (currentPatience <= 0) {
-        this.failScrub();
-      } else {
-        this.setState({ crabPatience: currentPatience });
-        // Crab complains at certain sensitivity levels
-        if (currentPatience === 75 || currentPatience === 50 || currentPatience === 25 || currentPatience === 10) {
-          this.crabComplain(currentPatience);
-        }
-      }
-    }, 1000);
-  }
-
-  crabComplain(patience) {
-    const complaints = {
-      high: [
-        "AJ! Var lite mer försiktig!",
-        "Kliar det! Skrubba lugnare!",
-        "Oj va noga du var..."
-      ],
-      medium: [
-        "Hörru, försiktigt med klorna!",
-        "Inte så hårt!",
-        "Känns lite bättre... men fortsätt lugnt."
-      ],
-      low: [
-        "Tålamodet tryter!",
-        "Krabban blir otålig!",
-        "Sista chansen - försiktigt!"
-      ],
-      critical: [
-        "AJ! Nu räcker det!",
-        "Krabban har fått nog!",
-        "Ge upp! Det gör för ont!"
-      ]
-    };
-
-    let complaintList;
-    if (patience >= 70) complaintList = complaints.high;
-    else if (patience >= 40) complaintList = complaints.medium;
-    else if (patience >= 20) complaintList = complaints.low;
-    else complaintList = complaints.critical;
-
-    const complaint = complaintList[Math.floor(Math.random() * complaintList.length)];
-    this.say("Krabban", complaint, null);
-
-    // Placeholder complaint sound
-    this.sfx("click");
-  }
-
-  failScrub() {
-    clearInterval(this.scrubTimer);
-    this.scrubTimer = null;
-    this.setState({ scrubOpen: false, crabWatered: false, scrubPct: 0 });
-    this.crabSpeak("AJ! Det gjorde för ont! Krabban har gömt sig djuptare i sjögräset igen.", null);
-    this.say("", "Krabban blev för känslig. Du måste börja om med nytt vatten.", null);
-    this.sfx("click"); // Fail sound placeholder
+    // Show feedback inside the scrub modal itself — the global dialog box
+    // renders behind the modal backdrop (z-index 20 vs 85) and would be invisible here.
+    this.setState({ scrubFeedbackMsg: phrase });
+    clearTimeout(this.scrubFeedbackClear);
+    this.scrubFeedbackClear = setTimeout(() => this.setState({ scrubFeedbackMsg: "" }), 1400);
   }
 
   checkScrubProgress() {
@@ -2897,7 +3099,15 @@ class Component extends DCLogic {
     }
     this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen! Här, ta den här biten som minne.", "assets/crab-thanks.mp3");
 
-    // Add seaweed to inventory as reward
+    // The bucket is spent now that the water actually did its job, and
+    // the crab hands over a seaweed keepsake as a reward.
+    let removedBucket = false;
+    this.setState((s) => ({
+      inventory: s.inventory.filter((it) => {
+        if (!removedBucket && it.defId === "bucket") { removedBucket = true; return false; }
+        return true;
+      }),
+    }));
     setTimeout(() => {
       this.setState((s) => ({
         inventory: [...s.inventory, {
@@ -3052,6 +3262,7 @@ class Component extends DCLogic {
     clearTimeout(this.sealClickEnd);
     clearTimeout(this.otterClickEnd);
     clearTimeout(this.badgerClickEnd);
+    clearTimeout(this.scrubFeedbackClear);
     clearTimeout(this.introTimer);
     clearInterval(this.ambienceFade);
     clearInterval(this.fireplaceFade);
@@ -3091,6 +3302,7 @@ class Component extends DCLogic {
     this.scrubCanvasEl = null;
     this.scrubBrushEl = null;
     this.teardownGullGame();
+    this.teardownSealGame();
     document.body.classList.remove("grabbing");
     this.nodes = {};
     this.setState({
@@ -3141,12 +3353,23 @@ class Component extends DCLogic {
       sheepFrame: "closed",
       scrubOpen: false,
       scrubPct: 0,
+      scrubFeedbackMsg: "",
       crabPatience: 100,
       crabWatered: false,
       gullGameOpen: false,
       gullGameHits: 0,
       gullGameBombs: 6,
       gullGameMsg: "",
+      sealGameOpen: false,
+      sealGameShots: 0,
+      sealGameFilm: 8,
+      sealGameMsg: "",
+      badgerGameOpen: false,
+      badgerGameCode: [1, 2, 3],
+      badgerGameGuess: [0, 0, 0],
+      badgerGameAttemptsLeft: 6,
+      badgerGameFeedback: ["", "", ""],
+      badgerGameMsg: "",
       scene: "center",
       returnScene: "center",
       edgeR: false,
@@ -3193,6 +3416,7 @@ class Component extends DCLogic {
     if (this.gullVoice) this.gullVoice.pause();
     if (this.snore) this.snore.pause();
     this.teardownGullGame();
+    this.teardownSealGame();
   }
 
   posFor(key) {
@@ -3403,6 +3627,7 @@ class Component extends DCLogic {
       codWrapStyle: `position:absolute;left:${72 + this.posFor("cod").ox}%;top:${58 + this.posFor("cod").oy}%;width:${34 * this.posFor("cod").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-50%);animation:codBob 4.2s ease-in-out infinite`,
       scrubOpen: S.scrubOpen,
       scrubPct: S.scrubPct,
+      scrubFeedbackMsg: S.scrubFeedbackMsg,
       scrubClose: () => this.setState({ scrubOpen: false }),
       setScrubCanvas: (el) => this.initScrubCanvas(el),
       scrubBarStyle: `height:100%;width:${Math.min(100, Math.round((S.scrubPct / 82) * 100))}%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));transition:width 0.3s ease`,
@@ -3438,6 +3663,28 @@ class Component extends DCLogic {
       setGullWaterCanvas: (el) => { if (el) this.initGullWaterCanvas(el); },
       setGullBoatRef: (el) => { if (el) this.gullGameBoatEl = el; },
       setGullPlaneRef: (el) => { if (el) this.gullGamePlaneEl = el; },
+      sealGameOpen: S.sealGameOpen,
+      sealGameShots: S.sealGameShots,
+      sealGameFilm: S.sealGameFilm,
+      sealGameMsg: S.sealGameMsg,
+      sealGameClose: () => this.closeSealGame(),
+      setSealGameStage: (el) => this.initSealGameStage(el),
+      setSealGameSeal: (el) => { if (el) this.sealGameSealEl = el; },
+      setSealViewfinder: (el) => { if (el) this.sealViewfinderEl = el; },
+      setSealFocusBar: (el) => { if (el) this.sealFocusBarEl = el; },
+      sealShoot: () => this.shootSealPhoto(),
+      badgerGameOpen: S.badgerGameOpen,
+      badgerGameAttemptsLeft: S.badgerGameAttemptsLeft,
+      badgerGameMsg: S.badgerGameMsg,
+      badgerGameClose: () => this.closeBadgerGame(),
+      badgerGameSubmit: () => this.submitBadgerGuess(),
+      badgerGameDials: S.badgerGameGuess.map((val, i) => ({
+        value: val,
+        up: () => this.bumpBadgerDial(i, 1),
+        down: () => this.bumpBadgerDial(i, -1),
+        feedback: S.badgerGameFeedback[i] || "",
+        feedbackColor: S.badgerGameFeedback[i] === "✓" ? "oklch(0.75 0.15 145)" : "oklch(0.8 0.1 70)",
+      })),
       octoSrc: "assets/octo-" + S.octoFrame + ".png",
       setOctoRef: (el) => { if (el) this.octoNode = el; },
       otterSrc: S.otterFreed ? "assets/otter-free.png" : ("assets/otter-" + S.otterFrame + ".png"),
