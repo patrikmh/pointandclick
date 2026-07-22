@@ -359,23 +359,23 @@
 
   <sc-if value="{{ sealGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SÄLENS FOTOSESSION</div>
-            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Håll siktet över sälen tills ringen blir grön, klicka för att knäppa — Bilder: {{ sealGameShots }}/3 &nbsp;·&nbsp; Film kvar: {{ sealGameFilm }}</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Sikta kamerans hål över sälen tills glaset lyser grönt, klicka för att knäppa — Bilder: {{ sealGameShots }}/3 &nbsp;·&nbsp; Film kvar: {{ sealGameFilm }}</div>
           </div>
           <button onClick="{{ sealGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
-        <div ref="{{ setSealGameStage }}" onClick="{{ sealShoot }}" tabindex="-1" style="position:relative;width:min(640px,calc(100vw - 64px));height:auto;aspect-ratio:640/420;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#12536e,#0a3245);box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
-          <img ref="{{ setSealGameSeal }}" src="assets/seal-open.png" alt="Sälen" draggable="false" style="position:absolute;left:0;top:0;width:220px;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
-          <div ref="{{ setSealViewfinder }}" style="position:absolute;left:0;top:0;width:150px;height:150px;border-radius:50%;border:3px solid oklch(0.85 0.05 82 / 0.6);pointer-events:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.28);transition:border-color 0.1s ease"></div>
+        <div ref="{{ setSealGameStage }}" onClick="{{ sealShoot }}" tabindex="-1" style="position:relative;width:min(760px,calc(100vw - 64px));height:auto;aspect-ratio:760/500;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#12536e,#0a3245);box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:none;touch-action:none">
+          <img ref="{{ setSealGameSeal }}" src="assets/seal-open.png" alt="Sälen" draggable="false" style="position:absolute;left:0;top:0;width:262px;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+          <img ref="{{ setSealViewfinder }}" src="assets/camera-viewfinder.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:460px;pointer-events:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.45);filter:drop-shadow(0 4px 8px rgba(0,0,0,0.6));transition:filter 0.1s ease">
         </div>
-        <div style="width:min(640px,calc(100vw - 64px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
+        <div style="width:min(760px,calc(100vw - 64px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
           <div ref="{{ setSealFocusBar }}" style="height:100%;width:0%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130))"></div>
         </div>
         <sc-if value="{{ sealGameMsg }}" hint-placeholder-val="">
-          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:640px;text-align:center">{{ sealGameMsg }}</div>
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:760px;text-align:center">{{ sealGameMsg }}</div>
         </sc-if>
       </div>
     </div>
@@ -383,27 +383,40 @@
 
   <sc-if value="{{ badgerGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:14px;align-items:center">
+      <div style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">PORTFÖLJENS KOMBINATIONSLÅS</div>
-            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Försök kvar: {{ badgerGameAttemptsLeft }}</div>
+            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Klicka på låset för att pröva koden — Försök kvar: {{ badgerGameAttemptsLeft }}</div>
           </div>
           <button onClick="{{ badgerGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
-        <div style="display:flex;gap:18px;align-items:center;justify-content:center">
-          <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-              <button onClick="{{ d.up }}" style="width:34px;height:28px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.85 0.05 82);font-size:14px;cursor:pointer">▲</button>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:oklch(0.92 0.03 90);width:44px;text-align:center;background:oklch(0.15 0.011 60 / 0.7);border-radius:8px;padding:6px 0;border:1px solid oklch(0.5 0.05 80 / 0.4)">{{ d.value }}</div>
-              <button onClick="{{ d.down }}" style="width:34px;height:28px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.85 0.05 82);font-size:14px;cursor:pointer">▼</button>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:16px;height:20px;color:{{ d.feedbackColor }}">{{ d.feedback }}</div>
-            </div>
-          </sc-for>
+        <div style="width:min(680px,calc(100vw - 64px));display:flex;flex-direction:column">
+          <div style="position:relative;height:30px">
+            <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
+              <button onClick="{{ d.up }}" style="position:absolute;left:{{ d.pctX }}%;top:0;transform:translateX(-50%);width:30px;height:26px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.2 0.02 60 / 0.7);color:oklch(0.9 0.05 82);font-size:13px;cursor:pointer">▲</button>
+            </sc-for>
+          </div>
+          <div style="position:relative;width:100%;aspect-ratio:2752/1536">
+            <img src="assets/briefcase-lock.png" alt="Portföljens kombinationslås" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+            <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
+              <div style="position:absolute;left:{{ d.pctX }}%;top:53.3%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:clamp(18px,4.2vw,32px);font-weight:700;color:oklch(0.22 0.04 60);text-shadow:0 1px 0 rgba(255,255,255,0.35);pointer-events:none">{{ d.value }}</div>
+            </sc-for>
+            <button onClick="{{ badgerGameSubmit }}" aria-label="Pröva koden" title="Pröva koden" style="position:absolute;left:22.3%;top:53.7%;width:19%;height:32.5%;transform:translate(-50%,-50%);background:transparent;border:none;cursor:pointer"></button>
+          </div>
+          <div style="position:relative;height:30px">
+            <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
+              <button onClick="{{ d.down }}" style="position:absolute;left:{{ d.pctX }}%;top:4px;transform:translateX(-50%);width:30px;height:26px;border-radius:6px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.2 0.02 60 / 0.7);color:oklch(0.9 0.05 82);font-size:13px;cursor:pointer">▼</button>
+            </sc-for>
+          </div>
+          <div style="position:relative;height:22px">
+            <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
+              <div style="position:absolute;left:{{ d.pctX }}%;top:0;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:15px;color:{{ d.feedbackColor }}">{{ d.feedback }}</div>
+            </sc-for>
+          </div>
         </div>
-        <button onClick="{{ badgerGameSubmit }}" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:9px 20px;cursor:pointer">Öppna</button>
         <sc-if value="{{ badgerGameMsg }}" hint-placeholder-val="">
-          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:440px;text-align:center">{{ badgerGameMsg }}</div>
+          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:680px;text-align:center">{{ badgerGameMsg }}</div>
         </sc-if>
       </div>
     </div>
@@ -710,7 +723,7 @@ class Component extends DCLogic {
     // preload every scene background + character/item frame so scene switches are instant
     this._imgCache = [];
     Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
-    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","battery","briefcase","flashlight","key-buried","key-full"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
+    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
     // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
     try {
       this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
@@ -1465,15 +1478,20 @@ class Component extends DCLogic {
   }
 
   sealGameConfig = {
-    stageW: 640, stageH: 420,
-    sealW: 220, sealH: 220 * (250 / 590),
-    focusRadius: 95,
+    stageW: 760, stageH: 500,
+    sealW: 262, sealH: 262 * (250 / 590),
+    // camera-viewfinder.png is 693x326 (cropped tight to its opaque content)
+    // with a transparent window roughly centered in it — the player looks
+    // at the seal through that hole.
+    viewfinderW: 460, viewfinderH: 460 * (326 / 693),
+    focusRadius: 45,
     focusGainPerSec: 80,
     focusDecayPerSec: 100,
     goodShotThreshold: 70,
     shotsToWin: 3,
     filmPerBatch: 8,
-    driftSpeedMin: 55, driftSpeedMax: 120,
+    driftSpeedMin: 65, driftSpeedMax: 143,
+    speedBoostPerShot: 1.45,
   };
 
   openSealGame() {
@@ -1521,12 +1539,17 @@ class Component extends DCLogic {
         y: (ev.clientY - r.top) * (cfg.stageH / r.height),
       };
     };
+    if (this.sealViewfinderEl) {
+      const vw0 = cfg.viewfinderW / 2, vh0 = cfg.viewfinderH / 2;
+      this.sealViewfinderEl.style.transform = `translate(${this.sealGameView.x - vw0}px, ${this.sealGameView.y - vh0}px)`;
+    }
     el.onpointermove = (ev) => {
       const p = pos(ev);
       this.sealGameView.x = p.x;
       this.sealGameView.y = p.y;
       if (this.sealViewfinderEl) {
-        this.sealViewfinderEl.style.transform = `translate(${p.x - 75}px, ${p.y - 75}px)`;
+        const vw = cfg.viewfinderW / 2, vh = cfg.viewfinderH / 2;
+        this.sealViewfinderEl.style.transform = `translate(${p.x - vw}px, ${p.y - vh}px)`;
       }
     };
     this.sealGameRunning = true;
@@ -1562,7 +1585,9 @@ class Component extends DCLogic {
     this.sealGameFocusValue = focus;
     if (this.sealFocusBarEl) this.sealFocusBarEl.style.width = focus.toFixed(1) + "%";
     if (this.sealViewfinderEl) {
-      this.sealViewfinderEl.style.borderColor = inFocus ? "oklch(0.8 0.15 140)" : "oklch(0.85 0.05 82 / 0.6)";
+      this.sealViewfinderEl.style.filter = inFocus
+        ? "drop-shadow(0 4px 8px rgba(0,0,0,0.6)) drop-shadow(0 0 16px oklch(0.8 0.15 140))"
+        : "drop-shadow(0 4px 8px rgba(0,0,0,0.6))";
     }
 
     this.sealGameRAF = requestAnimationFrame((t2) => this.sealGameLoop(t2));
@@ -1584,6 +1609,11 @@ class Component extends DCLogic {
         flash.style.cssText = "position:absolute;inset:0;z-index:5;background:white;pointer-events:none;opacity:0.9;border-radius:10px";
         this.sealGameStageEl.appendChild(flash);
         flash.animate([{ opacity: 0.9 }, { opacity: 0 }], { duration: 400, easing: "ease-out" }).onfinish = () => flash.remove();
+      }
+      // He gets camera-shy and darts around faster after every good shot.
+      if (this.sealGameSeal) {
+        this.sealGameSeal.vx *= cfg.speedBoostPerShot;
+        this.sealGameSeal.vy *= cfg.speedBoostPerShot;
       }
       if (shots >= cfg.shotsToWin) {
         this.teardownSealGame();
@@ -3723,6 +3753,7 @@ class Component extends DCLogic {
       badgerGameSubmit: () => this.submitBadgerGuess(),
       badgerGameDials: S.badgerGameGuess.map((val, i) => ({
         value: val,
+        pctX: [40.2, 51.5, 62.4][i],
         up: () => this.bumpBadgerDial(i, 1),
         down: () => this.bumpBadgerDial(i, -1),
         feedback: S.badgerGameFeedback[i] || "",
