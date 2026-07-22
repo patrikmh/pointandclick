@@ -278,21 +278,23 @@
           </div>
           <button onClick="{{ scrubClose }}" style="width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:14px;cursor:pointer">✕</button>
         </div>
-        <div style="width:min(720px,calc(100vw - 96px))">
-          <div style="display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:oklch(0.75 0.1 40);margin-bottom:4px">
-            <span>KÄNSLIGHET — SKRUBBA FÖRSIKTIGT</span>
+        <div style="display:flex;gap:16px;align-items:stretch;width:min(720px,calc(100vw - 96px))">
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
+            <div style="position:relative;width:100%;height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
+              <img src="assets/crab-free.png" alt="" draggable="false" style="position:absolute;left:50%;top:55%;width:74%;transform:translate(-50%,-50%);pointer-events:none">
+              <canvas ref="{{ setScrubCanvas }}" width="720" height="540" style="{{ scrubCanvasStyle }}"></canvas>
+              <img ref="{{ setScrubBrush }}" src="assets/scrub-brush.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:200px;pointer-events:none;transform:translate(-20%,-50%) rotate(-30deg);opacity:0;transition:opacity 0.15s ease;filter:drop-shadow(0 6px 8px rgba(0,0,0,0.6))">
+            </div>
+            <div style="width:100%;height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
+              <div style="{{ scrubBarStyle }}"></div>
+            </div>
           </div>
-          <div style="width:100%;height:14px;border-radius:5px;background:oklch(0.22 0.02 30);overflow:hidden;border:1px solid oklch(0.4 0.05 30 / 0.6)">
-            <div style="{{ crabHeatBarStyle }}"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:64px;flex-shrink:0">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.04em;color:oklch(0.75 0.1 40);text-align:center;line-height:1.3">KÄNSLIG-<br>HET</div>
+            <div style="width:100%;flex:1;min-height:220px;border-radius:10px;background:oklch(0.22 0.02 30);overflow:hidden;border:1px solid oklch(0.4 0.05 30 / 0.6);display:flex;flex-direction:column;justify-content:flex-end">
+              <div style="{{ crabHeatBarStyle }}"></div>
+            </div>
           </div>
-        </div>
-        <div style="position:relative;width:min(720px,calc(100vw - 96px));height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
-          <img src="assets/crab-free.png" alt="" draggable="false" style="position:absolute;left:50%;top:55%;width:74%;transform:translate(-50%,-50%);pointer-events:none">
-          <canvas ref="{{ setScrubCanvas }}" width="720" height="540" style="{{ scrubCanvasStyle }}"></canvas>
-          <img ref="{{ setScrubBrush }}" src="assets/scrub-brush.png" alt="" draggable="false" style="position:absolute;left:0;top:0;width:200px;pointer-events:none;transform:translate(-20%,-50%) rotate(-30deg);opacity:0;transition:opacity 0.15s ease;filter:drop-shadow(0 6px 8px rgba(0,0,0,0.6))">
-        </div>
-        <div style="width:min(720px,calc(100vw - 96px));height:10px;border-radius:4px;background:oklch(0.25 0.02 60);overflow:hidden">
-          <div style="{{ scrubBarStyle }}"></div>
         </div>
         <sc-if value="{{ scrubFeedbackMsg }}" hint-placeholder-val="">
           <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:720px;text-align:center">Krabban: "{{ scrubFeedbackMsg }}"</div>
@@ -2840,8 +2842,8 @@ class Component extends DCLogic {
     this.teardownScrubHeat();
     this.scrubHeatTimer = setInterval(() => {
       if (!this.state.scrubOpen) return;
-      this.setState((s) => ({ crabHeat: Math.max(0, (s.crabHeat || 0) - 3) }));
-    }, 120);
+      this.setState((s) => ({ crabHeat: Math.max(0, (s.crabHeat || 0) - 1.5) }));
+    }, 150);
 
     // Create multi-layer seaweed puzzle with different textures
     this.scrubLayers = [];
@@ -2944,20 +2946,21 @@ class Component extends DCLogic {
     const scrubAt = (p) => {
       const difficulty = this.getScrubDifficultyAt(p.x, p.y);
 
-      // How hard the player is actually scrubbing right now, measured as
-      // pointer speed — fast strokes heat the crab up fast, slow careful
-      // strokes barely register. This is what drives the red meter.
+      // How hard the player is actually scrubbing right now. This is based
+      // on distance moved rather than raw event speed — a high-polling-rate
+      // mouse fires pointermove far more often than a low one, and scoring
+      // by speed-per-event let that alone spike the meter almost instantly
+      // regardless of how "hard" the player was actually scrubbing.
+      // Distance moved per event is stable across polling rates instead.
       const now = Date.now();
-      let speed = 0;
+      let dist = 0;
       if (this.scrubLastPos) {
-        const dist = Math.hypot(p.x - this.scrubLastPos.x, p.y - this.scrubLastPos.y);
-        const dt = Math.max(1, now - this.scrubLastMoveTs);
-        speed = dist / dt; // px per ms
+        dist = Math.min(120, Math.hypot(p.x - this.scrubLastPos.x, p.y - this.scrubLastPos.y));
       }
       this.scrubLastPos = p;
       this.scrubLastMoveTs = now;
 
-      const heatGain = Math.min(14, speed * 22) * (0.7 + difficulty * 0.3);
+      const heatGain = dist * 0.045 * (0.6 + difficulty * 0.25);
       const nextHeat = Math.min(100, (this.state.crabHeat || 0) + heatGain);
       this.setState({ crabHeat: nextHeat });
 
@@ -3674,7 +3677,7 @@ class Component extends DCLogic {
       codWrapStyle: `position:absolute;left:${72 + this.posFor("cod").ox}%;top:${58 + this.posFor("cod").oy}%;width:${34 * this.posFor("cod").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-50%);animation:codBob 4.2s ease-in-out infinite`,
       scrubOpen: S.scrubOpen,
       scrubPct: S.scrubPct,
-      crabHeatBarStyle: `height:100%;width:${Math.min(100, S.crabHeat || 0).toFixed(1)}%;background:linear-gradient(90deg, oklch(0.5 0.19 27), oklch(0.62 0.24 27));transition:width 0.1s linear`,
+      crabHeatBarStyle: `width:100%;height:${Math.min(100, S.crabHeat || 0).toFixed(1)}%;background:linear-gradient(180deg, oklch(0.62 0.24 27), oklch(0.5 0.19 27));transition:height 0.1s linear`,
       scrubFeedbackMsg: S.scrubFeedbackMsg,
       scrubClose: () => { this.teardownScrubHeat(); this.setState({ scrubOpen: false }); },
       setScrubCanvas: (el) => this.initScrubCanvas(el),
