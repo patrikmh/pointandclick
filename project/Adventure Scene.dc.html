@@ -273,7 +273,10 @@
       <div style="width:min(540px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:oklch(0.82 0.05 80);background:oklch(0.15 0.011 60 / 0.7);padding:4px 8px;border-radius:6px;border:1px solid oklch(0.5 0.05 80 / 0.5)">KÄNSLIGHET: {{ crabPatience }}%</div>
+            </div>
             <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
           </div>
           <button onClick="{{ scrubClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
@@ -450,6 +453,7 @@ class Component extends DCLogic {
     sheepFrame: "closed",
     scrubOpen: false,
     scrubPct: 0,
+    crabPatience: 100, // Crab's patience/sensitivity level
     crabWatered: false,
     otterFreed: false,
     octoHealed: false,
@@ -2467,8 +2471,9 @@ class Component extends DCLogic {
       return;
     }
     if (this.state.crabWatered) {
-      this.setState({ scrubOpen: true, scrubPct: 0 });
-      this.say("", "Sjögräset är fortfarande mjukt av vattnet. Fortsätt skrubba så kommer krabban loss!", null);
+      this.setState({ scrubOpen: true, scrubPct: 0, crabPatience: 100 });
+      this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null);
+      this.startScrubTimer();
       return;
     }
     const hasBucket = this.state.inventory.some((it) => it.defId === "bucket");
@@ -2579,7 +2584,15 @@ class Component extends DCLogic {
 
     const scrubAt = (p) => {
       const difficulty = this.getScrubDifficultyAt(p.x, p.y);
-      const scrubRadius = 26 / difficulty; // Smaller radius for harder areas
+      // Progressive difficulty - harder to clean as patience decreases
+      const patienceMultiplier = 1 + (1 - (this.state.crabPatience / 100)) * 0.3; // Up to 30% harder
+      const scrubRadius = (26 / difficulty) / patienceMultiplier; // Smaller radius as patience decreases
+
+      // Scrubbing harder areas decreases crab patience faster
+      if (difficulty >= 2 && Math.random() < 0.2) {
+        const currentPatience = Math.max(0, this.state.crabPatience - 1);
+        this.setState({ crabPatience: currentPatience });
+      }
 
       // Play feedback occasionally based on difficulty
       if (Math.random() < 0.15 * difficulty) {
@@ -2673,6 +2686,68 @@ class Component extends DCLogic {
         this.setState({ dialogSpeaker: "", dialogText: "" });
       }
     }, 1200);
+  }
+
+  startScrubTimer() {
+    if (this.scrubTimer) clearInterval(this.scrubTimer);
+    this.scrubTimer = setInterval(() => {
+      const currentPatience = this.state.crabPatience - 1; // Decrease patience over time
+      if (currentPatience <= 0) {
+        this.failScrub();
+      } else {
+        this.setState({ crabPatience: currentPatience });
+        // Crab complains at certain sensitivity levels
+        if (currentPatience === 75 || currentPatience === 50 || currentPatience === 25 || currentPatience === 10) {
+          this.crabComplain(currentPatience);
+        }
+      }
+    }, 1000);
+  }
+
+  crabComplain(patience) {
+    const complaints = {
+      high: [
+        "AJ! Var lite mer försiktig!",
+        "Kliar det! Skrubba lugnare!",
+        "Oj va noga du var..."
+      ],
+      medium: [
+        "Hörru, försiktigt med klorna!",
+        "Inte så hårt!",
+        "Känns lite bättre... men fortsätt lugnt."
+      ],
+      low: [
+        "Tålamodet tryter!",
+        "Krabban blir otålig!",
+        "Sista chansen - försiktigt!"
+      ],
+      critical: [
+        "AJ! Nu räcker det!",
+        "Krabban har fått nog!",
+        "Ge upp! Det gör för ont!"
+      ]
+    };
+
+    let complaintList;
+    if (patience >= 70) complaintList = complaints.high;
+    else if (patience >= 40) complaintList = complaints.medium;
+    else if (patience >= 20) complaintList = complaints.low;
+    else complaintList = complaints.critical;
+
+    const complaint = complaintList[Math.floor(Math.random() * complaintList.length)];
+    this.say("Krabban", complaint, null);
+
+    // Placeholder complaint sound
+    this.sfx("click");
+  }
+
+  failScrub() {
+    clearInterval(this.scrubTimer);
+    this.scrubTimer = null;
+    this.setState({ scrubOpen: false, crabWatered: false, scrubPct: 0 });
+    this.crabSpeak("AJ! Det gjorde för ont! Krabban har gömt sig djuptare i sjögräset igen.", null);
+    this.say("", "Krabban blev för känslig. Du måste börja om med nytt vatten.", null);
+    this.sfx("click"); // Fail sound placeholder
   }
 
   checkScrubProgress() {
@@ -2946,6 +3021,7 @@ class Component extends DCLogic {
       sheepFrame: "closed",
       scrubOpen: false,
       scrubPct: 0,
+      crabPatience: 100,
       crabWatered: false,
       gullGameOpen: false,
       gullGameHits: 0,
