@@ -2899,14 +2899,11 @@ class Component extends DCLogic {
     this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 460, 375, 0.27));
     this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 555, 405, 0.23));
 
-    // Wait for images to load then draw
-    let loadedCount = 0;
-    const checkLoaded = () => {
-      loadedCount++;
-      if (loadedCount === this.scrubLayers.length) {
-        this.drawScrubLayers(ctx, el.width, el.height);
-      }
-    };
+    // Draw progressively as each image finishes, and redraw on every
+    // load/error — waiting for every single image before the first draw
+    // meant one failed request (common on a cold first page load) could
+    // leave the whole canvas blank forever.
+    const checkLoaded = () => this.drawScrubLayers(ctx, el.width, el.height);
 
     // Reset canvas state when opening the mini-game
     this.setState({ scrubPct: 0, crabPatience: 100 });
@@ -2914,14 +2911,12 @@ class Component extends DCLogic {
     this.scrubLayers.forEach(layer => {
       if (layer.img.complete) {
         layer.loaded = true;
-        checkLoaded();
       } else {
-        layer.img.onload = () => {
-          layer.loaded = true;
-          checkLoaded();
-        };
+        layer.img.onload = () => { layer.loaded = true; checkLoaded(); };
+        layer.img.onerror = () => checkLoaded();
       }
     });
+    checkLoaded();
 
     ctx.globalCompositeOperation = "destination-out";
     let scrubbing = false, lastCheck = 0, lastFeedback = 0;
@@ -3627,6 +3622,7 @@ class Component extends DCLogic {
       codWrapStyle: `position:absolute;left:${72 + this.posFor("cod").ox}%;top:${58 + this.posFor("cod").oy}%;width:${34 * this.posFor("cod").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-50%);animation:codBob 4.2s ease-in-out infinite`,
       scrubOpen: S.scrubOpen,
       scrubPct: S.scrubPct,
+      crabPatience: S.crabPatience,
       scrubFeedbackMsg: S.scrubFeedbackMsg,
       scrubClose: () => this.setState({ scrubOpen: false }),
       setScrubCanvas: (el) => this.initScrubCanvas(el),
