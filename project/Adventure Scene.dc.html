@@ -1873,15 +1873,18 @@ class Component extends DCLogic {
     let ok = false, verdict = "";
     let reply;
 
-    // Progressive difficulty system prompts — this is a mouse/touch doodle game,
-    // not a fine-art critique, so even the later levels stay lenient about skill
-    // and only ask that the basic shape of the motif is recognizable.
+    // Bob Torsk is a snobby art-school cod, but the actual grade never depends
+    // on creativity or originality — this is a mouse/touch doodle game. His
+    // "godkand" verdict is purely about whether the motif is recognizable;
+    // his "kommentar" is free to be an opinionated, individual, slightly
+    // snobbish remark about style, creativity or flair as pure flavor text.
+    const personaBase = "Du är Bob Torsk, en snobbig men i grunden hjärtlig konstnärstorsk som driver en målarskola. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort, personlig och lite snobbig kommentar på tydlig svenska utan utländska ord\"}. VIKTIGT: \"godkand\" ska ENDAST baseras på om motivet går att känna igen — bedöm aldrig kreativitet, originalitet eller konstnärlig kvalitet när du sätter godkand. Detta är ett enkelt spel där man målar med mus eller finger, inte en konstskola på riktigt, så var generös med godkännandet. I \"kommentar\" däremot får du gärna kommenterera stil, kreativitet eller originalitet — snobbigt, roligt och individuellt — utan att det påverkar betyget.";
     const levelPrompts = {
-      1: "Du är en varm och lugn konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort uppmuntrande kommentar på tydlig svenska utan utländska ord\"}. Var extremt generös — godkänn nästan allt så länge det finns någon form av försök att avbilda motivet, även enkla streck eller klumpiga former.",
-      2: "Du är en snäll konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort uppmuntrande kommentar på tydlig svenska\"}. Var mycket generös — godkänn om man kan ana motivet i grova drag, detaljer eller precision krävs inte alls.",
-      3: "Du är en vänlig konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort kommentar på svenska\"}. Var generös — motivets grundform ska gå att känna igen, men enkla eller barnsliga teckningar godkänns fint.",
-      4: "Du är en konstnärstorsk som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort, vänlig kommentar på svenska\"}. Var fortsatt förlåtande — kom ihåg att det målas med mus eller finger, inte pensel. Godkänn så fort motivet är igenkänningsbart, oavsett hur enkelt det är.",
-      5: "Du är en varm konstskole-instruktör som bedömer elevmålningar i ett måla-med-musen-spel. Svara ENDAST med JSON: {\"godkand\": true/false, \"kommentar\": \"kort, hjärtlig kommentar på svenska\"}. Detta är slutprovet men fortfarande ett enkelt spel — godkänn allt där motivet är rimligt igenkänningsbart. Kräv aldrig konstnärlig originalitet, komposition eller djup."
+      1: personaBase + " Nivå 1: godkänn nästan allt så fort man kan ana motivet, även enkla streck eller klumpiga former.",
+      2: personaBase + " Nivå 2: godkänn så fort motivet går att ana i grova drag.",
+      3: personaBase + " Nivå 3: godkänn så fort motivets grundform går att känna igen, även om den är enkel eller barnslig.",
+      4: personaBase + " Nivå 4: fortfarande generös på betyget — godkänn så fort motivet är igenkänningsbart — men du får gärna vara extra kräsen och pratglad i kommentaren om stil och finess.",
+      5: personaBase + " Nivå 5, slutprovet: fortfarande generös på betyget — godkänn så fort motivet är rimligt igenkänningsbart — men lägg på lite extra snobbig, dramatisk konstkritik i kommentaren, som om det gällde ett riktigt mästerverk."
     };
 
     try {
@@ -1889,7 +1892,7 @@ class Component extends DCLogic {
       reply = await window.claude.complete({
         system: levelPrompts[level] || levelPrompts[1],
         messages: [{ role: "user", content: [
-          { type: "text", text: "Eleven skulle måla: " + target.label + ". Bedöm bara om motivet går att känna igen — det här är ett enkelt musmålningsspel, inte en konstskola på riktigt." },
+          { type: "text", text: "Eleven skulle måla: " + target.label + ". Bedöm 'godkand' bara utifrån om motivet går att känna igen. Kommentera gärna kreativitet och originalitet i 'kommentar', men låt det inte påverka godkand." },
           { type: "image", source: { type: "base64", media_type: "image/png", data: dataUrl.split(",")[1] } },
         ] }],
         max_tokens: 200,
