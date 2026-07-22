@@ -580,6 +580,7 @@ class Component extends DCLogic {
     fishline: { type: "item", name: "Fiskelina", art: "", img: "assets/fishing-line.png", pickable: true, desc: "En ihoprullad fiskelina med krok, räddad från måsen. Stark och lång — bra att binda med." },
     bottle:   { type: "item", name: "Flaska", art: "", img: "assets/bottle.png", pickable: true, desc: "Utterns berömda flaska, försiktigt lossad. Fortfarande med en air av societet." },
     helmet:   { type: "item", name: "Dykhjälm", art: "", img: "assets/helmet.png", pickable: true, desc: "En gammal mässingsdykhjälm. Tung, rostig i kanterna, men fönstret är helt. Kanske den kan kopplas till något som leder ner under ytan." },
+    seaweed:  { type: "item", name: "Sjögräs", art: "", img: "assets/seaweed-item.png", pickable: true, desc: "En bit av det sega sjögräs som höll krabban fången. Känns fortfarande lite hårt." },
   };
 
   componentDidMount() {
@@ -2510,33 +2511,125 @@ class Component extends DCLogic {
     if (!el || el === this.scrubCanvasEl) return;
     this.scrubCanvasEl = el;
     const ctx = el.getContext("2d");
-    // seaweed layer covering the crab
-    const g = ctx.createLinearGradient(0, 0, el.width, el.height);
-    g.addColorStop(0, "#2f5d3a");
-    g.addColorStop(0.5, "#3c7047");
-    g.addColorStop(1, "#27513a");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, el.width, el.height);
-    // strands of seaweed texture
-    for (let i = 0; i < 90; i++) {
-      ctx.strokeStyle = `rgba(${20 + Math.random() * 40}, ${70 + Math.random() * 50}, ${40 + Math.random() * 30}, 0.7)`;
-      ctx.lineWidth = 4 + Math.random() * 9;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      const x = Math.random() * el.width, y = Math.random() * el.height;
-      ctx.moveTo(x, y);
-      ctx.bezierCurveTo(x + 20 - Math.random() * 40, y + 30, x - 20 + Math.random() * 40, y + 60, x + 10 - Math.random() * 20, y + 95);
-      ctx.stroke();
-    }
+
+    // Create multi-layer seaweed puzzle with different textures
+    this.scrubLayers = [];
+
+    // Load and create layers with different difficulty levels
+    const loadLayer = (imgSrc, difficulty, x, y, scale) => {
+      const img = new Image();
+      img.src = imgSrc;
+      return { img, difficulty, x, y, scale, loaded: false };
+    };
+
+    // Layer 1: Easy seaweed (background coverage)
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 0, 0, 1));
+
+    // Layer 2: Medium seaweed patches
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 50, 30, 0.8));
+    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 300, 100, 0.7));
+
+    // Layer 3: Tough barnacles (hardest to clean)
+    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 150, 200, 0.6));
+    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 350, 150, 0.5));
+
+    // Wait for images to load then draw
+    let loadedCount = 0;
+    const checkLoaded = () => {
+      loadedCount++;
+      if (loadedCount === this.scrubLayers.length) {
+        this.drawScrubLayers(ctx, el.width, el.height);
+      }
+    };
+
+    this.scrubLayers.forEach(layer => {
+      if (layer.img.complete) {
+        layer.loaded = true;
+        checkLoaded();
+      } else {
+        layer.img.onload = () => {
+          layer.loaded = true;
+          checkLoaded();
+        };
+      }
+    });
+
     ctx.globalCompositeOperation = "destination-out";
-    let scrubbing = false, lastCheck = 0;
+    let scrubbing = false, lastCheck = 0, lastFeedback = 0;
     const pos = (ev) => {
       const r = el.getBoundingClientRect();
       return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
     };
+  drawScrubLayers(ctx, width, height) {
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw each layer
+    this.scrubLayers.forEach(layer => {
+      if (layer.loaded) {
+        ctx.save();
+        ctx.translate(layer.x, layer.y);
+        ctx.scale(layer.scale, layer.scale);
+        ctx.drawImage(layer.img, 0, 0);
+        ctx.restore();
+      }
+    });
+  }
+
+  getScrubDifficultyAt(x, y) {
+    // Check which layer pixel is being scrubbed
+    let maxDifficulty = 1;
+    this.scrubLayers.forEach(layer => {
+      if (!layer.loaded) return;
+      const localX = (x - layer.x) / layer.scale;
+      const localY = (y - layer.y) / layer.scale;
+      if (localX >= 0 && localX <= layer.img.width && localY >= 0 && localY <= layer.img.height) {
+        maxDifficulty = Math.max(maxDifficulty, layer.difficulty);
+      }
+    });
+    return maxDifficulty;
+  }
+
+  playScrubFeedback(difficulty) {
+    const now = Date.now();
+    if (now - (this.scrubLastFeedback || 0) < 800) return; // Don't play too frequently
+    this.scrubLastFeedback = now;
+
+    // Placeholder verbal feedback based on difficulty
+    const phrases = {
+      1: ["Kliar det!", "Så där ja!", "Fortsätt så!"],
+      2: ["Lite segare!", "Kräftor vad det sitter!", "Håll ut!"],
+      3: ["Hjälp vad det sitter!", "Tufft jobb!", "Sega sillar!"]
+    };
+
+    const phraseList = phrases[difficulty] || phrases[1];
+    const phrase = phraseList[Math.floor(Math.random() * phraseList.length)];
+
+    // Simple beep as placeholder
+    this.sfx("click");
+
+    // Show feedback text
+    this.say("Krabban", phrase, null);
+
+    // Clear feedback after a moment
+    setTimeout(() => {
+      if (this.state.dialogSpeaker === "Krabban") {
+        this.setState({ dialogSpeaker: "", dialogText: "" });
+      }
+    }, 1200);
+  }
+
     const scrubAt = (p) => {
+      const difficulty = this.getScrubDifficultyAt(p.x, p.y);
+      const scrubRadius = 26 / difficulty; // Smaller radius for harder areas
+
+      // Play feedback occasionally based on difficulty
+      if (Math.random() < 0.15 * difficulty) {
+        this.playScrubFeedback(difficulty);
+      }
+
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 26, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, scrubRadius, 0, Math.PI * 2);
       ctx.fill();
     };
     const moveBrush = (ev) => {
@@ -2591,7 +2684,21 @@ class Component extends DCLogic {
         { duration: 700, easing: "ease-out" }
       );
     }
-    this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen!", "assets/crab-thanks.mp3");
+    this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen! Här, ta den här biten som minne.", "assets/crab-thanks.mp3");
+
+    // Add seaweed to inventory as reward
+    setTimeout(() => {
+      this.setState((s) => ({
+        inventory: [...s.inventory, {
+          uid: ++this.uid,
+          defId: "seaweed",
+          name: "Sjögräs",
+          art: "",
+          img: "assets/seaweed-item.png",
+          desc: "En bit av det sega sjögräs som höll krabban fången. Känns fortfarande lite hårt."
+        }]
+      }));
+    }, 1500);
   }
 
   crabSpeak(line, voiceSrc) {
