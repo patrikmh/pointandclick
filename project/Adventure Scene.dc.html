@@ -2560,6 +2560,46 @@ class Component extends DCLogic {
       const r = el.getBoundingClientRect();
       return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
     };
+
+    const scrubAt = (p) => {
+      const difficulty = this.getScrubDifficultyAt(p.x, p.y);
+      const scrubRadius = 26 / difficulty; // Smaller radius for harder areas
+
+      // Play feedback occasionally based on difficulty
+      if (Math.random() < 0.15 * difficulty) {
+        this.playScrubFeedback(difficulty);
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, scrubRadius, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    const moveBrush = (ev) => {
+      const b = this.scrubBrushEl;
+      if (!b) return;
+      const r = el.getBoundingClientRect();
+      b.style.left = (ev.clientX - r.left) + "px";
+      b.style.top = (ev.clientY - r.top) + "px";
+      b.style.opacity = "1";
+      b.style.transform = `translate(-14%,-50%) rotate(${scrubbing ? -38 + Math.sin(Date.now() / 60) * 9 : -30}deg)`;
+    };
+    el.onpointerdown = (ev) => {
+      scrubbing = true;
+      el.setPointerCapture(ev.pointerId);
+      scrubAt(pos(ev));
+      moveBrush(ev);
+    };
+    el.onpointermove = (ev) => {
+      moveBrush(ev);
+      if (!scrubbing) return;
+      scrubAt(pos(ev));
+      const now = Date.now();
+      if (now - lastCheck > 350) { lastCheck = now; this.checkScrubProgress(); }
+    };
+    el.onpointerup = (ev) => { scrubbing = false; moveBrush(ev); this.checkScrubProgress(); };
+    el.onpointerleave = () => { if (this.scrubBrushEl) this.scrubBrushEl.style.opacity = "0"; };
+  }
+
   drawScrubLayers(ctx, width, height) {
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
@@ -2617,45 +2657,6 @@ class Component extends DCLogic {
         this.setState({ dialogSpeaker: "", dialogText: "" });
       }
     }, 1200);
-  }
-
-    const scrubAt = (p) => {
-      const difficulty = this.getScrubDifficultyAt(p.x, p.y);
-      const scrubRadius = 26 / difficulty; // Smaller radius for harder areas
-
-      // Play feedback occasionally based on difficulty
-      if (Math.random() < 0.15 * difficulty) {
-        this.playScrubFeedback(difficulty);
-      }
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, scrubRadius, 0, Math.PI * 2);
-      ctx.fill();
-    };
-    const moveBrush = (ev) => {
-      const b = this.scrubBrushEl;
-      if (!b) return;
-      const r = el.getBoundingClientRect();
-      b.style.left = (ev.clientX - r.left) + "px";
-      b.style.top = (ev.clientY - r.top) + "px";
-      b.style.opacity = "1";
-      b.style.transform = `translate(-14%,-50%) rotate(${scrubbing ? -38 + Math.sin(Date.now() / 60) * 9 : -30}deg)`;
-    };
-    el.onpointerdown = (ev) => {
-      scrubbing = true;
-      el.setPointerCapture(ev.pointerId);
-      scrubAt(pos(ev));
-      moveBrush(ev);
-    };
-    el.onpointermove = (ev) => {
-      moveBrush(ev);
-      if (!scrubbing) return;
-      scrubAt(pos(ev));
-      const now = Date.now();
-      if (now - lastCheck > 350) { lastCheck = now; this.checkScrubProgress(); }
-    };
-    el.onpointerup = (ev) => { scrubbing = false; moveBrush(ev); this.checkScrubProgress(); };
-    el.onpointerleave = () => { if (this.scrubBrushEl) this.scrubBrushEl.style.opacity = "0"; };
   }
 
   checkScrubProgress() {
