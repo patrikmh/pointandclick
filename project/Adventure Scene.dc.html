@@ -273,13 +273,18 @@
       <div style="width:min(800px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:oklch(0.82 0.05 80);background:oklch(0.15 0.011 60 / 0.7);padding:4px 8px;border-radius:6px;border:1px solid oklch(0.5 0.05 80 / 0.5)">KÄNSLIGHET: {{ crabPatience }}%</div>
-            </div>
+            <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
             <div style="font-family:'Work Sans',sans-serif;font-size:14px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
           </div>
           <button onClick="{{ scrubClose }}" style="width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:14px;cursor:pointer">✕</button>
+        </div>
+        <div style="width:min(720px,calc(100vw - 96px))">
+          <div style="display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;color:oklch(0.75 0.1 40);margin-bottom:4px">
+            <span>KÄNSLIGHET — SKRUBBA FÖRSIKTIGT</span>
+          </div>
+          <div style="width:100%;height:14px;border-radius:5px;background:oklch(0.22 0.02 30);overflow:hidden;border:1px solid oklch(0.4 0.05 30 / 0.6)">
+            <div style="{{ crabHeatBarStyle }}"></div>
+          </div>
         </div>
         <div style="position:relative;width:min(720px,calc(100vw - 96px));height:auto;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0c1a24">
           <img src="assets/crab-free.png" alt="" draggable="false" style="position:absolute;left:50%;top:55%;width:74%;transform:translate(-50%,-50%);pointer-events:none">
@@ -514,7 +519,7 @@ class Component extends DCLogic {
     scrubOpen: false,
     scrubPct: 0,
     scrubFeedbackMsg: "",
-    crabPatience: 100, // Crab's patience/sensitivity level
+    crabHeat: 0, // real-time scrub intensity meter — maxes out at 100 and fails the game
     crabWatered: false,
     otterFreed: false,
     octoHealed: false,
@@ -2789,7 +2794,7 @@ class Component extends DCLogic {
       return;
     }
     if (this.state.crabWatered) {
-      this.setState({ scrubOpen: true, scrubPct: 0, crabPatience: 100 });
+      this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 });
       this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null);
       return;
     }
@@ -2828,6 +2833,15 @@ class Component extends DCLogic {
     if (!el || el === this.scrubCanvasEl) return;
     this.scrubCanvasEl = el;
     const ctx = el.getContext("2d");
+
+    // The red heat meter cools down on its own even when the player isn't
+    // moving the brush at all — a plain per-stroke calculation wouldn't
+    // visibly go back down while the pointer sits still.
+    this.teardownScrubHeat();
+    this.scrubHeatTimer = setInterval(() => {
+      if (!this.state.scrubOpen) return;
+      this.setState((s) => ({ crabHeat: Math.max(0, (s.crabHeat || 0) - 3) }));
+    }, 120);
 
     // Create multi-layer seaweed puzzle with different textures
     this.scrubLayers = [];
@@ -2906,7 +2920,7 @@ class Component extends DCLogic {
     const checkLoaded = () => this.drawScrubLayers(ctx, el.width, el.height);
 
     // Reset canvas state when opening the mini-game
-    this.setState({ scrubPct: 0, crabPatience: 100 });
+    this.setState({ scrubPct: 0, crabHeat: 0 });
 
     this.scrubLayers.forEach(layer => {
       if (layer.img.complete) {
@@ -2925,24 +2939,40 @@ class Component extends DCLogic {
       return { x: (ev.clientX - r.left) * (el.width / r.width), y: (ev.clientY - r.top) * (el.height / r.height) };
     };
 
+    this.scrubLastPos = null;
+    this.scrubLastMoveTs = 0;
     const scrubAt = (p) => {
       const difficulty = this.getScrubDifficultyAt(p.x, p.y);
-      // Proper sensitivity mechanic - harder to clean as patience decreases
-      const patienceFactor = this.state.crabPatience / 100; // 1.0 at full patience, 0.0 at zero
-      const patienceMultiplier = 1 + (1 - patienceFactor) * 0.8; // Up to 80% harder as patience drops
-      const scrubRadius = Math.max(8, (32 / difficulty) / patienceMultiplier); // Smaller radius as patience decreases, but never too small
 
-      // Scrubbing harder areas decreases crab patience faster based on sensitivity
-      const patienceDecrease = Math.floor(difficulty * (1.5 - patienceFactor) * 2); // More decrease when patience is low and difficulty is high
-      if (patienceDecrease > 0 && Math.random() < 0.3) {
-        const currentPatience = Math.max(0, this.state.crabPatience - patienceDecrease);
-        this.setState({ crabPatience: currentPatience });
+      // How hard the player is actually scrubbing right now, measured as
+      // pointer speed — fast strokes heat the crab up fast, slow careful
+      // strokes barely register. This is what drives the red meter.
+      const now = Date.now();
+      let speed = 0;
+      if (this.scrubLastPos) {
+        const dist = Math.hypot(p.x - this.scrubLastPos.x, p.y - this.scrubLastPos.y);
+        const dt = Math.max(1, now - this.scrubLastMoveTs);
+        speed = dist / dt; // px per ms
+      }
+      this.scrubLastPos = p;
+      this.scrubLastMoveTs = now;
+
+      const heatGain = Math.min(14, speed * 22) * (0.7 + difficulty * 0.3);
+      const nextHeat = Math.min(100, (this.state.crabHeat || 0) + heatGain);
+      this.setState({ crabHeat: nextHeat });
+
+      if (nextHeat >= 100) {
+        this.failScrub();
+        return;
       }
 
-      // Play feedback occasionally based on difficulty and sensitivity
-      const feedbackChance = 0.15 * difficulty * (2 - patienceFactor);
+      const heatFactor = nextHeat / 100; // 0 = calm, 1 = furious
+      const scrubRadius = Math.max(8, (32 / difficulty) * (1 - heatFactor * 0.6));
+
+      // Play feedback occasionally based on difficulty and how hot the crab is
+      const feedbackChance = 0.12 * difficulty * (0.4 + heatFactor);
       if (Math.random() < feedbackChance) {
-        this.playScrubFeedback(difficulty, patienceFactor);
+        this.playScrubFeedback(difficulty, 1 - heatFactor);
       }
 
       ctx.beginPath();
@@ -3087,8 +3117,19 @@ class Component extends DCLogic {
     if (pct >= 82) this.finishScrub();
   }
 
+  teardownScrubHeat() {
+    if (this.scrubHeatTimer) { clearInterval(this.scrubHeatTimer); this.scrubHeatTimer = null; }
+  }
+
+  failScrub() {
+    this.teardownScrubHeat();
+    this.setState({ scrubOpen: false, scrubPct: 0, crabHeat: 0 });
+    this.crabSpeak("AJ! Nu blev det för hårt! Krabban har gömt sig djupare i sjögräset igen.", null);
+  }
+
   finishScrub() {
     if (this.state.crabFreed) return;
+    this.teardownScrubHeat();
     this.setState({ scrubOpen: false, crabFreed: true, crabFrame: "free" });
     if (this.crabNode) {
       this.crabNode.animate(
@@ -3307,6 +3348,7 @@ class Component extends DCLogic {
     this.scrubBrushEl = null;
     this.teardownGullGame();
     this.teardownSealGame();
+    this.teardownScrubHeat();
     document.body.classList.remove("grabbing");
     this.nodes = {};
     this.setState({
@@ -3358,7 +3400,7 @@ class Component extends DCLogic {
       scrubOpen: false,
       scrubPct: 0,
       scrubFeedbackMsg: "",
-      crabPatience: 100,
+      crabHeat: 0,
       crabWatered: false,
       gullGameOpen: false,
       gullGameHits: 0,
@@ -3421,6 +3463,7 @@ class Component extends DCLogic {
     if (this.snore) this.snore.pause();
     this.teardownGullGame();
     this.teardownSealGame();
+    this.teardownScrubHeat();
   }
 
   posFor(key) {
@@ -3631,9 +3674,9 @@ class Component extends DCLogic {
       codWrapStyle: `position:absolute;left:${72 + this.posFor("cod").ox}%;top:${58 + this.posFor("cod").oy}%;width:${34 * this.posFor("cod").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-50%);animation:codBob 4.2s ease-in-out infinite`,
       scrubOpen: S.scrubOpen,
       scrubPct: S.scrubPct,
-      crabPatience: S.crabPatience,
+      crabHeatBarStyle: `height:100%;width:${Math.min(100, S.crabHeat || 0).toFixed(1)}%;background:linear-gradient(90deg, oklch(0.5 0.19 27), oklch(0.62 0.24 27));transition:width 0.1s linear`,
       scrubFeedbackMsg: S.scrubFeedbackMsg,
-      scrubClose: () => this.setState({ scrubOpen: false }),
+      scrubClose: () => { this.teardownScrubHeat(); this.setState({ scrubOpen: false }); },
       setScrubCanvas: (el) => this.initScrubCanvas(el),
       scrubBarStyle: `height:100%;width:${Math.min(100, Math.round((S.scrubPct / 82) * 100))}%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));transition:width 0.3s ease`,
       scrubCanvasStyle: `position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;image-rendering:pixelated`,
