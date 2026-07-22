@@ -2849,10 +2849,24 @@ class Component extends DCLogic {
     this.scrubLayers = [];
 
     // Load and create layers with different difficulty levels
-    const loadLayer = (imgSrc, difficulty, x, y, scale) => {
+    const loadLayer = (imgSrc, difficulty, x, y, scale, rotation, flip) => {
       const img = new Image();
       img.src = imgSrc;
-      return { img, difficulty, x, y, scale, loaded: false };
+      return { img, difficulty, x, y, scale, rotation, flip, loaded: false };
+    };
+
+    // Jittered position/scale/rotation/mirroring around each hand-placed
+    // anchor point, generated fresh every time the game opens — this is
+    // what breaks up the mechanical, stamped-grid look of a handful of
+    // repeated sprites and makes the coverage read as organic growth
+    // instead of a tiled pattern.
+    const pushOrganicLayer = (imgSrc, difficulty, anchorX, anchorY, baseScale, rotationRange) => {
+      const scale = baseScale * (0.85 + Math.random() * 0.35);
+      const rotation = (Math.random() * 2 - 1) * rotationRange;
+      const flip = Math.random() < 0.5;
+      const x = anchorX + (Math.random() * 2 - 1) * 20;
+      const y = anchorY + (Math.random() * 2 - 1) * 20;
+      this.scrubLayers.push(loadLayer(imgSrc, difficulty, x, y, scale, rotation, flip));
     };
 
     // Match the larger 720x540 canvas declared in the markup
@@ -2862,58 +2876,27 @@ class Component extends DCLogic {
     el.height = canvasHeight;
 
     // Layer 1: Easy seaweed (background coverage) - many more layers for COMPLETE coverage
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, -80, -40, 1.8));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 100, -20, 1.6));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 320, 0, 1.7));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 480, -60, 1.5));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, -120, 150, 1.4));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 200, 120, 1.6));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 400, 180, 1.5));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 120, 300, 1.3));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 350, 280, 1.4));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer1.png", 1, 500, 350, 1.2));
+    // Seaweed stays close to upright (gentle sway) rather than spinning freely.
+    [[-80, -40], [100, -20], [320, 0], [480, -60], [-120, 150], [200, 120], [400, 180], [120, 300], [350, 280], [500, 350]]
+      .forEach(([x, y]) => pushOrganicLayer("assets/seaweed-layer1.png", 1, x, y, 1.6, 14));
 
     // Layer 2: Medium seaweed patches - more extensive coverage
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, -40, 60, 1.2));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 160, 20, 1.1));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 360, 40, 1.0));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 520, 80, 0.95));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 80, 180, 1.0));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 280, 160, 0.95));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 440, 200, 0.9));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 40, 320, 0.85));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 200, 360, 0.8));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer2.png", 2, 380, 340, 0.75));
-    this.scrubLayers.push(loadLayer("assets/seaweed-layer3.png", 2, 540, 280, 0.7));
+    [["assets/seaweed-layer2.png", -40, 60, 1.2], ["assets/seaweed-layer2.png", 160, 20, 1.1], ["assets/seaweed-layer2.png", 360, 40, 1.0], ["assets/seaweed-layer2.png", 520, 80, 0.95],
+     ["assets/seaweed-layer3.png", 80, 180, 1.0], ["assets/seaweed-layer3.png", 280, 160, 0.95], ["assets/seaweed-layer3.png", 440, 200, 0.9],
+     ["assets/seaweed-layer2.png", 40, 320, 0.85], ["assets/seaweed-layer3.png", 200, 360, 0.8], ["assets/seaweed-layer2.png", 380, 340, 0.75], ["assets/seaweed-layer3.png", 540, 280, 0.7]]
+      .forEach(([src, x, y, scale]) => pushOrganicLayer(src, 2, x, y, scale, 18));
 
     // Layer 3: Tough barnacles (hardest to clean) - extensive coverage with proper scaling
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 30, 30, 0.25));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 100, 50, 0.28));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 180, 25, 0.22));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 260, 60, 0.26));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 350, 40, 0.24));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 430, 55, 0.27));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 540, 35, 0.23));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 60, 140, 0.25));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 140, 160, 0.29));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 220, 130, 0.21));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 310, 170, 0.26));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 400, 145, 0.24));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 490, 165, 0.28));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 570, 125, 0.22));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 45, 260, 0.27));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 130, 290, 0.23));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 210, 255, 0.25));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 300, 310, 0.26));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 390, 270, 0.24));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 475, 295, 0.28));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 560, 250, 0.21));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 85, 390, 0.26));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 175, 420, 0.22));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 270, 385, 0.29));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 365, 415, 0.24));
-    this.scrubLayers.push(loadLayer("assets/barnacle2.png", 3, 460, 375, 0.27));
-    this.scrubLayers.push(loadLayer("assets/barnacle1.png", 3, 555, 405, 0.23));
+    // Barnacle clusters read fine at any angle, so let them spin freely —
+    // that's also what best disguises only two source images repeating ~27 times.
+    [["assets/barnacle1.png", 30, 30, 0.25], ["assets/barnacle2.png", 100, 50, 0.28], ["assets/barnacle1.png", 180, 25, 0.22], ["assets/barnacle2.png", 260, 60, 0.26],
+     ["assets/barnacle1.png", 350, 40, 0.24], ["assets/barnacle2.png", 430, 55, 0.27], ["assets/barnacle1.png", 540, 35, 0.23], ["assets/barnacle2.png", 60, 140, 0.25],
+     ["assets/barnacle1.png", 140, 160, 0.29], ["assets/barnacle2.png", 220, 130, 0.21], ["assets/barnacle1.png", 310, 170, 0.26], ["assets/barnacle2.png", 400, 145, 0.24],
+     ["assets/barnacle1.png", 490, 165, 0.28], ["assets/barnacle2.png", 570, 125, 0.22], ["assets/barnacle1.png", 45, 260, 0.27], ["assets/barnacle2.png", 130, 290, 0.23],
+     ["assets/barnacle1.png", 210, 255, 0.25], ["assets/barnacle2.png", 300, 310, 0.26], ["assets/barnacle1.png", 390, 270, 0.24], ["assets/barnacle2.png", 475, 295, 0.28],
+     ["assets/barnacle1.png", 560, 250, 0.21], ["assets/barnacle2.png", 85, 390, 0.26], ["assets/barnacle1.png", 175, 420, 0.22], ["assets/barnacle2.png", 270, 385, 0.29],
+     ["assets/barnacle1.png", 365, 415, 0.24], ["assets/barnacle2.png", 460, 375, 0.27], ["assets/barnacle1.png", 555, 405, 0.23]]
+      .forEach(([src, x, y, scale]) => pushOrganicLayer(src, 3, x, y, scale, 180));
 
     // Draw progressively as each image finishes, and redraw on every
     // load/error — waiting for every single image before the first draw
@@ -2955,12 +2938,12 @@ class Component extends DCLogic {
       const now = Date.now();
       let dist = 0;
       if (this.scrubLastPos) {
-        dist = Math.min(120, Math.hypot(p.x - this.scrubLastPos.x, p.y - this.scrubLastPos.y));
+        dist = Math.min(90, Math.hypot(p.x - this.scrubLastPos.x, p.y - this.scrubLastPos.y));
       }
       this.scrubLastPos = p;
       this.scrubLastMoveTs = now;
 
-      const heatGain = dist * 0.045 * (0.6 + difficulty * 0.25);
+      const heatGain = dist * 0.018 * (0.5 + difficulty * 0.2);
       const nextHeat = Math.min(100, (this.state.crabHeat || 0) + heatGain);
       this.setState({ crabHeat: nextHeat });
 
@@ -3039,7 +3022,12 @@ class Component extends DCLogic {
       if (layer.loaded) {
         ctx.save();
         ctx.translate(layer.x * scaleFactor, layer.y * scaleFactor);
+        ctx.rotate((layer.rotation || 0) * Math.PI / 180);
         ctx.scale(layer.scale * scaleFactor, layer.scale * scaleFactor);
+        if (layer.flip) {
+          ctx.translate(layer.img.width, 0);
+          ctx.scale(-1, 1);
+        }
         ctx.drawImage(layer.img, 0, 0);
         ctx.restore();
       }
@@ -3055,8 +3043,16 @@ class Component extends DCLogic {
 
     this.scrubLayers.forEach(layer => {
       if (!layer.loaded) return;
-      const localX = (x - layer.x * scaleFactor) / (layer.scale * scaleFactor);
-      const localY = (y - layer.y * scaleFactor) / (layer.scale * scaleFactor);
+      // Undo translate + rotate + scale (flip doesn't change the footprint
+      // rectangle, only mirrors what's drawn inside it) to land back in the
+      // layer's own unrotated local space for the bounding-box check.
+      const dx = x - layer.x * scaleFactor;
+      const dy = y - layer.y * scaleFactor;
+      const rad = -(layer.rotation || 0) * Math.PI / 180;
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      const s = layer.scale * scaleFactor;
+      const localX = (dx * cos - dy * sin) / s;
+      const localY = (dx * sin + dy * cos) / s;
       if (localX >= 0 && localX <= layer.img.width && localY >= 0 && localY <= layer.img.height) {
         maxDifficulty = Math.max(maxDifficulty, layer.difficulty);
       }
