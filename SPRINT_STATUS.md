@@ -1,47 +1,71 @@
-# Sprint Status: Sprint 1 — Volumetric two-round shadow sculpture
+# Sprint Status: Volumetric shadow sculpture (Bäärnts skuggteater)
 
-## Completed
-- [x] Volumetric rendering and interaction — non-planar eight-vertex/eight-face meshes, material palettes with changing face light, perspective/foreshortening, depth-sorted self-occlusion, foreground sculpture overlap, shared two-axis poses, combined crisp wall masks, bidirectional recall/precision/IoU matching, visible selection/rotation controls, and cleanup.
-- [x] Two-round progression — exact deterministic `seagull` (`Fiskmås`) → `sailboat` (`Segelbåt`) contract, legal scramble/solution poses, normal selection/alignment/completion path, one final sheep reveal, and close/reopen safety.
+## Shipped
 
-## TDD Evidence
-- Rendering RED: `/tmp/sheep-red.log` — 5 expected failures (missing volumetric contract/UI).
-- Rendering GREEN: 6/6 targeted tests passed before progression work.
-- Progression RED: `/tmp/sheep-progression-red.log` — 1 expected failure (missing production advancement path).
-- Final GREEN: `node --test test/sheep-game.test.mjs` — 7/7 passing.
+- **Volumetric rendering and interaction** — non-planar eight-vertex/eight-face meshes, material palettes with
+  changing face light, perspective/foreshortening, depth-sorted self-occlusion, foreground sculpture overlap,
+  three-axis poses, combined crisp wall masks, bidirectional recall/precision/IoU matching, pointer-drag rotation,
+  a camera-only orbit inspector, a match-driven hum, and full teardown.
+- **Four-round story progression** — `seagull` (Fiskmås) → `sailboat` (Segelbåt) → `anchor` (Ankare) →
+  `crab` (Krabba), each with legal deterministic scramble/solution poses, per-round thresholds, and a red-herring
+  piece. Later rounds reuse limb geometry from the earlier piece pool. The sheep reveal fires once, after the
+  final round only.
+- **Fri skugga practice mode** — a deterministic seeded generator that produces a self-consistent practice round.
+  Standalone: it cannot advance the story sequence or write the solved gallery.
+- **Resume on reopen** — mid-round poses persist to `localStorage` and are restored for a matching round.
+  Reopening skips completed rounds; malformed or obsolete saved progress falls back to the first unsolved round.
+- **Keyboard accessibility** — labelled `role="dialog"`, focusable canvas, an `aria-live` status for the active
+  piece and match proximity, native Tab navigation (never suppressed), Escape to close with full cleanup, and
+  visible focus rings. The whole control set fits a 1280×720 viewport.
+- **Honest assistance** — `Vink` reports which axis needs which way *without* mutating any pose. Only
+  `Ställ in skuggan` changes a pose, and using it records the round as assisted (✓) rather than pure (★).
+  Provenance survives save/reopen; legacy bare-string gallery entries load as assisted.
+- **Replay for a pure star** — solved gallery chips are buttons. Replaying a round clears saved progress, resets
+  the assist flag, and on completion upgrades ✓ → ★ without advancing the story or re-revealing the sheep.
+  An assisted replay never downgrades an existing ★.
+- **Accessibility preferences** — target-ghost brightness (Låg / Normal / Hög) and a colourblind-safe palette that
+  moves the target ghost from mint to amber and the pass readout from green to blue. Both persist across sessions
+  and are applied on open. Neither touches pose, matching, or story state.
+- **Swing-aware target-mask cache** — the matcher and the renderer share one target-mask build per frame. The
+  cache key includes the light swing, so a moving light always rebuilds and the ghost can never lag the live
+  shadow.
 
 ## Test Results
-- Targeted: 7/7 passing.
-- Full suite: 27/28 passing. Sole failure is the recorded unrelated baseline assertion `missing moon chat option`; no new failures.
-- Final full output: `/tmp/sheep-full-final.log`.
 
-## Browser Evidence (1440×900 Chromium)
-- Reference: `/tmp/Shadowmatic-010.png`
-- Round 1 unsolved: `/tmp/sheep-r1-before.png`
-- Round 1 manipulated on both axes: `/tmp/sheep-r1-after-rotation.png`
-- Round 1 solved: `/tmp/sheep-r1-solved.png`
-- Round 2 unsolved: `/tmp/sheep-r2-before.png`
-- Round 2 solved: `/tmp/sheep-r2-solved.png`
-- Final sheep reveal: `/tmp/sheep-final-reveal.png`
-- Pose/control/reopen logs: `/tmp/sheep-r1-pose.txt`, `/tmp/sheep-r1-solved-state.txt`, `/tmp/sheep-r2-solved-state.txt`, `/tmp/sheep-reopen-control.txt`
-- Console: 0 errors (`.playwright-cli/console-2026-07-28T19-20-02-396Z.log`); autoplay-only warnings recorded separately.
-- Page errors: 0 (`/tmp/sheep-page-errors.txt`).
+- Targeted: `node --test test/sheep-game.test.mjs` — **41/41 passing**, exit 0.
+- Full suite: `npm test` — **61/62 passing**. The sole failure is the pre-existing, out-of-scope
+  `missing moon chat option` assertion in `test/game-ui.test.mjs:25`, unchanged from the recorded baseline.
+
+## Browser Evidence (Chromium, 1280×720)
+
+Driven against the running `npm start` server with `playwright-cli`.
+
+- Dialog renders inside the viewport with all controls reachable: 20 focusable elements in the dialog.
+- Gallery chips render and label correctly: `✓ Fiskmås` ("löst med assistans — spela om för en ren stjärna"),
+  `★ Segelbåt`, and `○ Ankare` / `○ Krabba` disabled.
+- Clicking the assisted `✓ Fiskmås` chip enters replay: round 1, `sheepReplayActive=true`,
+  `sheepUsedFullAssistThisRound=false`, poses back at the scramble.
+- Solving that replay through the real match loop (no assist) upgraded the gallery to
+  `[{"id":"seagull","pure":true},{"id":"sailboat","pure":true}]` while `sheepGameRound` stayed at 1 and
+  `sheepRevealed` stayed `false` — no story advance, no second reveal.
+- Both accessibility controls toggle and persist: `{"ghostBrightness":1.6,"colorblind":true}` written to
+  `sheepAccessibilitySettings` and restored after close → reopen. The colourblind palette resolves to
+  `{target:"247,181,41", best:"96,158,255", pass:"#7fc3ff"}` and the amber target ghost is visibly rendered.
+- Escape closes the dialog; the mask cache is cleared on teardown and rebuilt on the next open.
+- Console: **0 errors**. One pre-existing autoplay warning (`AudioContext was not allowed to start`), which is a
+  browser gesture policy notice, not a game fault.
 
 ## Notes
-- Parent task IDs #2/#4/#5 were not visible in this sub-agent task namespace (`TaskList` returned no tasks), so local tracking tasks record the corresponding parent IDs in metadata.
-- Existing unrelated/uncommitted changes were preserved. No dependencies, server files, other mini-games, or planner artifacts were modified.
-- The user-facing `Ställ in skuggan` affordance aligns only the currently selected sculpture; players still select and align all three through normal controls. It does not mutate completion/reveal flags.
 
-## Files Created or Modified
-- Modified: `project/Adventure Scene.dc.html` (sheep-specific template, model, matching, rendering, controls, progression, lifecycle only)
-- Created: `test/sheep-game.test.mjs`
-- Created: `SPRINT_STATUS.md`
+- The browser session drove the dialog through the component's public entry points rather than replaying the full
+  battery → flashlight → cave adventure each time; the cave entry itself is unchanged.
+- `sheepBeginSession()` was extracted from `openSheepGame` / `sheepStartFreeRound` / `sheepReplayRound`, which
+  otherwise would have carried three copies of the same listener/RAF/hum setup.
+- The unrelated `missing moon chat option` failure is explicitly out of scope and was left untouched.
 
-## Build Metrics
-- Start: 2026-07-28T19:06:08Z
-- End: 2026-07-28T19:21:00Z
-- Duration: 15 min
-- Features: 2
-- Tests: 7 created, 7/7 targeted passing; 27/28 full (known baseline only)
-- Files: 2 created, 1 modified
-- Iteration: 1
+## Files Modified
+
+- `project/Adventure Scene.dc.html` — sheep-specific template, state, geometry, matching, rendering, controls,
+  progression, and lifecycle only.
+- `test/sheep-game.test.mjs` — 41 deterministic unit/contract tests.
+- `SPRINT_STATUS.md`, `SPRINT_CONTRACT.md` — updated to the shipped state.

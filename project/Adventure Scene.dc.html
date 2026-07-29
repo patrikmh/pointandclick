@@ -76,6 +76,17 @@
     .top-chat-button { right: 92px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
     .reset-button { right: 8px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
   }
+  .sheep-dialog button:focus-visible,
+  .sheep-dialog canvas:focus-visible {
+    outline: 2px solid oklch(0.9 0.12 82) !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 0 0 0 5px oklch(0.82 0.11 82 / 0.38);
+  }
+  @media (max-height: 760px) {
+    .sheep-dialog { padding: 12px 14px 10px !important; gap: 6px !important; }
+    .sheep-stage-shell { max-width: 720px !important; padding: 14px 12px 8px !important; }
+    .sheep-controls { gap: 4px !important; }
+  }
 </style>
 </helmet>
 <div style="position:fixed;inset:0;overflow:hidden;background:#05080e;font-family:'Work Sans',sans-serif;color:oklch(0.9 0.012 80)">
@@ -425,27 +436,37 @@
 
   <sc-if value="{{ sheepGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(1160px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
-        <div style="display:flex;align-items:center;gap:10px;width:100%">
-          <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BÄÄRNTS SKUGGTEATER</div>
-            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Välj en skulptur. Piltangenter eller knappar roterar på tre axlar ([ Z / Z ]) — Runda {{ sheepGameRound }}/{{ sheepGameTotalRounds }}</div>
+      <div class="sheep-dialog" role="dialog" aria-modal="true" aria-labelledby="sheep-game-title" aria-describedby="sheep-game-help" style="width:min(1140px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:16px 18px 14px;display:flex;flex-direction:column;gap:8px;align-items:center">
+        <div style="display:flex;align-items:flex-start;gap:10px;width:100%">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
+            <div id="sheep-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BÄÄRNTS SKUGGTEATER</div>
+            <div id="sheep-game-help" style="font-family:'Work Sans',sans-serif;font-size:12.5px;line-height:1.35;color:oklch(0.8 0.015 80)">Välj en skulptur. Piltangenter eller knappar roterar på tre axlar ([ Z / Z ]) — Runda {{ sheepGameRound }}/{{ sheepGameTotalRounds }}</div>
+            <div id="sheep-game-status" role="status" aria-live="polite" aria-atomic="true" style="font-family:'Work Sans',sans-serif;font-size:12px;line-height:1.35;color:oklch(0.9 0.07 82);min-height:1.35em">{{ sheepGameA11yStatus }}</div>
           </div>
-          <button onClick="{{ sheepGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button type="button" aria-label="Stäng skuggteatern" onClick="{{ sheepGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
         <sc-if value="{{ sheepGameTargetName }}" hint-placeholder-val="">
           <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.9 0.09 82);background:oklch(0.3 0.05 78 / 0.35);border:1px solid oklch(0.6 0.1 78 / 0.5);border-radius:999px;padding:4px 14px">Mål — forma en enda silhuett: <b>{{ sheepGameTargetName }}</b></div>
         </sc-if>
         <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
           <sc-for list="{{ sheepGalleryChips }}" as="gchip" hint-placeholder-count="4">
-            <div style="{{ gchip.style }}">{{ gchip.mark }} {{ gchip.label }}</div>
+            <button type="button" onClick="{{ gchip.replay }}" disabled="{{ gchip.locked }}" aria-label="{{ gchip.aria }}" style="{{ gchip.style }}">{{ gchip.mark }} {{ gchip.label }}</button>
           </sc-for>
         </div>
-        <sc-if value="{{ sheepFreeModeUnlocked }}" hint-placeholder-val="">
-          <button onClick="{{ sheepStartFreeRoundAction }}" style="font-family:'Work Sans',sans-serif;font-size:11px;padding:3px 12px;border-radius:999px;border:1px solid oklch(0.6 0.1 78 / 0.5);background:oklch(0.25 0.03 78 / 0.4);color:oklch(0.9 0.06 82);cursor:pointer">✧ Fri skugga (öva)</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center">
+          <button type="button" onClick="{{ sheepToggleSettingsAction }}" aria-expanded="{{ sheepSettingsOpen }}" aria-label="Inställningar" style="font-family:'Work Sans',sans-serif;font-size:13px;width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.55 0.04 75 / 0.55);background:oklch(0.22 0.025 65 / 0.7);color:oklch(0.88 0.03 82);cursor:pointer;display:inline-flex;align-items:center;justify-content:center">⚙</button>
+        </div>
+        <sc-if value="{{ sheepSettingsOpen }}" hint-placeholder-val="">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;background:oklch(0.2 0.02 60 / 0.5);border:1px solid oklch(0.5 0.03 70 / 0.4);border-radius:10px;padding:6px 10px">
+            <sc-if value="{{ sheepFreeModeUnlocked }}" hint-placeholder-val="">
+              <button type="button" onClick="{{ sheepStartFreeRoundAction }}" style="font-family:'Work Sans',sans-serif;font-size:11px;padding:3px 12px;border-radius:999px;border:1px solid oklch(0.6 0.1 78 / 0.5);background:oklch(0.25 0.03 78 / 0.4);color:oklch(0.9 0.06 82);cursor:pointer">✧ Fri skugga (öva)</button>
+            </sc-if>
+            <button type="button" onClick="{{ sheepCycleGhostBrightnessAction }}" aria-label="{{ sheepGhostBrightnessAria }}" style="{{ sheepA11yButtonStyle }}">◐ Målskugga: {{ sheepGhostBrightnessLabel }}</button>
+            <button type="button" onClick="{{ sheepToggleColorblindAction }}" aria-pressed="{{ sheepColorblindOn }}" aria-label="{{ sheepColorblindAria }}" style="{{ sheepA11yButtonStyle }}">◑ Färgläge: {{ sheepColorblindLabel }}</button>
+          </div>
         </sc-if>
         <div style="width:80%;height:1px;background:linear-gradient(90deg, transparent, oklch(0.62 0.1 78 / 0.75), transparent);margin:0 0 2px"></div>
-        <div style="position:relative;width:100%;max-width:1080px;padding:24px 16px 16px;border-radius:34px 34px 12px 12px / 40px 40px 12px 12px;background:linear-gradient(180deg, oklch(0.26 0.025 60), oklch(0.15 0.014 60));border:2px solid oklch(0.55 0.09 78 / 0.55);box-shadow:0 0 0 5px oklch(0.1 0.01 60 / 0.6) inset, 0 14px 30px -12px rgba(0,0,0,0.8)">
+        <div class="sheep-stage-shell" style="position:relative;width:100%;max-width:840px;padding:18px 14px 12px;border-radius:34px 34px 12px 12px / 40px 40px 12px 12px;background:linear-gradient(180deg, oklch(0.26 0.025 60), oklch(0.15 0.014 60));border:2px solid oklch(0.55 0.09 78 / 0.55);box-shadow:0 0 0 5px oklch(0.1 0.01 60 / 0.6) inset, 0 14px 30px -12px rgba(0,0,0,0.8)">
           <div style="position:absolute;left:-8px;top:-10px;width:44px;height:59px;pointer-events:none;z-index:2">
             <img src="assets/campfire-1.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker1 3.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,140,40,0.65))">
             <img src="assets/campfire-2.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker2 3.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,140,40,0.65))">
@@ -456,23 +477,23 @@
             <img src="assets/campfire-2.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker2 3.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,140,40,0.65))">
             <img src="assets/campfire-3.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker3 3.4s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,140,40,0.65))">
           </div>
-          <canvas ref="{{ setSheepCanvas }}" onMouseDown="{{ sheepCanvasMouseDown }}" width="1000" height="610" tabindex="-1" style="width:100%;max-width:1048px;aspect-ratio:1000/610;border-radius:6px;display:block;background:#0d0a08;box-shadow:inset 0 0 60px rgba(0,0,0,0.6);outline:none;cursor:grab"></canvas>
+          <canvas ref="{{ setSheepCanvas }}" onMouseDown="{{ sheepCanvasMouseDown }}" width="1000" height="610" tabindex="0" aria-label="Skuggteaterns spelplan" aria-describedby="sheep-game-help sheep-game-status" style="width:100%;max-width:100%;aspect-ratio:1000/610;border-radius:6px;display:block;background:#0d0a08;box-shadow:inset 0 0 60px rgba(0,0,0,0.45);outline:none;cursor:grab"></canvas>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
           <sc-for list="{{ sheepGameObjectChips }}" as="chip" hint-placeholder-count="4">
-            <button data-sheep-piece="{{ chip.id }}" aria-pressed="{{ chip.active }}" onClick="{{ chip.click }}" style="{{ chip.style }}">{{ chip.label }}</button>
+            <button type="button" data-sheep-piece="{{ chip.id }}" aria-pressed="{{ chip.active }}" onClick="{{ chip.click }}" style="{{ chip.style }}">{{ chip.label }}</button>
           </sc-for>
         </div>
-        <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap">
-          <button aria-label="Rotera vänster" onClick="{{ sheepRotateLeft }}" style="{{ sheepControlStyle }}">← Y</button>
-          <button aria-label="Rotera höger" onClick="{{ sheepRotateRight }}" style="{{ sheepControlStyle }}">Y →</button>
-          <button aria-label="Rotera uppåt" onClick="{{ sheepRotateUp }}" style="{{ sheepControlStyle }}">↑ X</button>
-          <button aria-label="Rotera nedåt" onClick="{{ sheepRotateDown }}" style="{{ sheepControlStyle }}">X ↓</button>
-          <button aria-label="Rulla vänster" onClick="{{ sheepRollLeft }}" style="{{ sheepControlStyle }}">[ Z</button>
-          <button aria-label="Rulla höger" onClick="{{ sheepRollRight }}" style="{{ sheepControlStyle }}">Z ]</button>
-          <button onClick="{{ sheepNudgeHint }}" style="{{ sheepControlStyle }}">Vink</button>
-          <button onClick="{{ sheepSolutionAssist }}" style="{{ sheepAssistStyle }}">Ställ in skuggan</button>
-          <button onClick="{{ sheepResetRoundAction }}" style="{{ sheepControlStyle }}">Återställ till blandning</button>
+        <div class="sheep-controls" style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap">
+          <button type="button" aria-label="Rotera vänster" onClick="{{ sheepRotateLeft }}" style="{{ sheepControlStyle }}">← Y</button>
+          <button type="button" aria-label="Rotera höger" onClick="{{ sheepRotateRight }}" style="{{ sheepControlStyle }}">Y →</button>
+          <button type="button" aria-label="Rotera uppåt" onClick="{{ sheepRotateUp }}" style="{{ sheepControlStyle }}">↑ X</button>
+          <button type="button" aria-label="Rotera nedåt" onClick="{{ sheepRotateDown }}" style="{{ sheepControlStyle }}">X ↓</button>
+          <button type="button" aria-label="Rulla vänster" onClick="{{ sheepRollLeft }}" style="{{ sheepControlStyle }}">[ Z</button>
+          <button type="button" aria-label="Rulla höger" onClick="{{ sheepRollRight }}" style="{{ sheepControlStyle }}">Z ]</button>
+          <button type="button" onClick="{{ sheepNudgeHint }}" style="{{ sheepControlStyle }}">Vink</button>
+          <button type="button" onClick="{{ sheepSolutionAssist }}" style="{{ sheepAssistStyle }}">Ställ in skuggan</button>
+          <button type="button" onClick="{{ sheepResetRoundAction }}" style="{{ sheepControlStyle }}">Återställ till blandning</button>
         </div>
         <sc-if value="{{ sheepGameMsg }}" hint-placeholder-val="">
           <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:760px;text-align:center">{{ sheepGameMsg }}</div>
@@ -616,6 +637,7 @@ class Component extends DCLogic {
     sheepGameActiveIdx: 0,
     sheepGameTargetName: "",
     sheepGameMsg: "",
+    sheepGameA11yStatus: "",
     sheepSolvedGallery: [],
     scene: "center",
     returnScene: "center",
@@ -795,6 +817,16 @@ class Component extends DCLogic {
       this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
     } catch (e) { this._preloaded = []; }
     this.sealPuffLoop = setInterval(() => this.sealPuffOnce(), 3600);
+    // Test hook: ?test=shadow forces the shadow theater open for visual QA.
+    // Skips the flashlight+battery+cave progression gate and jumps straight to
+    // the first unsolved round with the cave scene already loaded.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("test") === "shadow") {
+        this.setState({ scene: "camp" });
+        setTimeout(() => this.openSheepGame(), 400);
+      }
+    } catch (e) { /* no URLSearchParams, no test hook */ }
   }
 
   // true audio-synced mouth movement: decodes the clip once, builds an amplitude
@@ -1415,42 +1447,54 @@ class Component extends DCLogic {
   sheepPuzzleContract = {
     angleBounds: { min: -1.5, max: 1.5 },
     mask: { width: 192, height: 120 },
-    match: { recall: 0.9, precision: 0.88, iou: 0.8 },
+    // Match thresholds: recall is kept tight so a missing essential piece still fails the round
+    // (the seagull and crab targets are close enough that one piece missing can leave 0.89
+    // recall), but precision and IoU are deliberately forgiving so the magnetic snap can do the
+    // wobble-forgiveness work. A blanket shape is still rejected by precision.
+    match: { recall: 0.92, precision: 0.85, iou: 0.75 },
+    // Each individual pose within this many radians of its solution gets pulled to the exact
+    // solution once per frame, so finishing a piece feels like the wall "clicking" into place
+    // rather than chasing an exact angle.
+    snapRadius: 0.32,
+    // Where on the canvas the shadow wall sits, in normalized 0..1 coordinates. The cave
+    // backdrop has the illuminated wall in the top-right quadrant, so the projection center
+    // is offset to (0.72, 0.30) and the scale is reduced so a finished piece sits roughly
+    // inside that wall area without spilling onto the rest of the cave.
+    wall: { centerX: 0.72, centerY: 0.30, scale: 0.28 },
     rounds: [
       {
-        id: "seagull", label: "Fiskmås",
-        hintThreshold: 0.15,
-        match: { recall: 0.92, precision: 0.9, iou: 0.85 },
+        id: "lighthouse", label: "Fyr",
+        hintThreshold: 0.1,
+        match: { recall: 0.92, precision: 0.85, iou: 0.75 },
         solution: [{ rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 1.45, rz: 0 }],
         scramble: [{ rx: 1.05, ry: -1.18, rz: 0.4 }, { rx: -1.12, ry: 0.96, rz: -0.3 }, { rx: 0.92, ry: 1.2, rz: 0.2 }, { rx: 0.2, ry: 0.15, rz: 0.1 }],
         pieces: [
-          { id: "wing-bone", name: "Vingben", material: "ben", display: [0.1,0.76,0.82],
-            worldPos: [-0.05, 0.15, 2],
+          { id: "tower", name: "Torn", material: "ben", display: [0.5,0.5,0.9],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(0.55, 0.4, 0.35), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
-              { vertices: this.sheepBoxLimb(0.32, 0.2, 0.2), offset: [0.34, 0.16, 0], localRot: { rx:0, ry:0, rz:0.35 } },
+              { vertices: this.sheepBoxLimb(1.2, 0.3, 0.25), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "copper-fork", name: "Koppargaffel", material: "koppar", display: [0.36,0.79,0.85],
-            worldPos: [-0.75, 0.05, 2],
+          { id: "lamp", name: "Lampa", material: "mässing", display: [0.5,0.15,0.75],
+            worldPos: [0, 0.7, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.3, 0.28, 0.16), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0.34 } },
+              { vertices: this.sheepBoxLimb(0.5, 0.4, 0.3), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "knotted-root", name: "Rotknut", material: "trä", display: [0.62,0.75,0.78],
-            worldPos: [0.75, 0.05, 2],
+          { id: "stripe", name: "Ranch", material: "koppar", display: [0.5,0.45,0.65],
+            worldPos: [0, 0.35, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.3, 0.28, 0.16), offset: [0,0,0], localRot: { rx:0, ry:0, rz:-0.34 } },
+              { vertices: this.sheepBoxLimb(0.55, 0.45, 0.12), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "loose-plank", name: "Lös planka", material: "trä", display: [0.9,0.55,0.55],
-            worldPos: [0, 0.05, 2.25],
+          { id: "loose-line", name: "Lös lina", material: "rep", display: [0.9,0.85,0.5],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.1, 0.5, 0.08), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(0.18, 0.18, 0.06), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
         ]
       },
       {
         id: "sailboat", label: "Segelbåt",
-        hintThreshold: 0.15,
-        match: { recall: 0.92, precision: 0.9, iou: 0.85 },
+        hintThreshold: 0.1,
+        match: { recall: 0.92, precision: 0.85, iou: 0.75 },
         solution: [{ rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 1.45, rz: 0 }],
         scramble: [{ rx: -1.16, ry: -1.04, rz: 0.2 }, { rx: 1.08, ry: 1.18, rz: -0.2 }, { rx: -.94, ry: 1.22, rz: 0.3 }, { rx: 0.15, ry: 0.2, rz: -0.1 }],
         pieces: [
@@ -1478,61 +1522,60 @@ class Component extends DCLogic {
       },
       {
         id: "anchor", label: "Ankare",
-        hintThreshold: 0.15,
-        match: { recall: 0.92, precision: 0.9, iou: 0.85 },
+        hintThreshold: 0.1,
+        match: { recall: 0.92, precision: 0.85, iou: 0.75 },
         solution: [{ rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 1.45, rz: 0 }],
         scramble: [{ rx: 1.02, ry: -1.1, rz: 0.3 }, { rx: -0.98, ry: 1.05, rz: -0.25 }, { rx: 0.88, ry: 1.15, rz: 0.2 }, { rx: 0.2, ry: 0.15, rz: -0.1 }],
         pieces: [
-          { id: "anchor-shank", name: "Ankarstång", material: "mässing", display: [0.36,0.72,0.9],
-            worldPos: [0, -0.15, 2],
+          { id: "anchor-shank", name: "Ankarskaft", material: "mässing", display: [0.5,0.5,0.9],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.75, 0.22, 0.16, Math.PI/2), offset: [0,0.35,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(1.75, 0.22, 0.16, Math.PI/2), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "anchor-ring", name: "Ankarring", material: "rep", display: [0.62,0.8,0.7],
-            worldPos: [0, 0.7, 2],
+          { id: "anchor-ring", name: "Ankarring", material: "trä", display: [0.5,0.1,0.6],
+            worldPos: [0, 0.95, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.0, 0.5, 0.08), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(0.5, 0.4, 0.1), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "anchor-flukes", name: "Ankarflikar", material: "ben", display: [0.1,0.8,0.85],
-            worldPos: [0, -0.55, 2.1],
+          { id: "anchor-flukes", name: "Ankarklor", material: "ben", display: [0.5,0.85,0.85],
+            worldPos: [0, -0.7, 2],
             limbs: [
-              { vertices: this.sheepMakeLimb({ length: 0.9, width: 0.22, thickness: 0.14, bend: -0.4, twist: 0.55 }), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
-              { vertices: this.sheepMakeLimb({ length: 0.9, width: 0.22, thickness: 0.14, bend: -0.4, twist: -0.55 }), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(1.2, 0.3, 0.25), offset: [0.3, 0, 0], localRot: { rx:0, ry:0, rz:0.6 } },
+              { vertices: this.sheepBoxLimb(0.55, 0.45, 0.12), offset: [-0.3, 0, 0], localRot: { rx:0, ry:0, rz:-0.4 } },
             ] },
-          { id: "loose-cloth", name: "Löst tyg", material: "koppar", display: [0.9,0.55,0.5],
-            worldPos: [0, -0.1, 2.25],
+          { id: "loose-rope", name: "Löst rep", material: "rep", display: [0.9,0.65,0.5],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepWedgeLimb(0.75, 0.85, 0.12), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(0.18, 0.18, 0.06), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
         ]
       },
       {
-        id: "crab", label: "Krabba",
-        hintThreshold: 0.15,
-        match: { recall: 0.92, precision: 0.9, iou: 0.85 },
+        id: "fish", label: "Fisk",
+        hintThreshold: 0.1,
+        match: { recall: 0.92, precision: 0.85, iou: 0.75 },
         solution: [{ rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 0, rz: 0 }, { rx: 0, ry: 1.45, rz: 0 }],
         scramble: [{ rx: 1.1, ry: -1.05, rz: 0.35 }, { rx: -1.05, ry: 1.0, rz: -0.3 }, { rx: 0.95, ry: 1.1, rz: 0.25 }, { rx: 0.2, ry: 0.15, rz: -0.1 }],
         pieces: [
-          { id: "crab-body", name: "Kropp", material: "ben", display: [0.1,0.76,0.82],
-            worldPos: [-0.05, 0.15, 2],
+          { id: "fish-body", name: "Fiskkropp", material: "koppar", display: [0.5,0.55,0.85],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(0.55, 0.4, 0.35), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
-              { vertices: this.sheepBoxLimb(0.32, 0.2, 0.2), offset: [0.34,0.16,0], localRot: { rx:0, ry:0, rz:0.35 } },
+              { vertices: this.sheepBoxLimb(1.0, 0.5, 0.08), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "crab-claw-left", name: "Klo vänster", material: "koppar", display: [0.36,0.79,0.85],
-            worldPos: [-0.75, 0.05, 2],
+          { id: "fish-tail", name: "Stjärtfena", material: "trä", display: [0.85,0.55,0.7],
+            worldPos: [0.55, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.3, 0.28, 0.16), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0.34 } },
+              { vertices: this.sheepWedgeLimb(0.75, 0.85, 0.12), offset: [0,0,0], localRot: { rx:0, ry:0, rz:-Math.PI/2 } },
             ] },
-          { id: "crab-claw-right", name: "Klo höger", material: "trä", display: [0.62,0.75,0.78],
-            worldPos: [0.75, 0.05, 2],
+          { id: "fish-fin", name: "Ryggfena", material: "mässing", display: [0.5,0.25,0.6],
+            worldPos: [-0.1, 0.3, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.3, 0.28, 0.16), offset: [0,0,0], localRot: { rx:0, ry:0, rz:-0.34 } },
+              { vertices: this.sheepBoxLimb(0.5, 0.4, 0.3), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
-          { id: "loose-shell", name: "Löst skal", material: "pärlemor", display: [0.9,0.55,0.55],
-            worldPos: [0, 0.05, 2.25],
+          { id: "loose-bubble", name: "Lös bubbla", material: "pärlemor", display: [0.9,0.8,0.5],
+            worldPos: [0, 0, 2],
             limbs: [
-              { vertices: this.sheepBoxLimb(1.1, 0.5, 0.08), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
+              { vertices: this.sheepBoxLimb(0.18, 0.18, 0.06), offset: [0,0,0], localRot: { rx:0, ry:0, rz:0 } },
             ] },
         ]
       }
@@ -1547,6 +1590,12 @@ class Component extends DCLogic {
   sheepRotSpeedDeg = 70;
   sheepHoldMs = 700;
   sheepGameGen = 0;
+  sheepSettingsOpen = false;
+
+  sheepToggleSettings() {
+    this.sheepSettingsOpen = !this.sheepSettingsOpen;
+    this.setState({ sheepSettingsOpen: this.sheepSettingsOpen });
+  }
 
   sheepLoadGallery() {
     try {
@@ -1575,29 +1624,27 @@ class Component extends DCLogic {
     this.sheepActiveIdx = 0;
     this.sheepMatchHold = 0;
     this.sheepWallCracks = null;
+    this.sheepTargetMaskCache = null;
     this.sheepFreeRoundActive = false;
     this.sheepFreeRound = null;
+    this.sheepReplayActive = false;
     this.sheepA11y = this.sheepLoadA11ySettings();
-    this.setState({ sheepGameOpen: true, sheepGameRound: 1, sheepGameActiveIdx: 0, sheepGameMsg: "", sheepSolvedGallery: this.sheepLoadGallery() });
+    const gallery = this.sheepLoadGallery();
+    const rounds = this.sheepPuzzleContract.rounds;
+    const solvedIds = new Set(gallery.map((entry) => entry.id));
+    const savedProgress = this.sheepLoadProgress();
+    let resumeRound = 0;
+    if (savedProgress && typeof savedProgress.roundId === "string") {
+      const index = rounds.findIndex((round) => round.id === savedProgress.roundId);
+      if (index !== -1 && !solvedIds.has(savedProgress.roundId)) resumeRound = index + 1;
+    }
+    if (!resumeRound) {
+      const firstUnsolvedIndex = rounds.findIndex((round) => !solvedIds.has(round.id));
+      resumeRound = firstUnsolvedIndex === -1 ? 1 : firstUnsolvedIndex + 1;
+    }
+    this.setState({ sheepGameOpen: true, sheepGameRound: resumeRound, sheepGameActiveIdx: 0, sheepGameMsg: "", sheepSolvedGallery: gallery });
     this.startSheepRound();
-    this._sheepKeyDown = (event) => this.handleSheepKeyDown(event);
-    this._sheepKeyUp = (event) => this.handleSheepKeyUp(event);
-    this._sheepDragMove = (event) => this.handleSheepDragMove(event);
-    this._sheepDragUp = () => this.handleSheepDragUp();
-    window.addEventListener("keydown", this._sheepKeyDown);
-    window.addEventListener("keyup", this._sheepKeyUp);
-    window.addEventListener("mousemove", this._sheepDragMove);
-    window.addEventListener("mouseup", this._sheepDragUp);
-    this.sheepGameKeys = {};
-    this.sheepDragState = null;
-    this.sheepInspectorDrag = null;
-    this.sheepInspectorManualRx = null;
-    this.sheepInspectorManualRy = null;
-    this.sheepInspectorIdleUntil = 0;
-    this.sheepGameLastTs = null;
-    this.sheepGameRunning = true;
-    this.sheepGameRAF = requestAnimationFrame((timestamp) => this.sheepGameLoop(timestamp));
-    this.sheepStartHum();
+    this.sheepBeginSession();
   }
 
   sheepStartHum() {
@@ -1647,6 +1694,19 @@ class Component extends DCLogic {
     this.setState({ sheepA11yVersion: (this.state.sheepA11yVersion || 0) + 1 });
   }
 
+  sheepGhostBrightnessLevels = [{ value: 0.5, label: "Låg" }, { value: 1, label: "Normal" }, { value: 1.6, label: "Hög" }];
+
+  sheepGhostBrightnessLabel() {
+    const level = this.sheepGhostBrightnessLevels.find((entry) => entry.value === this.sheepA11y.ghostBrightness);
+    return level ? level.label : "Normal";
+  }
+
+  sheepCycleGhostBrightness() {
+    const levels = this.sheepGhostBrightnessLevels;
+    const current = levels.findIndex((entry) => entry.value === this.sheepA11y.ghostBrightness);
+    this.sheepSetGhostBrightness(levels[(current + 1) % levels.length].value);
+  }
+
   sheepToggleColorblind() {
     this.sheepA11y = { ...this.sheepA11y, colorblind: !this.sheepA11y.colorblind };
     this.sheepSaveA11ySettings(this.sheepA11y);
@@ -1670,11 +1730,14 @@ class Component extends DCLogic {
     this.sheepRoundComplete = false;
     this.sheepBestScore = 0;
     this.sheepBestMask = null;
-    this.sheepUsedFullAssistThisRound = false;
+    this.sheepUsedFullAssistThisRound = !!(saved && saved.roundId === round.id && saved.usedFullAssistThisRound);
+    this.sheepLastMatch = null;
+    const activeName = this.sheepObjects[0] ? this.sheepObjects[0].name : round.label;
     this.setState({
       sheepGameActiveIdx: 0,
       sheepGameTargetName: round.label,
       sheepGameMsg: resume ? "Du fortsätter där du slutade." : "Välj en skulptur och rotera på tre axlar. En av dem hör kanske inte ens hemma i skuggan.",
+      sheepGameA11yStatus: `Aktiv skulptur: ${activeName}. Skuggmatch: väntar på skuggavläsning.`,
     });
   }
 
@@ -1683,14 +1746,14 @@ class Component extends DCLogic {
     return this.sheepPuzzleContract.rounds[this.state.sheepGameRound - 1];
   }
 
-  sheepSaveProgress() {
+  sheepSaveProgress(force = false) {
     const round = this.sheepCurrentRound();
     if (!round || this.sheepFreeRoundActive || !this.sheepObjects) return;
     const now = performance.now();
-    if (now - (this.sheepLastProgressSaveAt || 0) < 1000) return;
+    if (!force && now - (this.sheepLastProgressSaveAt || 0) < 1000) return;
     this.sheepLastProgressSaveAt = now;
     try {
-      localStorage.setItem("sheepRoundProgress", JSON.stringify({ roundId: round.id, poses: this.sheepObjects.map((object) => object.rot) }));
+      localStorage.setItem("sheepRoundProgress", JSON.stringify({ roundId: round.id, poses: this.sheepObjects.map((object) => object.rot), usedFullAssistThisRound: this.sheepUsedFullAssistThisRound }));
     } catch (err) { /* storage unavailable */ }
   }
 
@@ -1742,8 +1805,8 @@ class Component extends DCLogic {
     const scramble = pieces.map(() => ({ rx: rand(-1.2, 1.2), ry: rand(-1.2, 1.2), rz: rand(-0.4, 0.4) }));
     return {
       id: `free-${seed}`, label: "Fri skugga",
-      hintThreshold: 0.15,
-      match: { recall: 0.88, precision: 0.86, iou: 0.78 },
+      hintThreshold: 0.1,
+      match: { recall: 0.92, precision: 0.85, iou: 0.75 },
       solution, scramble, pieces,
     };
   }
@@ -1757,10 +1820,13 @@ class Component extends DCLogic {
     this.sheepBestScore = 0;
     this.sheepBestMask = null;
     this.sheepUsedFullAssistThisRound = false;
+    this.sheepLastMatch = null;
+    const activeName = this.sheepObjects[0] ? this.sheepObjects[0].name : this.sheepFreeRound.label;
     this.setState({
       sheepGameActiveIdx: 0,
       sheepGameTargetName: this.sheepFreeRound.label,
       sheepGameMsg: "Fri skugga: ingen känd form väntar — lita bara på ögat.",
+      sheepGameA11yStatus: `Aktiv skulptur: ${activeName}. Skuggmatch: väntar på skuggavläsning.`,
     });
   }
 
@@ -1768,8 +1834,13 @@ class Component extends DCLogic {
     this.teardownSheepGame();
     this.sheepGameGen++;
     this.sheepFreeRoundActive = true;
+    this.sheepReplayActive = false;
     this.setState({ sheepGameOpen: true, sheepGameMsg: "" });
     this.sheepLoadFreeRound();
+    this.sheepBeginSession();
+  }
+
+  sheepBeginSession() {
     this._sheepKeyDown = (event) => this.handleSheepKeyDown(event);
     this._sheepKeyUp = (event) => this.handleSheepKeyUp(event);
     this._sheepDragMove = (event) => this.handleSheepDragMove(event);
@@ -1790,13 +1861,34 @@ class Component extends DCLogic {
     this.sheepStartHum();
   }
 
+  sheepReplayRound(index) {
+    const rounds = this.sheepPuzzleContract.rounds;
+    if (index < 0 || index >= rounds.length) return;
+    this.teardownSheepGame();
+    this.sheepGameGen++;
+    this.sheepFreeRoundActive = false;
+    this.sheepFreeRound = null;
+    this.sheepReplayActive = true;
+    this.sheepClearProgress();
+    this.setState({ sheepGameOpen: true, sheepGameRound: index + 1, sheepGameMsg: "" });
+    this.startSheepRound();
+    this.sheepUsedFullAssistThisRound = false;
+    this.setState({ sheepGameMsg: `Omspel: ${rounds[index].label}. Klara den utan assistans för en ren stjärna.` });
+    this.sheepBeginSession();
+  }
+
   sheepResetRound() {
     const round = this.sheepCurrentRound();
     if (!round || !this.sheepObjects) return;
     this.sheepObjects.forEach((object, index) => { object.rot = { ...round.scramble[index] }; });
     this.sheepMatchHold = 0;
+    this.sheepLastMatch = null;
     this.sheepClearProgress();
-    this.setState({ sheepGameMsg: "Skulpturerna är tillbaka i sitt utgångsläge." });
+    const activeName = this.sheepObjects[this.sheepActiveIdx] ? this.sheepObjects[this.sheepActiveIdx].name : round.label;
+    this.setState({
+      sheepGameMsg: "Skulpturerna är tillbaka i sitt utgångsläge.",
+      sheepGameA11yStatus: `Aktiv skulptur: ${activeName}. Skuggmatch: väntar på skuggavläsning.`,
+    });
   }
 
   closeSheepGame() {
@@ -1808,6 +1900,7 @@ class Component extends DCLogic {
     this.sheepGameGen++;
     this.sheepGameRunning = false;
     this.sheepGameKeys = {};
+    this.sheepTargetMaskCache = null;
     this.sheepStopHum();
     if (this.sheepGameRAF) { cancelAnimationFrame(this.sheepGameRAF); this.sheepGameRAF = null; }
     if (this._sheepKeyDown) {
@@ -1825,24 +1918,40 @@ class Component extends DCLogic {
     this.sheepDragState = null;
     this.sheepCanvasEl = null;
     this.sheepCtx = null;
+    this.sheepCaveBg = null;
   }
 
   initSheepCanvas(element) {
     if (!element || element === this.sheepCanvasEl) return;
     this.sheepCanvasEl = element;
     this.sheepCtx = element.getContext("2d");
+    if (!this.sheepCaveBg) {
+      this.sheepCaveBg = new Image();
+      this.sheepCaveBg.src = "assets/cave-bg.png";
+    }
+    if (this.state.sheepGameOpen) {
+      try { element.focus({ preventScroll: true }); } catch (err) { element.focus(); }
+    }
   }
 
   setSheepActive(index) {
     if (!this.sheepObjects || !this.sheepObjects[index]) return;
     this.sheepActiveIdx = index;
     this.setState({ sheepGameActiveIdx: index });
+    this.sheepSyncA11yStatus();
   }
 
   handleSheepKeyDown(event) {
     if (!this.state.sheepGameOpen) return;
     const key = event.key;
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "1", "2", "3", "4", "[", "]", "Tab"].includes(key)) event.preventDefault();
+    if (key === "Escape") {
+      event.preventDefault();
+      this.closeSheepGame();
+      return;
+    }
+    if (key === "Tab") return;
+    if (event.target !== this.sheepCanvasEl) return;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "1", "2", "3", "4", "[", "]"].includes(key)) event.preventDefault();
     if (key === "ArrowUp") this.sheepGameKeys.up = true;
     else if (key === "ArrowDown") this.sheepGameKeys.down = true;
     else if (key === "ArrowLeft") this.sheepGameKeys.left = true;
@@ -1850,7 +1959,6 @@ class Component extends DCLogic {
     else if (key === "[") this.sheepGameKeys.rollLeft = true;
     else if (key === "]") this.sheepGameKeys.rollRight = true;
     else if (["1", "2", "3", "4"].includes(key)) this.setSheepActive(Number(key) - 1);
-    else if (key === "Tab" && !event.repeat) this.setSheepActive((this.sheepActiveIdx + 1) % this.sheepObjects.length);
   }
 
   handleSheepKeyUp(event) {
@@ -1934,7 +2042,8 @@ class Component extends DCLogic {
     const t = (this.sheepWallZ - light.z) / (vertexWorld[2] - light.z);
     const wallX = lightX + (vertexWorld[0] - lightX) * t;
     const wallY = lightY + (vertexWorld[1] - lightY) * t;
-    return [0.5 + wallX * this.sheepWallScale, 0.5 - wallY * this.sheepWallScale];
+    const wall = this.sheepPuzzleContract.wall || { centerX: 0.5, centerY: 0.5, scale: this.sheepWallScale };
+    return [wall.centerX + wallX * wall.scale, wall.centerY - wallY * wall.scale];
   }
 
   sheepConvexHull(points) {
@@ -2050,26 +2159,37 @@ class Component extends DCLogic {
     if (!round || !object) return;
     object.rot = { ...round.solution[this.sheepActiveIdx] };
     this.sheepUsedFullAssistThisRound = true;
-    this.setState({ sheepGameMsg: `${object.name} låstes mot ljuset. Välj nästa skulptur.` });
+    this.sheepSaveProgress(true);
+    this.setState({
+      sheepGameMsg: `Assistans: ${object.name} låstes mot ljuset. Välj nästa skulptur.`,
+      sheepGameA11yStatus: `Aktiv skulptur: ${object.name}. Skuggmatch: skuggan sitter rätt. Assistans: ${object.name} låstes mot ljuset.`,
+    });
   }
 
   sheepUseNudgeHint() {
     const round = this.sheepCurrentRound();
     const object = this.sheepObjects && this.sheepObjects[this.sheepActiveIdx];
     if (!round || !object) return;
-    const target = round.solution[this.sheepActiveIdx];
-    object.rot = {
-      rx: object.rot.rx + (target.rx - object.rot.rx) * 0.5,
-      ry: object.rot.ry + (target.ry - object.rot.ry) * 0.5,
-      rz: (object.rot.rz || 0) + ((target.rz || 0) - (object.rot.rz || 0)) * 0.5,
-    };
-    this.setState({ sheepGameMsg: `${object.name} vinklas närmare ljuset...` });
+    const current = object.rot || {};
+    const target = round.solution[this.sheepActiveIdx] || {};
+    const guidance = [
+      { axis: "X-axeln", delta: (target.rx || 0) - (current.rx || 0), direction: (target.rx || 0) - (current.rx || 0) >= 0 ? "nedåt" : "uppåt" },
+      { axis: "Y-axeln", delta: (target.ry || 0) - (current.ry || 0), direction: (target.ry || 0) - (current.ry || 0) >= 0 ? "åt höger" : "åt vänster" },
+      { axis: "Z-axeln", delta: (target.rz || 0) - (current.rz || 0), direction: (target.rz || 0) - (current.rz || 0) >= 0 ? "medurs" : "moturs" },
+    ].reduce((best, axis) => (!best || Math.abs(axis.delta) > Math.abs(best.delta) ? axis : best), null);
+    const message = guidance && Math.abs(guidance.delta) > 0.001 ? `Vink: ${guidance.axis} behöver ${guidance.direction}.` : `Vink: ${object.name} är redan rätt.`;
+    const proximity = this.sheepMatchProximityLabel(this.sheepLastMatch);
+    this.setState({
+      sheepGameMsg: message,
+      sheepGameA11yStatus: `Aktiv skulptur: ${object.name}. Skuggmatch: ${proximity}. ${message}`,
+    });
   }
 
   sheepAdvanceMatch(elapsedMs) {
     const round = this.sheepCurrentRound();
+    this.sheepMaybeSnapActive(round);
     const poses = this.sheepObjects.map((object) => object.rot);
-    const targetMask = this.sheepBuildMask(round, round.solution, { target: true });
+    const targetMask = this.sheepTargetMask(round);
     const liveMask = this.sheepBuildMask(round, poses);
     const match = this.sheepEvaluateMask(targetMask, liveMask, round);
     this.sheepLastMatch = { ...match, components: this.sheepCountMaskComponents(liveMask, this.sheepPuzzleContract.mask.width, this.sheepPuzzleContract.mask.height) };
@@ -2078,8 +2198,25 @@ class Component extends DCLogic {
       this.sheepBestMask = liveMask;
     }
     this.sheepMatchHold = match.pass ? this.sheepMatchHold + elapsedMs : 0;
+    this.sheepSyncA11yStatus(match);
     if (this.sheepMatchHold >= this.sheepHoldMs) this.completeSheepRound();
     return this.sheepLastMatch;
+  }
+  sheepMaybeSnapActive(round) {
+    if (!round || !this.sheepObjects || this.sheepActiveIdx == null) return false;
+    const object = this.sheepObjects[this.sheepActiveIdx];
+    if (!object) return false;
+    const current = object.rot || {};
+    const target = round.solution[this.sheepActiveIdx] || {};
+    const radius = this.sheepPuzzleContract.snapRadius != null ? this.sheepPuzzleContract.snapRadius : 0.32;
+    const within = [
+      Math.abs((current.rx || 0) - (target.rx || 0)),
+      Math.abs((current.ry || 0) - (target.ry || 0)),
+      Math.abs((current.rz || 0) - (target.rz || 0)),
+    ].every((diff) => diff <= radius);
+    if (!within) return false;
+    object.rot = { rx: target.rx || 0, ry: target.ry || 0, rz: target.rz || 0 };
+    return true;
   }
 
   sheepGameLoop(timestamp) {
@@ -2100,6 +2237,21 @@ class Component extends DCLogic {
     this.sheepGameRAF = requestAnimationFrame((nextTimestamp) => this.sheepGameLoop(nextTimestamp));
   }
 
+  sheepMatchProximityLabel(match) {
+    if (!match) return "väntar på skuggavläsning";
+    if (match.pass) return "skuggan sitter rätt";
+    if (match.iou >= 0.85) return "nästan rätt";
+    if (match.iou >= 0.6) return "på väg mot rätt form";
+    return "långt från målet";
+  }
+
+  sheepSyncA11yStatus(match = this.sheepLastMatch) {
+    const object = this.sheepObjects && this.sheepObjects[this.sheepActiveIdx];
+    if (!object) return;
+    const nextStatus = `Aktiv skulptur: ${object.name}. Skuggmatch: ${this.sheepMatchProximityLabel(match)}.`;
+    if (nextStatus !== this.state.sheepGameA11yStatus) this.setState({ sheepGameA11yStatus: nextStatus });
+  }
+
   makeSheepWallCracks(width, height) {
     return [[0.1,0.2,0.18,0.28],[0.86,0.16,0.78,0.27],[0.7,0.72,0.82,0.8]].map(([x1,y1,x2,y2]) => [[x1*width,y1*height],[x2*width,y2*height]]);
   }
@@ -2114,7 +2266,22 @@ class Component extends DCLogic {
     }
   }
 
-  sheepDrawTargetGhost(ctx, mask, alpha) {
+  // Deuteranopia cannot separate the default mint ghost from the green "pass" readout, so the
+  // colorblind palette swaps the target ghost to amber and keeps the best-attempt ghost blue.
+  sheepGhostPalette() {
+    return this.sheepA11y && this.sheepA11y.colorblind
+      ? { target: "247,181,41", best: "96,158,255", pass: "#7fc3ff" }
+      : { target: "130,255,215", best: "120,170,255", pass: "#9cffbd" };
+  }
+
+  sheepGhostAlpha(alpha) {
+    const brightness = this.sheepA11y && typeof this.sheepA11y.ghostBrightness === "number" ? this.sheepA11y.ghostBrightness : 1;
+    return Math.max(0, Math.min(1, alpha * brightness));
+  }
+
+  sheepDrawTargetGhost(ctx, mask, rawAlpha) {
+    const alpha = this.sheepGhostAlpha(rawAlpha);
+    const { target } = this.sheepGhostPalette();
     const { width, height } = this.sheepPuzzleContract.mask;
     const wall = { x: 360, y: 55, width: 570, height: 430 };
     const pixelWidth = wall.width / width, pixelHeight = wall.height / height;
@@ -2123,9 +2290,9 @@ class Component extends DCLogic {
       if (mask[y * width + x]) ctx.fillRect(wall.x + x * pixelWidth, wall.y + y * pixelHeight, Math.ceil(pixelWidth) + 0.4, Math.ceil(pixelHeight) + 0.4);
     }
     ctx.save();
-    ctx.shadowColor = `rgba(130,255,215,${alpha.toFixed(3)})`;
+    ctx.shadowColor = `rgba(${target},${alpha.toFixed(3)})`;
     ctx.shadowBlur = 4;
-    ctx.fillStyle = `rgba(130,255,215,${alpha.toFixed(3)})`;
+    ctx.fillStyle = `rgba(${target},${alpha.toFixed(3)})`;
     for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
       if (!mask[y * width + x]) continue;
       const left = x > 0 ? mask[y * width + x - 1] : 0;
@@ -2171,28 +2338,29 @@ class Component extends DCLogic {
         ctx.stroke();
       });
     });
-    ctx.save();
-    ctx.strokeStyle = "rgba(255,196,105,.22)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(155, 600);
-    ctx.lineTo(centerX, centerY + scale * 0.55);
-    ctx.stroke();
-    ctx.shadowColor = index === this.sheepActiveIdx ? "rgba(255,205,105,.95)" : "rgba(0,0,0,.6)";
-    ctx.shadowBlur = index === this.sheepActiveIdx ? 18 : 7;
-    ctx.strokeStyle = index === this.sheepActiveIdx ? "#ffd789" : "rgba(220,180,110,.35)";
-    ctx.lineWidth = index === this.sheepActiveIdx ? 3 : 1;
-    const xs = allProjected.map((p) => p[0]), ys = allProjected.map((p) => p[1]);
-    const pad = 6;
-    ctx.strokeRect(Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) - Math.min(...xs) + pad * 2, Math.max(...ys) - Math.min(...ys) + pad * 2);
-    ctx.restore();
+    // Only the active piece gets a visible bounding box and glow — the rest of the sculptures
+    // sit in the foreground without any on-canvas guideline, so the player can read the
+    // composition instead of staring at a frame around every object.
+    if (index === this.sheepActiveIdx) {
+      ctx.save();
+      ctx.shadowColor = "rgba(255,205,105,.95)";
+      ctx.shadowBlur = 18;
+      ctx.strokeStyle = "#ffd789";
+      ctx.lineWidth = 3;
+      const xs = allProjected.map((p) => p[0]), ys = allProjected.map((p) => p[1]);
+      const pad = 6;
+      ctx.strokeRect(Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) - Math.min(...xs) + pad * 2, Math.max(...ys) - Math.min(...ys) + pad * 2);
+      ctx.restore();
+    }
   }
 
-  sheepDrawBestGhost(ctx, mask, alpha) {
+  sheepDrawBestGhost(ctx, mask, rawAlpha) {
+    const alpha = this.sheepGhostAlpha(rawAlpha);
+    const { best } = this.sheepGhostPalette();
     const { width, height } = this.sheepPuzzleContract.mask;
     const wall = { x: 360, y: 55, width: 570, height: 430 };
     const pixelWidth = wall.width / width, pixelHeight = wall.height / height;
-    ctx.fillStyle = `rgba(120,170,255,${alpha.toFixed(3)})`;
+    ctx.fillStyle = `rgba(${best},${alpha.toFixed(3)})`;
     for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
       if (!mask[y * width + x]) continue;
       const left = x > 0 ? mask[y * width + x - 1] : 0;
@@ -2201,6 +2369,18 @@ class Component extends DCLogic {
       const down = y < height - 1 ? mask[(y + 1) * width + x] : 0;
       if (!left || !right || !up || !down) ctx.fillRect(wall.x + x * pixelWidth, wall.y + y * pixelHeight, Math.ceil(pixelWidth) + 0.6, Math.ceil(pixelHeight) + 0.6);
     }
+  }
+
+  // The wall projection follows the swinging light, so the target mask is only reusable for as long
+  // as the light holds still. Keying on the swing lets the matcher and the renderer share one build
+  // per frame without ever showing a ghost that lags behind the live shadow.
+  sheepTargetMask(round) {
+    const swing = this.sheepLightSwing || { x: 0, y: 0 };
+    const key = `${round.id}|${swing.x.toFixed(4)}|${swing.y.toFixed(4)}`;
+    if (this.sheepTargetMaskCache && this.sheepTargetMaskCache.key === key) return this.sheepTargetMaskCache.mask;
+    const mask = this.sheepBuildMask(round, round.solution, { target: true });
+    this.sheepTargetMaskCache = { key, mask };
+    return mask;
   }
 
   sheepDrawInspector(ctx, object, timestamp) {
@@ -2243,15 +2423,28 @@ class Component extends DCLogic {
     const ctx = this.sheepCtx;
     if (!ctx || !this.sheepObjects) return;
     const { stageW: width, stageH: height } = this.sheepGameConfig;
-    const glow = ctx.createRadialGradient(160, height, 20, 520, 250, 720);
-    glow.addColorStop(0, "#8a5427"); glow.addColorStop(.46, "#594021"); glow.addColorStop(1, "#17100b");
-    ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = "rgba(206,164,93,.15)"; ctx.fillRect(350, 42, 590, 455);
+    ctx.fillStyle = "#0d0a08"; ctx.fillRect(0, 0, width, height);
+    if (this.sheepCaveBg && this.sheepCaveBg.complete && this.sheepCaveBg.naturalWidth > 0) {
+      const imgW = this.sheepCaveBg.naturalWidth;
+      const imgH = this.sheepCaveBg.naturalHeight;
+      const scale = Math.max(width / imgW, height / imgH);
+      const drawW = imgW * scale;
+      const drawH = imgH * scale;
+      const offsetX = width - drawW;
+      const offsetY = (height - drawH) / 2;
+      ctx.drawImage(this.sheepCaveBg, offsetX, offsetY, drawW, drawH);
+      ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fillRect(0, 0, width, height);
+    } else {
+      const glow = ctx.createRadialGradient(160, height, 20, 520, 250, 720);
+      glow.addColorStop(0, "#8a5427"); glow.addColorStop(.46, "#594021"); glow.addColorStop(1, "#17100b");
+      ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
+    }
+    ctx.fillStyle = "rgba(206,164,93,.10)"; ctx.fillRect(350, 42, 590, 455);
     if (!this.sheepWallCracks) this.sheepWallCracks = this.makeSheepWallCracks(width, height);
     ctx.strokeStyle = "rgba(32,20,12,.45)"; ctx.lineWidth = 2;
     this.sheepWallCracks.forEach((line) => { ctx.beginPath(); ctx.moveTo(...line[0]); ctx.lineTo(...line[1]); ctx.stroke(); });
     const round = this.sheepCurrentRound();
-    const targetMask = this.sheepBuildMask(round, round.solution, { target: true });
+    const targetMask = this.sheepTargetMask(round);
     const liveMask = this.sheepBuildMask(round, this.sheepObjects.map((object) => object.rot));
     const hint = round.hintThreshold || 0;
     const ghostAlpha = match.iou > hint ? Math.min(0.85, 0.2 + ((match.iou - hint) / Math.max(0.01, 1 - hint)) * 0.65) : 0;
@@ -2259,10 +2452,10 @@ class Component extends DCLogic {
     if (this.sheepBestMask && this.sheepBestScore > match.iou + 0.02) this.sheepDrawBestGhost(ctx, this.sheepBestMask, 0.5);
     ctx.save(); ctx.shadowColor = "rgba(0,0,0,.85)"; ctx.shadowBlur = 2; this.sheepDrawMask(ctx, liveMask, "rgba(12,8,5,.96)"); ctx.restore();
     [...this.sheepObjects.keys()].sort((a,b) => this.sheepObjects[a].display[1] - this.sheepObjects[b].display[1]).forEach((index) => this.sheepDrawSculpture(ctx, this.sheepObjects[index], index));
-    ctx.fillStyle = match.pass ? "#9cffbd" : "#f6d7a0"; ctx.font = "600 15px 'Work Sans', sans-serif"; ctx.textAlign = "center";
+    ctx.fillStyle = match.pass ? this.sheepGhostPalette().pass : "#f6d7a0"; ctx.font = "600 15px 'Work Sans', sans-serif"; ctx.textAlign = "center";
     ctx.fillText(`Form: ${Math.round(match.iou * 100)}% · saknas ${Math.round((1-match.recall)*100)}% · spill ${Math.round((1-match.precision)*100)}%`, 650, 28);
     ctx.fillStyle = "rgba(243,210,153,.78)"; ctx.font = "12px 'Work Sans', sans-serif"; ctx.fillText("BELYSTA SKULPTURER", 180, 585); ctx.fillText("SKUGGVÄGG", 650, 520);
-    if (match.pass) { ctx.strokeStyle = "#8cffae"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(650, 555, 20, -Math.PI/2, -Math.PI/2 + Math.min(1,this.sheepMatchHold/this.sheepHoldMs)*Math.PI*2); ctx.stroke(); }
+    if (match.pass) { ctx.strokeStyle = this.sheepGhostPalette().pass; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(650, 555, 20, -Math.PI/2, -Math.PI/2 + Math.min(1,this.sheepMatchHold/this.sheepHoldMs)*Math.PI*2); ctx.stroke(); }
     this.sheepDrawInspector(ctx, this.sheepObjects[this.sheepActiveIdx], timestamp);
   }
 
@@ -2281,6 +2474,11 @@ class Component extends DCLogic {
     const rounds = this.sheepPuzzleContract.rounds;
     this.sheepClearProgress();
     this.sheepMarkSolved(rounds[round - 1].id, { pure: !this.sheepUsedFullAssistThisRound });
+    if (this.sheepReplayActive) {
+      const upgraded = !this.sheepUsedFullAssistThisRound;
+      this.setState({ sheepGameMsg: upgraded ? `${rounds[round - 1].label} klarad utan assistans — ren stjärna!` : `${rounds[round - 1].label} klarad, men med assistans. Prova igen för en ren stjärna.` });
+      return;
+    }
     if (round >= this.sheepGameTotalRounds) {
       this.setState({ sheepGameMsg: `${rounds[round - 1].label}s skugga är perfekt!` });
       this.scheduleGameAction(() => {
@@ -4704,10 +4902,11 @@ class Component extends DCLogic {
       sheepGameTotalRounds: this.sheepGameTotalRounds,
       sheepGameTargetName: S.sheepGameTargetName,
       sheepGameMsg: S.sheepGameMsg,
+      sheepGameA11yStatus: S.sheepGameA11yStatus || "",
       sheepGameClose: () => this.closeSheepGame(),
       setSheepCanvas: (el) => this.initSheepCanvas(el),
       sheepCanvasMouseDown: (event) => this.handleSheepCanvasMouseDown(event),
-      sheepGalleryChips: this.sheepPuzzleContract.rounds.map((round) => {
+      sheepGalleryChips: this.sheepPuzzleContract.rounds.map((round, index) => {
         const entry = (S.sheepSolvedGallery || []).find((item) => item.id === round.id);
         const solved = !!entry;
         const pure = solved && entry.pure;
@@ -4715,11 +4914,27 @@ class Component extends DCLogic {
         return {
           label: round.label,
           mark: solved ? (pure ? "★" : "✓") : "○",
-          style: `font-family:'Work Sans',sans-serif;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid ${solved ? `oklch(0.7 0.13 ${hue} / .6)` : "oklch(0.5 0.02 60 / 0.4)"};background:${solved ? `oklch(0.35 0.08 ${hue} / .35)` : "oklch(0.2 0.02 60 / 0.3)"};color:${solved ? `oklch(0.9 0.1 ${hue})` : "oklch(0.7 0.02 80 / 0.7)"}`,
+          locked: !solved,
+          replay: () => this.sheepReplayRound(index),
+          aria: solved
+            ? (pure ? `${round.label}: löst utan assistans. Spela om.` : `${round.label}: löst med assistans. Spela om för en ren stjärna.`)
+            : `${round.label}: inte löst än.`,
+          style: `font-family:'Work Sans',sans-serif;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid ${solved ? `oklch(0.7 0.13 ${hue} / .6)` : "oklch(0.5 0.02 60 / 0.4)"};background:${solved ? `oklch(0.35 0.08 ${hue} / .35)` : "oklch(0.2 0.02 60 / 0.3)"};color:${solved ? `oklch(0.9 0.1 ${hue})` : "oklch(0.7 0.02 80 / 0.7)"};cursor:${solved ? "pointer" : "default"}`,
         };
       }),
       sheepFreeModeUnlocked: (S.sheepSolvedGallery || []).length > 0,
       sheepStartFreeRoundAction: () => this.sheepStartFreeRound(),
+      sheepA11yVersion: S.sheepA11yVersion || 0,
+      sheepA11yButtonStyle: "font-family:'Work Sans',sans-serif;font-size:11px;padding:3px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:oklch(0.22 0.025 65 / 0.7);color:oklch(0.88 0.03 82);cursor:pointer",
+      sheepGhostBrightnessLabel: this.sheepGhostBrightnessLabel(),
+      sheepGhostBrightnessAria: `Målskuggans styrka: ${this.sheepGhostBrightnessLabel()}. Tryck för att växla.`,
+      sheepCycleGhostBrightnessAction: () => this.sheepCycleGhostBrightness(),
+      sheepColorblindOn: !!this.sheepA11y.colorblind,
+      sheepColorblindLabel: this.sheepA11y.colorblind ? "Hög kontrast" : "Standard",
+      sheepColorblindAria: `Färgläge: ${this.sheepA11y.colorblind ? "hög kontrast" : "standard"}. Tryck för att växla.`,
+      sheepToggleColorblindAction: () => this.sheepToggleColorblind(),
+      sheepSettingsOpen: !!this.sheepSettingsOpen,
+      sheepToggleSettingsAction: () => this.sheepToggleSettings(),
       sheepGameObjectChips: (this.sheepObjects || []).map((object, index) => ({
         id: object.id,
         label: (index + 1) + ". " + object.name,
