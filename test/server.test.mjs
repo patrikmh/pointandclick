@@ -66,11 +66,13 @@ function request(server, { method = "GET", path = "/", body, headers = {} } = {}
       const chunks = [];
       res.on("data", (chunk) => chunks.push(chunk));
       res.on("end", () => {
-        const text = Buffer.concat(chunks).toString("utf8");
+        const buffer = Buffer.concat(chunks);
+        const text = buffer.toString("utf8");
         const contentType = String(res.headers["content-type"] ?? "");
         resolve({
           status: res.statusCode,
           headers: res.headers,
+          buffer,
           text,
           json: text && contentType.includes("application/json") ? JSON.parse(text) : null,
         });
@@ -79,6 +81,10 @@ function request(server, { method = "GET", path = "/", body, headers = {} } = {}
     req.on("error", reject);
     req.end(body);
   });
+}
+
+function formEntries(formData) {
+  return Array.from(formData.entries()).map(([key, value]) => [key, value]);
 }
 
 function postCompletion(server, payload, headers = {}) {
@@ -328,6 +334,8 @@ test("health reports provider readiness without exposing secrets", async () => {
       OPENROUTER_API_KEY: secret,
       OPENROUTER_CHAT_MODEL: "example/chat-model",
       OPENROUTER_VISION_MODEL: "example/vision-model",
+      ELEVENLABS_API_KEY: "voice-secret",
+      ELEVENLABS_VOICE_ID: "voice-123",
     },
   });
 
@@ -341,8 +349,92 @@ test("health reports provider readiness without exposing secrets", async () => {
       chatReady: true,
       visionReady: true,
     },
+    elevenlabs: {
+      configured: true,
+      transcriptionReady: true,
+      speechReady: true,
+    },
   });
   assert.doesNotMatch(response.text, new RegExp(secret));
+});
+
+test("shrimp voice routes proxy ElevenLabs STT, TTS, and token generation server-side", async () => {
+  const calls = [];
+  const audio = Buffer.alloc(1024, 1);
+  const transcribeBody = {
+    audioBase64: audio.toString("base64"),
+    mimeType: "audio/webm",
+    fileName: "answer.webm",
+    keyterms: ["piano", "Greta Thunberg"],
+  };
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, options });
+    if (String(url).includes("/single-use-token/realtime_scribe")) {
+      return new Response(JSON.stringify({ token: "voice-token" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    if (String(url).includes("/speech-to-text")) {
+      return new Response(JSON.stringify({
+        text: "ett piano",
+        language_code: "swe",
+        language_probability: 0.99,
+      }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    if (String(url).includes("/text-to-speech/")) {
+      return new Response(Uint8Array.from([1, 2, 3, 4]), {
+        status: 200,
+        headers: { "content-type": "audio/mpeg" },
+      });
+    }
+    return successfulUpstream("ok")();
+  };
+  const server = await listen({
+    env: {
+      ELEVENLABS_API_KEY: "voice-key",
+      ELEVENLABS_VOICE_ID: "voice-123",
+      SHRIMP_STT_KEYTERMS: "piano, hål, fel",
+    },
+    fetchImpl,
+  });
+
+  const tokenResponse = await request(server, { path: "/api/shrimp/scribe-token" });
+  const transcribeResponse = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/transcribe",
+    body: JSON.stringify(transcribeBody),
+    headers: { "content-type": "application/json" },
+  });
+  const speakResponse = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/speak",
+    body: JSON.stringify({ text: "Räkorna jublar." }),
+    headers: { "content-type": "application/json" },
+  });
+
+  assert.equal(tokenResponse.status, 200);
+  assert.deepEqual(tokenResponse.json, { token: "voice-token" });
+  assert.equal(transcribeResponse.status, 200);
+  assert.deepEqual(transcribeResponse.json, {
+    text: "ett piano",
+    language_code: "swe",
+    language_probability: 0.99,
+  });
+  assert.equal(speakResponse.status, 200);
+  assert.equal(speakResponse.headers["content-type"], "audio/mpeg");
+  assert.deepEqual([...speakResponse.buffer], [1, 2, 3, 4]);
+  assert.equal(calls.length, 3);
+  assert.equal(calls[0].options.headers["xi-api-key"], "voice-key");
+  assert.equal(calls[2].options.headers["xi-api-key"], "voice-key");
+  const entries = formEntries(calls[1].options.body);
+  assert.equal(entries.find(([key]) => key === "model_id")[1], "scribe_v2");
+  assert.equal(entries.find(([key]) => key === "language_code")[1], "swe");
+  assert.equal(entries.find(([key]) => key === "file")[1].type, "audio/webm");
+  assert.ok(entries.filter(([key]) => key === "keyterms").length >= 2);
 });
 
 test("completion requests are rate-limited per client IP", async () => {

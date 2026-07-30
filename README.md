@@ -9,10 +9,11 @@ Requirements: Node.js 24 or newer and an OpenRouter API key.
 ```bash
 cp .env.example .env
 # Add your OPENROUTER_API_KEY to .env
+# Add ELEVENLABS_API_KEY too if you want shrimp voice input/output
 npm start
 ```
 
-Open `http://127.0.0.1:3000`. The status endpoint at `/healthz` reports whether OpenRouter is configured without exposing credentials.
+Open `http://127.0.0.1:3000`. The status endpoint at `/healthz` reports whether OpenRouter and ElevenLabs are configured without exposing credentials.
 
 ## AI models
 
@@ -20,7 +21,7 @@ Open `http://127.0.0.1:3000`. The status endpoint at `/healthz` reports whether 
 - `OPENROUTER_VISION_MODEL` controls the vision-capable model that judges paintings.
 - Both default to OpenRouter's `~google/gemini-flash-latest` alias and can be changed independently in `.env`.
 
-Every visible character has a distinct agent persona. Use the **Samtal** button or right-click a character and choose **Prata**. Painting images are submitted only when the player presses **Klar!**; they are not stored by this project.
+Every visible character has a distinct agent persona. Use the **Samtal** button or right-click a character and choose **Prata**. Clicking the shrimp opens a Swedish voice riddle game with text fallback, optional microphone transcription, and ElevenLabs TTS/STT handled by the server. Painting images are submitted only when the player presses **Klar!**; they are not stored by this project.
 
 ## Validate
 

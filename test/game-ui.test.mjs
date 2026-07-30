@@ -31,8 +31,13 @@ test("the game exposes an agent for every visible character", async () => {
 
   for (const id of characterIds) {
     assert.match(source, new RegExp(`\\n    ${id}: \\{`), `missing ${id} persona`);
-    assert.match(source, new RegExp(`<option value="${id}">`), `missing ${id} chat option`);
   }
+
+  assert.match(source, /<sc-for list="\{\{ discoveredPersonaList \}\}" as="p"/);
+  assert.match(source, /<option value="\{\{ p\.id \}\}">\{\{ p\.label \}\}<\/option>/);
+  assert.match(source, /discoveredPersonaList: Object\.keys\(this\.personas\)/);
+  assert.match(source, /\.filter\(\(id\) => S\.discovered\[id\]\)/);
+  assert.match(source, /\.map\(\(id\) => \(\{ id, label: this\.personas\[id\]\.name \}\)\)/);
 
   assert.match(source, /else if \(charId === "crab"\) this\.setState/);
   assert.doesNotMatch(source, /charId === "crab" && this\.state\.moonState/);
@@ -163,11 +168,14 @@ test("the inventory is collapsible and camp navigation appears on hover", async 
   assert.match(source, /bottomNavStyle:/);
 });
 
-test("the driftwood sits clear of the bottom edge", async () => {
+test("all puzzle objects are available in the starting inventory", async () => {
   const source = await readFile(gamePath, "utf8");
 
-  assert.match(source, /\{ uid: 13, defId: "driftwood", x: 47, y: 86, scene: "right" \}/);
-  assert.match(source, /\{ uid: 10, defId: "shard",\s+x: 34, y: 84 \}/);
+  assert.match(source, /initialPlaced = \[\]/);
+  for (const defId of ["key", "bucket", "shard", "camera", "briefcase", "flashlight-loaded", "battery", "driftwood", "fishline", "bottle", "helmet", "seaweed"]) {
+    assert.match(source, new RegExp(`\\b${defId.replace("-", "\\-")}\\b`));
+  }
+  assert.match(source, /inventory: this\.initialInventory\.map/);
 });
 
 test("the scene artwork covers the full viewport", async () => {

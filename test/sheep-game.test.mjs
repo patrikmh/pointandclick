@@ -1024,3 +1024,137 @@ test("the four round target silhouettes are pairwise distinct so the rounds can 
     }
   }
 });
+
+// Regression: a round used to solve itself and get skipped. completeSheepRound() increments
+// sheepGameRound straight away, but startSheepRound() only deals the new pieces 650ms later. In
+// that window sheepCurrentRound() is already the NEXT round while sheepObjects still holds the
+// PREVIOUS round's pieces at their solved poses -- and every round shares the same solution vector,
+// so progress got persisted as "next round, already solved" and the next startSheepRound resumed
+// into a finished board, which completed itself and cascaded. The suite never caught it because it
+// drives rounds synchronously and so never enters the window.
+test("progress is not persisted for a round whose pieces have not been dealt yet", () => {
+  const contract = loadContract();
+  const store = {};
+  const game = loadSheepGameOpener(contract, store);
+  game.openSheepGame();
+  assert.equal(game.state.sheepGameRound, 1);
+
+  game.sheepObjects.forEach((object, index) => { object.rot = { ...contract.rounds[0].solution[index] }; });
+  game.completeSheepRound();
+  assert.equal(game.state.sheepGameRound, 2, "finishing round 1 must advance the round counter immediately");
+
+  // This is the transition window: the game loop keeps saving while the old pieces are still out.
+  game.sheepLastProgressSaveAt = 0;
+  game.sheepSaveProgress();
+  game.sheepLastProgressSaveAt = 0;
+  game.sheepSaveProgress(true);
+  assert.equal(store.sheepRoundProgress, undefined, "solved poses from the finished round must never be persisted against the next round");
+
+  game.scheduledAction();
+  game.sheepObjects.forEach((object, index) => {
+    assert.deepEqual({ ...object.rot }, { ...contract.rounds[1].scramble[index] }, "the next round must start at its own scramble, not pre-solved");
+  });
+});
+
+test("a round is only scored while the pieces on the table belong to it", () => {
+  const contract = loadContract();
+  const game = harness(contract);
+  game.sheepObjectsBelongTo = loadMethod("  sheepObjectsBelongTo(round) {", "\n  sheepSettledSignature(");
+
+  game.sheepObjects = contract.rounds[0].pieces.map((piece, index) => ({ ...piece, rot: { ...contract.rounds[0].scramble[index] } }));
+  assert.equal(game.sheepObjectsBelongTo(contract.rounds[0]), true, "the dealt round must be scoreable");
+  assert.equal(game.sheepObjectsBelongTo(contract.rounds[1]), false, "another round's pieces must not be scoreable against this board");
+
+  game.sheepObjects = [];
+  assert.equal(game.sheepObjectsBelongTo(contract.rounds[0]), false, "an empty board belongs to no round");
+});
+
+// Regression: the magnet only pulled the selected piece, so a player who eyeballed all four into
+// place was refused by a shadow that already looked right -- on the anchor, four pieces within
+// 0.10 rad scored an IoU of 0.75 against a 0.75 threshold.
+test("every piece inside the snap radius settles, not only the selected one", () => {
+  const contract = loadContract();
+  const game = harness(contract);
+  for (const round of contract.rounds) {
+    const wobble = contract.snapRadius * 0.3;
+    game.sheepActiveIdx = 0;
+    game.sheepObjects = round.pieces.map((piece, index) => ({
+      ...piece,
+      rot: { rx: round.solution[index].rx + wobble, ry: round.solution[index].ry - wobble, rz: round.solution[index].rz + wobble * 0.5 },
+    }));
+
+    game.sheepMaybeSnapActive(round);
+
+    game.sheepObjects.forEach((object, index) => {
+      assert.deepEqual({ ...object.rot }, { ...round.solution[index] }, `${round.id}: piece ${index} was inside the radius and must have settled`);
+    });
+    const target = game.sheepBuildMask(round, round.solution, { target: true });
+    const live = game.sheepBuildMask(round, game.sheepObjects.map((object) => object.rot));
+    assert.equal(game.sheepEvaluateMask(target, live, round).pass, true, `${round.id}: a board where every piece is inside the radius must pass`);
+  }
+});
+
+test("the snap still reports whether the active piece specifically settled", () => {
+  const contract = loadContract();
+  const game = harness(contract);
+  const round = contract.rounds[0];
+  const far = contract.snapRadius * 1.5;
+
+  game.sheepActiveIdx = 0;
+  game.sheepObjects = round.pieces.map((piece, index) => ({
+    ...piece,
+    rot: index === 0 ? { rx: round.solution[0].rx + far, ry: round.solution[0].ry, rz: round.solution[0].rz } : { ...round.solution[index] },
+  }));
+  assert.equal(game.sheepMaybeSnapActive(round), false, "an active piece outside the radius must report no snap even when the others settle");
+  assert.equal(game.sheepObjects[0].rot.rx, round.solution[0].rx + far, "a piece outside the radius must be left alone");
+
+  game.sheepActiveIdx = 1;
+  assert.equal(game.sheepMaybeSnapActive(round), true, "an active piece already at its solution must report settled");
+});
+
+// A replay deliberately schedules nothing and leaves sheepGameRound on the replayed round (see the
+// two tests above). That left the player stranded: the story round's chip is locked, so only
+// closing and reopening the dialog restored it. Leaving a replay is now an explicit action.
+test("leaving a replay returns to the first unsolved story round", () => {
+  const contract = loadContract();
+  const store = { sheepShadowGallery: JSON.stringify([{ id: "lighthouse", pure: false }, { id: "sailboat", pure: true }]) };
+  const game = loadSheepGameOpener(contract, store);
+  game.sheepExitReplay = loadMethod("  sheepExitReplay() {", "\n  sheepResetRound(");
+  game.openSheepGame();
+  assert.equal(game.state.sheepGameRound, 3, "opening lands on the first unsolved round");
+
+  game.sheepReplayRound(0);
+  assert.equal(game.state.sheepGameRound, 1);
+  assert.equal(game.sheepReplayActive, true);
+
+  game.sheepExitReplay();
+
+  assert.equal(game.sheepReplayActive, false, "leaving a replay must clear the replay flag");
+  assert.equal(game.state.sheepGameRound, 3, "leaving a replay must restore the first unsolved story round");
+  game.sheepObjects.forEach((object, index) => {
+    assert.deepEqual({ ...object.rot }, { ...contract.rounds[2].scramble[index] }, "the restored story round must be dealt at its own scramble");
+  });
+});
+
+test("leaving a replay is a no-op when no replay is running", () => {
+  const contract = loadContract();
+  const store = { sheepShadowGallery: JSON.stringify([{ id: "lighthouse", pure: true }]) };
+  const game = loadSheepGameOpener(contract, store);
+  game.sheepExitReplay = loadMethod("  sheepExitReplay() {", "\n  sheepResetRound(");
+  game.openSheepGame();
+  const round = game.state.sheepGameRound;
+  const poses = game.sheepObjects.map((object) => ({ ...object.rot }));
+
+  game.sheepExitReplay();
+
+  assert.equal(game.state.sheepGameRound, round, "a stray call must not move the story round");
+  game.sheepObjects.forEach((object, index) => assert.deepEqual({ ...object.rot }, poses[index], "a stray call must not re-deal the board"));
+});
+
+test("the replay exit is reachable from the dialog only while a replay is running", () => {
+  assert.match(source, /sheepExitReplayAction:\s*\(\)\s*=>\s*this\.sheepExitReplay\(\)/, "the exit must be bound for the template");
+  assert.match(source, /sheepReplayActive:\s*!!this\.sheepReplayActive/, "the template needs the replay flag to gate the control");
+  const gate = source.match(/<sc-if value="\{\{ sheepReplayActive \}\}"[\s\S]*?<\/sc-if>/);
+  assert.ok(gate, "the exit control must sit behind a replay-only gate");
+  assert.match(gate[0], /<button[^>]*onClick="\{\{ sheepExitReplayAction \}\}"/, "the exit must be a real button so it is keyboard reachable");
+});

@@ -13,6 +13,10 @@ const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_RATE_LIMIT = 30;
 const DEFAULT_RATE_WINDOW_MS = 60_000;
+const DEFAULT_ELEVENLABS_STT_MODEL = "scribe_v2";
+const DEFAULT_ELEVENLABS_TTS_MODEL = "eleven_flash_v2_5";
+const DEFAULT_ELEVENLABS_VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2";
+const DEFAULT_SHRIMP_STT_KEYTERMS = "piano, hål, fel, Greta Thunberg, räkor";
 const MAX_MESSAGES = 50;
 const MAX_PARTS_PER_MESSAGE = 16;
 const MAX_SYSTEM_CHARS = 100_000;
@@ -272,6 +276,232 @@ export function buildOpenRouterRequest(completion, env = process.env) {
   };
 }
 
+function normalizeShrimpKeyterms(value, fallback = []) {
+  const rawTerms = Array.isArray(value)
+    ? value
+    : String(value ?? "")
+      .split(",")
+      .map((term) => term.trim())
+      .filter(Boolean);
+  const extraTerms = Array.isArray(fallback)
+    ? fallback
+    : String(fallback ?? "")
+      .split(",")
+      .map((term) => term.trim())
+      .filter(Boolean);
+  const seen = new Set();
+  const terms = [];
+  for (const rawTerm of [...rawTerms, ...extraTerms]) {
+    const term = String(rawTerm ?? "").trim();
+    if (!term || term.length > 50 || seen.has(term)) continue;
+    seen.add(term);
+    terms.push(term);
+  }
+  return terms;
+}
+
+function normalizeShrimpAudioBase64(input) {
+  if (typeof input !== "string" || !input.trim()) {
+    invalidRequest("audioBase64 måste vara en icke-tom sträng.");
+  }
+  const cleaned = input.trim();
+  const base64 = cleaned.startsWith("data:") ? cleaned.slice(cleaned.indexOf(",") + 1) : cleaned;
+  if (!base64 || base64.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) {
+    invalidRequest("audioBase64 innehåller ogiltiga base64-data.");
+  }
+  return Buffer.from(base64, "base64");
+}
+
+function buildElevenLabsScribeTokenRequest(env = process.env) {
+  const apiKey = envValue(env, "ELEVENLABS_API_KEY");
+  if (!apiKey) {
+    throw new ApiError(503, "service_unconfigured", "ElevenLabs är inte konfigurerat.");
+  }
+  return {
+    url: "https://api.elevenlabs.io/v1/single-use-token/realtime_scribe",
+    options: {
+      method: "POST",
+      headers: { "xi-api-key": apiKey },
+    },
+  };
+}
+
+function buildElevenLabsSpeechRequest(text, env = process.env) {
+  const apiKey = envValue(env, "ELEVENLABS_API_KEY");
+  if (!apiKey) {
+    throw new ApiError(503, "service_unconfigured", "ElevenLabs är inte konfigurerat.");
+  }
+  const voiceId = envValue(env, "ELEVENLABS_VOICE_ID", DEFAULT_ELEVENLABS_VOICE_ID);
+  if (!voiceId) {
+    throw new ApiError(503, "service_unconfigured", "ElevenLabs-rösten är inte konfigurerad.");
+  }
+  const speech = typeof text === "string" ? text.trim() : "";
+  if (!speech || speech.length > 1_000) {
+    invalidRequest("text måste vara en icke-tom sträng med högst 1000 tecken.");
+  }
+
+  return {
+    url: `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/stream?output_format=mp3_44100_128`,
+    options: {
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        Accept: "audio/mpeg",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: speech,
+        model_id: envValue(env, "ELEVENLABS_TTS_MODEL", DEFAULT_ELEVENLABS_TTS_MODEL),
+        language_code: "sv",
+        voice_settings: {
+          stability: 0.45,
+          similarity_boost: 0.8,
+          style: 0,
+          use_speaker_boost: false,
+          speed: 1.03,
+        },
+      }),
+    },
+  };
+}
+
+function buildElevenLabsTranscriptionRequest(input, env = process.env) {
+  const apiKey = envValue(env, "ELEVENLABS_API_KEY");
+  if (!apiKey) {
+    throw new ApiError(503, "service_unconfigured", "ElevenLabs är inte konfigurerat.");
+  }
+  const audioBuffer = input?.audioBuffer;
+  if (!Buffer.isBuffer(audioBuffer) || audioBuffer.length < 1_000) {
+    invalidRequest("Ljudinspelningen är för kort eller saknas.");
+  }
+  const mimeType = typeof input?.mimeType === "string" && input.mimeType.startsWith("audio/")
+    ? input.mimeType
+    : "audio/webm";
+  const fileName = typeof input?.fileName === "string" && input.fileName.trim()
+    ? input.fileName.trim().slice(0, 100)
+    : "shrimp-answer.webm";
+  const keyterms = normalizeShrimpKeyterms(input?.keyterms, envValue(env, "SHRIMP_STT_KEYTERMS", DEFAULT_SHRIMP_STT_KEYTERMS));
+  const form = new FormData();
+  form.append("model_id", envValue(env, "ELEVENLABS_STT_MODEL", DEFAULT_ELEVENLABS_STT_MODEL));
+  form.append("language_code", "swe");
+  form.append("tag_audio_events", "false");
+  form.append("diarize", "false");
+  form.append("no_verbatim", "true");
+  for (const keyterm of keyterms) {
+    form.append("keyterms", keyterm);
+  }
+  const file = typeof File === "function"
+    ? new File([audioBuffer], fileName, { type: mimeType })
+    : new Blob([audioBuffer], { type: mimeType });
+  form.append("file", file, fileName);
+
+  return {
+    url: "https://api.elevenlabs.io/v1/speech-to-text",
+    options: {
+      method: "POST",
+      headers: { "xi-api-key": apiKey },
+      body: form,
+    },
+  };
+}
+
+async function requestElevenLabsJson(upstream, { env, fetchImpl }) {
+  const timeoutMs = positiveInteger(
+    env.UPSTREAM_TIMEOUT_MS,
+    DEFAULT_TIMEOUT_MS,
+    1_000,
+    120_000,
+  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+  try {
+    response = await fetchImpl(upstream.url, {
+      ...upstream.options,
+      signal: controller.signal,
+    });
+  } catch {
+    if (controller.signal.aborted) {
+      throw new ApiError(504, "upstream_timeout", "ElevenLabs svarade inte i tid.");
+    }
+    throw new ApiError(502, "upstream_unavailable", "ElevenLabs kunde inte nås.");
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response?.ok) {
+    const status = response?.status === 429 ? 503 : 502;
+    throw new ApiError(status, "upstream_error", "ElevenLabs returnerade ett fel.");
+  }
+
+  try {
+    return await response.json();
+  } catch {
+    throw new ApiError(502, "invalid_upstream_response", "ElevenLabs returnerade ett ogiltigt svar.");
+  }
+}
+
+async function requestElevenLabsSpeech(text, { env, fetchImpl }) {
+  const upstream = buildElevenLabsSpeechRequest(text, env);
+  const timeoutMs = positiveInteger(
+    env.UPSTREAM_TIMEOUT_MS,
+    DEFAULT_TIMEOUT_MS,
+    1_000,
+    120_000,
+  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+  try {
+    response = await fetchImpl(upstream.url, {
+      ...upstream.options,
+      signal: controller.signal,
+    });
+  } catch {
+    if (controller.signal.aborted) {
+      throw new ApiError(504, "upstream_timeout", "ElevenLabs svarade inte i tid.");
+    }
+    throw new ApiError(502, "upstream_unavailable", "ElevenLabs kunde inte nås.");
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!response?.ok) {
+    const status = response?.status === 429 ? 503 : 502;
+    throw new ApiError(status, "upstream_error", "ElevenLabs returnerade ett fel.");
+  }
+
+  try {
+    return Buffer.from(await response.arrayBuffer());
+  } catch {
+    throw new ApiError(502, "invalid_upstream_response", "ElevenLabs returnerade ett ogiltigt svar.");
+  }
+}
+
+async function requestElevenLabsTranscription(input, { env, fetchImpl }) {
+  const upstream = buildElevenLabsTranscriptionRequest(input, env);
+  const payload = await requestElevenLabsJson(upstream, { env, fetchImpl });
+  const text = typeof payload?.text === "string" ? payload.text.trim() : "";
+  if (!text) {
+    throw new ApiError(502, "invalid_upstream_response", "ElevenLabs returnerade ingen text.");
+  }
+  return {
+    text,
+    language_code: payload.language_code,
+    language_probability: payload.language_probability,
+  };
+}
+
+async function requestElevenLabsScribeToken({ env, fetchImpl }) {
+  const upstream = buildElevenLabsScribeTokenRequest(env);
+  const payload = await requestElevenLabsJson(upstream, { env, fetchImpl });
+  const token = typeof payload?.token === "string" ? payload.token.trim() : "";
+  if (!token) {
+    throw new ApiError(502, "invalid_upstream_response", "ElevenLabs returnerade ingen token.");
+  }
+  return token;
+}
+
 export function createRateLimiter({ limit, windowMs, now = Date.now }) {
   const clients = new Map();
   return (clientId) => {
@@ -409,6 +639,17 @@ function sendJson(res, status, payload, extraHeaders = {}) {
   res.end(body);
 }
 
+function sendBinary(res, status, payload, contentType, extraHeaders = {}) {
+  res.writeHead(status, {
+    "Cache-Control": "no-store",
+    "Content-Length": payload.length,
+    "Content-Type": contentType,
+    "X-Content-Type-Options": "nosniff",
+    ...extraHeaders,
+  });
+  res.end(payload);
+}
+
 function sendApiError(res, error) {
   const safeError = error instanceof ApiError
     ? error
@@ -513,6 +754,19 @@ export function createAdventureServer({
   );
   const checkRateLimit = createRateLimiter({ limit: rateLimit, windowMs: rateWindowMs, now });
   const realProjectDirectory = realpath(projectDir);
+  const enforceUpstreamRateLimit = (req, res) => {
+    const clientIp = req.socket.remoteAddress || "unknown";
+    const rate = checkRateLimit(clientIp);
+    if (rate.allowed) return true;
+    req.resume();
+    sendJson(res, 429, {
+      error: {
+        code: "rate_limited",
+        message: "För många AI-anrop. Försök igen om en liten stund.",
+      },
+    }, { "Retry-After": String(rate.retryAfterSeconds) });
+    return false;
+  };
 
   return http.createServer(async (req, res) => {
     try {
@@ -521,17 +775,71 @@ export function createAdventureServer({
         if (req.method !== "GET") {
           throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
         }
-        const apiKey = envValue(env, "OPENROUTER_API_KEY");
+        const openrouterKey = envValue(env, "OPENROUTER_API_KEY");
         const chatModel = envValue(env, "OPENROUTER_CHAT_MODEL", DEFAULT_CHAT_MODEL);
         const visionModel = envValue(env, "OPENROUTER_VISION_MODEL", DEFAULT_VISION_MODEL);
+        const elevenLabsKey = envValue(env, "ELEVENLABS_API_KEY");
+        const elevenLabsVoice = envValue(env, "ELEVENLABS_VOICE_ID", DEFAULT_ELEVENLABS_VOICE_ID);
         sendJson(res, 200, {
           status: "ok",
           openrouter: {
-            configured: Boolean(apiKey),
-            chatReady: Boolean(apiKey && chatModel),
-            visionReady: Boolean(apiKey && visionModel),
+            configured: Boolean(openrouterKey),
+            chatReady: Boolean(openrouterKey && chatModel),
+            visionReady: Boolean(openrouterKey && visionModel),
+          },
+          elevenlabs: {
+            configured: Boolean(elevenLabsKey),
+            transcriptionReady: Boolean(elevenLabsKey),
+            speechReady: Boolean(elevenLabsKey && elevenLabsVoice),
           },
         });
+        return;
+      }
+
+      if (pathname === "/api/shrimp/scribe-token") {
+        if (req.method !== "GET") {
+          throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
+        }
+        if (!enforceUpstreamRateLimit(req, res)) return;
+        if (typeof fetchImpl !== "function") {
+          throw new ApiError(503, "service_unconfigured", "Det finns ingen tillgänglig HTTP-klient för anslutning till ElevenLabs.");
+        }
+        const token = await requestElevenLabsScribeToken({ env, fetchImpl });
+        sendJson(res, 200, { token });
+        return;
+      }
+
+      if (pathname === "/api/shrimp/transcribe") {
+        if (req.method !== "POST") {
+          throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
+        }
+        if (!enforceUpstreamRateLimit(req, res)) return;
+        if (typeof fetchImpl !== "function") {
+          throw new ApiError(503, "service_unconfigured", "Det finns ingen tillgänglig HTTP-klient för anslutning till ElevenLabs.");
+        }
+        const body = await readJsonBody(req);
+        const audioBuffer = normalizeShrimpAudioBase64(body.audioBase64);
+        const transcript = await requestElevenLabsTranscription({
+          audioBuffer,
+          mimeType: typeof body.mimeType === "string" ? body.mimeType : "audio/webm",
+          fileName: typeof body.fileName === "string" ? body.fileName : "shrimp-answer.webm",
+          keyterms: body.keyterms,
+        }, { env, fetchImpl });
+        sendJson(res, 200, transcript);
+        return;
+      }
+
+      if (pathname === "/api/shrimp/speak") {
+        if (req.method !== "POST") {
+          throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
+        }
+        if (!enforceUpstreamRateLimit(req, res)) return;
+        if (typeof fetchImpl !== "function") {
+          throw new ApiError(503, "service_unconfigured", "Det finns ingen tillgänglig HTTP-klient för anslutning till ElevenLabs.");
+        }
+        const body = await readJsonBody(req);
+        const audio = await requestElevenLabsSpeech(body.text, { env, fetchImpl });
+        sendBinary(res, 200, audio, "audio/mpeg");
         return;
       }
 

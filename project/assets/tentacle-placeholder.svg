@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" role="img" aria-labelledby="title desc">
+  <title id="title">Skadad tentakel</title>
+  <desc id="desc">En böjd lila tentakel som ska lindas med fiskelina och drivved.</desc>
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a86b91"/><stop offset=".55" stop-color="#75445f"/><stop offset="1" stop-color="#4c2e45"/>
+    </linearGradient>
+  </defs>
+  <path d="M28 81C111 19 205 43 269 79c59 33 106 47 218 5" fill="none" stroke="#321f31" stroke-width="72" stroke-linecap="round" opacity=".55"/>
+  <path d="M28 73C111 11 205 35 269 71c59 33 106 47 218 5" fill="none" stroke="url(#skin)" stroke-width="62" stroke-linecap="round"/>
+  <path d="M55 58c85-37 148-13 204 20" fill="none" stroke="#cf93b4" stroke-width="9" stroke-linecap="round" opacity=".35"/>
+  <g fill="#d19ab8" opacity=".66">
+    <ellipse cx="91" cy="96" rx="11" ry="7"/><ellipse cx="130" cy="89" rx="10" ry="6"/><ellipse cx="171" cy="92" rx="9" ry="6"/><ellipse cx="212" cy="105" rx="8" ry="5"/>
+  </g>
+  <path d="M257 47l28 54M278 44l27 53" stroke="#e6b2a9" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+</svg>
