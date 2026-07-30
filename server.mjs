@@ -17,7 +17,231 @@ const DEFAULT_ELEVENLABS_STT_MODEL = "scribe_v2";
 const DEFAULT_ELEVENLABS_TTS_MODEL = "eleven_flash_v2_5";
 const DEFAULT_ELEVENLABS_VOICE_ID = "Xb7hH8MSUJpSbSDYk0k2";
 const DEFAULT_SHRIMP_STT_KEYTERMS = "piano, hål, fel, Greta Thunberg, räkor";
+export const SHRIMP_SPEAKER_NAME = "Vallgravsräkan";
+export const SHRIMP_RIDDLES = [
+  {
+    prompt: "Jag bär tangenter men inga lås, och ändå ekar salen när jag rör mig. Vad är jag?",
+    answers: ["piano", "ett piano"],
+    hint: "Lyssna efter ett instrument med svarta och vita nycklar.",
+    success: "Rätt. Murens damm skälver i takt.",
+  },
+  {
+    prompt: "Ju mer du tar från mig, desto större blir jag. Vad är jag?",
+    answers: ["hål", "ett hål"],
+    hint: "Jag växer av tomrum och tuggar i sten.",
+    success: "Rätt. Vallgraven håller andan ett ögonblick.",
+  },
+  {
+    prompt: "Vilket ord stavas fel i ordboken?",
+    answers: ["fel"],
+    hint: "Det gömmer sig mitt i frågan och blinkar som en lykta.",
+    success: "Rätt. Portjärnet sjunger lågt.",
+  },
+];
 const MAX_MESSAGES = 50;
+
+export const SHRIMP_CHARACTER_BIBLE = {
+  identity: {
+    role: "portvakt vid fästningens vallgrav, på post sedan murarna var nya",
+    world: "murkrönet, det svarta vattnet, dimman, portjärnet och mossan på stenarna",
+    neighbors: "månen över takåsarna, sälens hyss, fårets skuggteater och bläckfiskens tentakler är gamla bekanta som bara nämns i förbifarten, aldrig vid namn",
+  },
+  voice: {
+    style: "kort, torr och saltstänkt svenska med underdrifter, stilla hotfullhet och varm skämtsamhet under skorpan",
+    signature: ["mellan stenarna", "salt och järn", "vattnet hör allt", "porten minns"],
+    avoids: "inga moderna ord, inga rollnamn eller citattecken, inga långa utläggningar, aldrig skarp eller otålig",
+  },
+  arc: [
+    "första gåtan nyfiket och lekfullt, som när vattnet slår mot en ny gäst",
+    "andra gåtan prövande och skarpare, som tidvatten som letar efter svagheter",
+    "tredje gåtan högtidligt och mörkt, som portjärnet en vinternatt",
+  ],
+  hintStages: [
+    [
+      SHRIMP_RIDDLES[0].hint,
+      "Tangenterna är svarta och vita, och salen svarar i toner när de trycks ner.",
+      "Det är ett stort klaviaturinstrument som salen älskar. Det börjar på bokstaven P.",
+    ],
+    [
+      SHRIMP_RIDDLES[1].hint,
+      "Tänk på det som blir kvar när allt annat tagits bort; ju mer som försvinner, desto större blir det.",
+      "Det finns i ostar, i strumpor och i gamla murar. Det börjar på bokstaven H.",
+    ],
+    [
+      SHRIMP_RIDDLES[2].hint,
+      "Ordet i ordboken som aldrig kan bli rätt stavat, hur noga man än letar.",
+      "Ordet är motsatsen till rätt. Tre bokstäver, och det börjar på F.",
+    ],
+  ],
+  celebration: "lågmält jubel när porten ger vika; räkan gör honnör med en antenn och låter järnet sjunga",
+};
+
+export function shrimpHintLevel(attempts = 0) {
+  const count = Number.isInteger(attempts) && attempts > 0 ? attempts : 0;
+  return Math.min(count, 2);
+}
+
+export function buildShrimpAdaptiveHint({ step = 0, attempts = 0 } = {}) {
+  const riddleIndex = Number.isInteger(step) && step >= 0
+    ? Math.min(step, SHRIMP_RIDDLES.length - 1)
+    : 0;
+  const stages = SHRIMP_CHARACTER_BIBLE.hintStages[riddleIndex] || [];
+  const level = shrimpHintLevel(attempts);
+  return stages[Math.min(level, stages.length - 1)] || SHRIMP_RIDDLES[riddleIndex].hint;
+}
+
+export function shrimpNormalizeText(text) {
+  return String(text ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+export function shrimpTextMatchesAnswer(text, answers = []) {
+  const normalized = shrimpNormalizeText(text);
+  return (answers || []).some((answer) => {
+    const target = shrimpNormalizeText(answer);
+    if (!target) return false;
+    return normalized === target
+      || normalized.includes(` ${target} `)
+      || normalized.startsWith(`${target} `)
+      || normalized.endsWith(` ${target}`)
+      || normalized.includes(target);
+  });
+}
+
+export function shrimpMentionsGreta(text) {
+  return shrimpNormalizeText(text).includes("greta thunberg");
+}
+
+export function classifyShrimpAnswer(text, step = 0) {
+  const currentStep = Number.isInteger(step) && step >= 0 ? step : 0;
+  const riddle = SHRIMP_RIDDLES[Math.min(currentStep, SHRIMP_RIDDLES.length - 1)];
+  if (shrimpMentionsGreta(text)) {
+    return {
+      kind: "win",
+      reason: "greta",
+      step: currentStep,
+      nextStep: SHRIMP_RIDDLES.length,
+      riddle,
+      nextRiddle: null,
+    };
+  }
+  if (shrimpTextMatchesAnswer(text, riddle.answers)) {
+    const nextStep = currentStep + 1;
+    const nextRiddle = nextStep < SHRIMP_RIDDLES.length ? SHRIMP_RIDDLES[nextStep] : null;
+    return nextStep >= SHRIMP_RIDDLES.length
+      ? {
+        kind: "win",
+        reason: "riddles",
+        step: currentStep,
+        nextStep,
+        riddle,
+        nextRiddle,
+      }
+      : {
+        kind: "advance",
+        step: currentStep,
+        nextStep,
+        riddle,
+        nextRiddle,
+      };
+  }
+  return {
+    kind: "wrong",
+    step: currentStep,
+    nextStep: currentStep,
+    riddle,
+    nextRiddle: currentStep + 1 < SHRIMP_RIDDLES.length ? SHRIMP_RIDDLES[currentStep + 1] : null,
+  };
+}
+
+function splitShrimpSentences(text) {
+  const sentences = [];
+  let start = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    if (!/[.!?…]/.test(text[i])) continue;
+    let end = i + 1;
+    while (end < text.length && /\s/.test(text[end])) end += 1;
+    if (end < text.length) {
+      const sentence = text.slice(start, end).trim();
+      if (sentence) sentences.push(sentence);
+      start = end;
+      i = end - 1;
+    }
+  }
+  return {
+    sentences,
+    remainder: text.slice(start),
+  };
+}
+
+export function buildShrimpSystemPrompt({ outcome, step, riddle, nextRiddle, playerText, attempts = 0, recentPlayerTexts = [] }) {
+  const nextStepLabel = Math.min(step + 1, SHRIMP_RIDDLES.length);
+  const bible = SHRIMP_CHARACTER_BIBLE;
+  const riddleIndex = Number.isInteger(step) && step >= 0
+    ? Math.min(step, SHRIMP_RIDDLES.length - 1)
+    : 0;
+  const wrongAttempts = Number.isInteger(attempts) && attempts > 0 ? attempts : 0;
+  const resultingAttempts = outcome.kind === "wrong" ? wrongAttempts + 1 : 0;
+  const hintLevel = shrimpHintLevel(resultingAttempts);
+  const adaptiveHint = buildShrimpAdaptiveHint({ step, attempts: resultingAttempts });
+  const earlierTries = (recentPlayerTexts || [])
+    .filter((text) => typeof text === "string" && text.trim() && text.trim() !== String(playerText ?? "").trim())
+    .slice(-3);
+  return [
+    `Du är ${SHRIMP_SPEAKER_NAME}, en väderbiten räka som vakar som gammal portvakt vid en fästningsvallgrav.`,
+    `Din bakgrund: ${bible.identity.role}. Din värld är ${bible.identity.world}; ${bible.identity.neighbors}.`,
+    `Din röst är ${bible.voice.style}.`,
+    `Väv sparsamt in dina kännetecken: ${bible.voice.signature.join(", ")}.`,
+    `Undvik: ${bible.voice.avoids}.`,
+    "Du är en originalfigur och ska inte efterlikna, citera eller låna rytm från någon känd tv-karaktär.",
+    "Svara på ren svenska med högst tre korta meningar, utan rollnamn, citattecken, punktlistor eller markdown.",
+    "Tonen ska vara gåtfull, lite torr och saltstänkt, med kort naturligt småprat som reagerar på spelarens ord.",
+    "Variera uttrycket: första gåtan nyfiket, andra mer prövande, tredje högtidligt och mörkt.",
+    `Just nu gäller: ${bible.arc[riddleIndex]}.`,
+    "Du avgör aldrig om svaret är rätt, fel eller spelets läge; servern bestämmer alltid utgången.",
+    `Utgången från servern är låst: kind=${outcome.kind}, reason=${outcome.reason || "none"}, steg=${nextStepLabel}/${SHRIMP_RIDDLES.length}.`,
+    `Nuvarande gåta: ${riddle.prompt}`,
+    `Ledtråd: ${riddle.hint}`,
+    nextRiddle ? `Nästa gåta: ${nextRiddle.prompt}` : "Alla gåtor är lösta.",
+    `Spelarens senaste ord: ${playerText}`,
+    earlierTries.length
+      ? `Spelaren har tidigare försökt med: ${earlierTries.join("; ")}. Hänvisa gärna kort till det utan att upprepa dig.`
+      : "",
+    outcome.kind === "wrong"
+      ? `Svara vänligt med ett litet stickspår, aldrig med skarp tillrättavisning. Spelaren har nu gissat fel ${resultingAttempts} ${resultingAttempts === 1 ? "gång" : "gånger"} på den här gåtan. Väv in denna ledtråd på nivå ${hintLevel} av 2, utan att upprepa tidigare ledtrådar ordagrant: ${adaptiveHint}`
+      : "",
+    outcome.kind === "advance"
+      ? "Bekräfta kort och för portvakten naturligt vidare mot nästa gåta."
+      : "",
+    outcome.kind === "win"
+      ? "Fira lågmält. Om spelaren själv nämner det hemliga namnet på den unga svenska klimatstridaren, låt porten ge med sig utan att du avslöjar namnet först."
+      : "",
+  ].filter(Boolean).join(" ");
+}
+
+export function buildShrimpFallbackReply({ outcome, riddle, nextRiddle, hint }) {
+  if (outcome.kind === "wrong") {
+    const clue = typeof hint === "string" && hint.trim() ? hint.trim() : riddle.hint;
+    return `Mellan stenarna hör jag att du är nära. ${clue} Försök igen; vallgraven väntar tålmodigt.`;
+  }
+  if (outcome.kind === "advance") {
+    const transition = [
+      "Bra där. Den första portstenen skälver.",
+      "Rätt igen. Saltvinden drar vidare genom valvet.",
+      "Så ja. Mörkret i portgången flyttar på sig.",
+    ][Math.min(Number.isInteger(outcome.step) ? outcome.step : 0, 2)];
+    return `${transition} ${riddle.success}${nextRiddle ? ` Nästa gåta: ${nextRiddle.prompt}` : ""}`;
+  }
+  if (outcome.reason === "greta") {
+    return "Du sade det hemliga namnet. Räkan gör honnör och järnet ger vika.";
+  }
+  return "Tre rätt i rad. Porten gnisslar upp och räkan håller vakt i det öppna ljuset.";
+}
+
 const MAX_PARTS_PER_MESSAGE = 16;
 const MAX_SYSTEM_CHARS = 100_000;
 const MAX_TOTAL_TEXT_CHARS = 250_000;
@@ -229,7 +453,7 @@ export function extractCompletionContent(payload) {
   return text.trim() ? text : null;
 }
 
-export function buildOpenRouterRequest(completion, env = process.env) {
+export function buildOpenRouterRequest(completion, env = process.env, { stream = false } = {}) {
   const apiKey = envValue(env, "OPENROUTER_API_KEY");
   if (!apiKey) {
     throw new ApiError(503, "service_unconfigured", "OpenRouter är inte konfigurerat.");
@@ -270,7 +494,7 @@ export function buildOpenRouterRequest(completion, env = process.env) {
         messages,
         max_tokens: completion.max_tokens,
         reasoning: { effort: "minimal", exclude: true },
-        stream: false,
+        stream,
       }),
     },
   };
@@ -326,12 +550,15 @@ function buildElevenLabsScribeTokenRequest(env = process.env) {
   };
 }
 
-function buildElevenLabsSpeechRequest(text, env = process.env) {
+function buildElevenLabsSpeechRequest(text, env = process.env, character = "") {
   const apiKey = envValue(env, "ELEVENLABS_API_KEY");
   if (!apiKey) {
     throw new ApiError(503, "service_unconfigured", "ElevenLabs är inte konfigurerat.");
   }
-  const voiceId = envValue(env, "ELEVENLABS_VOICE_ID", DEFAULT_ELEVENLABS_VOICE_ID);
+  // Varje karaktär kan ha en egen röst; utan träff faller vi tillbaka på den globala.
+  const characterKey = typeof character === "string" ? character.trim().toUpperCase() : "";
+  const voiceId = (/^[A-Z]{2,12}$/.test(characterKey) ? envValue(env, `ELEVENLABS_VOICE_${characterKey}`, "") : "")
+    || envValue(env, "ELEVENLABS_VOICE_ID", DEFAULT_ELEVENLABS_VOICE_ID);
   if (!voiceId) {
     throw new ApiError(503, "service_unconfigured", "ElevenLabs-rösten är inte konfigurerad.");
   }
@@ -441,8 +668,8 @@ async function requestElevenLabsJson(upstream, { env, fetchImpl }) {
   }
 }
 
-async function requestElevenLabsSpeech(text, { env, fetchImpl }) {
-  const upstream = buildElevenLabsSpeechRequest(text, env);
+async function requestElevenLabsSpeech(text, { env, fetchImpl, character = "" }) {
+  const upstream = buildElevenLabsSpeechRequest(text, env, character);
   const timeoutMs = positiveInteger(
     env.UPSTREAM_TIMEOUT_MS,
     DEFAULT_TIMEOUT_MS,
@@ -702,6 +929,158 @@ async function requestOpenRouter(completion, { env, fetchImpl }) {
   return content;
 }
 
+function writeNdjsonLine(res, payload) {
+  res.write(`${JSON.stringify(payload)}\n`);
+}
+
+function encodeAudioBase64(buffer) {
+  return Buffer.isBuffer(buffer) ? buffer.toString("base64") : Buffer.from(buffer || []).toString("base64");
+}
+
+function extractOpenRouterStreamDelta(payload) {
+  const choice = payload?.choices?.[0];
+  const content = choice?.delta?.content ?? choice?.message?.content ?? payload?.output_text ?? "";
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .filter((part) => isRecord(part) && typeof part.text === "string")
+      .map((part) => part.text)
+      .join("");
+  }
+  return "";
+}
+
+async function requestOpenRouterStream(completion, { env, fetchImpl, onDelta, onSentence }) {
+  const upstream = buildOpenRouterRequest(completion, env, { stream: true });
+  const timeoutMs = positiveInteger(
+    env.UPSTREAM_TIMEOUT_MS,
+    DEFAULT_TIMEOUT_MS,
+    1_000,
+    120_000,
+  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+  try {
+    response = await fetchImpl(upstream.url, {
+      ...upstream.options,
+      signal: controller.signal,
+    });
+  } catch {
+    clearTimeout(timeout);
+    if (controller.signal.aborted) {
+      throw new ApiError(504, "upstream_timeout", "AI-leverantören svarade inte i tid.");
+    }
+    throw new ApiError(502, "upstream_unavailable", "AI-leverantören kunde inte nås.");
+  }
+
+  if (!response?.ok) {
+    clearTimeout(timeout);
+    const status = response?.status === 429 ? 503 : 502;
+    throw new ApiError(status, "upstream_error", "AI-leverantören returnerade ett fel.");
+  }
+
+  if (!response.body) {
+    const payload = await response.json().catch(() => null);
+    const content = extractCompletionContent(payload);
+    if (typeof content !== "string" || !content.trim()) {
+      throw new ApiError(502, "invalid_upstream_response", "AI-leverantörens svar innehöll ingen text.");
+    }
+    if (typeof onDelta === "function") onDelta(content);
+    if (typeof onSentence === "function") {
+      const { sentences, remainder } = splitShrimpSentences(content);
+      sentences.forEach((sentence) => onSentence(sentence));
+      if (remainder.trim()) onSentence(remainder.trim());
+    }
+    clearTimeout(timeout);
+    return content;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let fullText = "";
+  let sentenceBuffer = "";
+  const flushSentences = (final = false) => {
+    const { sentences, remainder } = splitShrimpSentences(sentenceBuffer);
+    sentences.forEach((sentence) => {
+      if (typeof onSentence === "function") onSentence(sentence);
+    });
+    sentenceBuffer = final ? remainder : remainder;
+    if (final && sentenceBuffer.trim() && typeof onSentence === "function") {
+      onSentence(sentenceBuffer.trim());
+      sentenceBuffer = "";
+    }
+  };
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
+      let boundary;
+      while ((boundary = buffer.indexOf("\n\n")) >= 0) {
+        const eventText = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+        const data = eventText
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).trimStart())
+          .join("\n");
+        if (!data) continue;
+        if (data === "[DONE]") continue;
+        let payload;
+        try {
+          payload = JSON.parse(data);
+        } catch {
+          continue;
+        }
+        const delta = extractOpenRouterStreamDelta(payload);
+        if (!delta) continue;
+        fullText += delta;
+        sentenceBuffer += delta;
+        if (typeof onDelta === "function") onDelta(delta);
+        flushSentences(false);
+      }
+    }
+    buffer += decoder.decode();
+    if (buffer.trim()) {
+      const chunks = buffer.split(/\n\n+/).map((part) => part.trim()).filter(Boolean);
+      for (const chunk of chunks) {
+        const data = chunk
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).trimStart())
+          .join("\n");
+        if (!data || data === "[DONE]") continue;
+        let payload;
+        try {
+          payload = JSON.parse(data);
+        } catch {
+          continue;
+        }
+        const delta = extractOpenRouterStreamDelta(payload);
+        if (!delta) continue;
+        fullText += delta;
+        sentenceBuffer += delta;
+        if (typeof onDelta === "function") onDelta(delta);
+        flushSentences(false);
+      }
+    }
+    flushSentences(true);
+  } catch {
+    reader.cancel().catch(() => {});
+    clearTimeout(timeout);
+    if (controller.signal.aborted) {
+      throw new ApiError(504, "upstream_timeout", "AI-leverantörens svar tog för lång tid.");
+    }
+    throw new ApiError(502, "invalid_upstream_response", "AI-leverantörens ström avbröts eller var ogiltig.");
+  }
+
+  clearTimeout(timeout);
+  return fullText.trim();
+}
+
 async function serveStatic(req, res, projectDirectory, rawPath, realProjectDirectory) {
   const target = resolveStaticPath(projectDirectory, rawPath);
   let fileStats;
@@ -732,6 +1111,43 @@ async function serveStatic(req, res, projectDirectory, rawPath, realProjectDirec
     return;
   }
   createReadStream(realTarget).pipe(res);
+}
+
+function validateShrimpConversationRequest(input) {
+  if (!isRecord(input)) invalidRequest("Begärans innehåll måste vara ett JSON-objekt.");
+  if (!Array.isArray(input.messages) || input.messages.length === 0) {
+    invalidRequest("messages måste vara en lista som inte är tom.");
+  }
+  if (!Number.isInteger(input.step) || input.step < 0 || input.step >= SHRIMP_RIDDLES.length) {
+    invalidRequest(`step måste vara ett heltal mellan 0 och ${SHRIMP_RIDDLES.length - 1}.`);
+  }
+
+  const messages = input.messages.slice(-24).map((message, index) => {
+    if (!isRecord(message) || !["user", "assistant"].includes(message.role)) {
+      invalidRequest(`messages[${index}].role måste vara \"user\" eller \"assistant\".`);
+    }
+    const text = typeof message.text === "string" ? message.text.trim() : "";
+    if (!text) {
+      invalidRequest(`messages[${index}].text måste vara en icke-tom sträng.`);
+    }
+    return {
+      role: message.role,
+      text: text.slice(0, 4_000),
+    };
+  });
+  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+  if (!lastUser) {
+    invalidRequest("messages måste innehålla minst ett användarvarv.");
+  }
+  const attempts = Number.isInteger(input.attempts) && input.attempts >= 0
+    ? Math.min(input.attempts, 99)
+    : 0;
+  return {
+    step: input.step,
+    attempts,
+    messages,
+    playerText: lastUser.text,
+  };
 }
 
 export function createAdventureServer({
@@ -809,6 +1225,100 @@ export function createAdventureServer({
         return;
       }
 
+      if (pathname === "/api/shrimp/converse") {
+        if (req.method !== "POST") {
+          throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
+        }
+        if (!enforceUpstreamRateLimit(req, res)) return;
+        const body = validateShrimpConversationRequest(await readJsonBody(req));
+        const outcome = classifyShrimpAnswer(body.playerText, body.step);
+        const riddle = outcome.riddle;
+        const nextRiddle = outcome.nextRiddle;
+        const resultingAttempts = outcome.kind === "wrong" ? body.attempts + 1 : 0;
+        const adaptiveHint = buildShrimpAdaptiveHint({ step: body.step, attempts: resultingAttempts });
+        const recentPlayerTexts = body.messages
+          .filter((message) => message.role === "user")
+          .map((message) => message.text)
+          .slice(-4);
+        const system = buildShrimpSystemPrompt({
+          outcome,
+          step: body.step,
+          riddle,
+          nextRiddle,
+          playerText: body.playerText,
+          attempts: body.attempts,
+          recentPlayerTexts,
+        });
+        const completion = {
+          system,
+          messages: body.messages.map((message) => ({ role: message.role, content: message.text })),
+          max_tokens: 220,
+        };
+
+        res.writeHead(200, {
+          "Cache-Control": "no-store",
+          "Content-Type": "application/x-ndjson; charset=utf-8",
+          "X-Content-Type-Options": "nosniff",
+        });
+        res.flushHeaders?.();
+        writeNdjsonLine(res, {
+          type: "meta",
+          result: outcome,
+          attempts: resultingAttempts,
+          hintLevel: shrimpHintLevel(resultingAttempts),
+        });
+
+        let streamedText = "";
+        const sentenceAudioJobs = [];
+        const emitSentence = (text) => {
+          const sentence = String(text ?? "").trim();
+          if (!sentence) return;
+          writeNdjsonLine(res, { type: "sentence", text: sentence });
+          sentenceAudioJobs.push(
+            requestElevenLabsSpeech(sentence, { env, fetchImpl, character: "shrimp" })
+              .then((audio) => ({ text: sentence, audio_base64: encodeAudioBase64(audio) }))
+              .catch((error) => ({ text: sentence, error: error?.code || error?.message || "tts_error" })),
+          );
+        };
+        try {
+          if (typeof fetchImpl === "function" && envValue(env, "OPENROUTER_API_KEY")) {
+            await requestOpenRouterStream(completion, {
+              env,
+              fetchImpl,
+              onDelta: (delta) => {
+                streamedText += delta;
+                writeNdjsonLine(res, { type: "delta", text: delta });
+              },
+              onSentence: emitSentence,
+            });
+          }
+          if (!streamedText.trim()) {
+            streamedText = buildShrimpFallbackReply({ outcome, riddle, nextRiddle, hint: adaptiveHint });
+            const fallbackParts = splitShrimpSentences(streamedText);
+            fallbackParts.sentences.forEach(emitSentence);
+            if (fallbackParts.remainder.trim()) emitSentence(fallbackParts.remainder.trim());
+          }
+        } catch {
+          if (!streamedText.trim()) {
+            streamedText = buildShrimpFallbackReply({ outcome, riddle, nextRiddle, hint: adaptiveHint });
+            const fallbackParts = splitShrimpSentences(streamedText);
+            fallbackParts.sentences.forEach(emitSentence);
+            if (fallbackParts.remainder.trim()) emitSentence(fallbackParts.remainder.trim());
+          }
+        }
+        const audioEvents = await Promise.all(sentenceAudioJobs);
+        for (const event of audioEvents) {
+          if (event.audio_base64) {
+            writeNdjsonLine(res, { type: "audio", text: event.text, audio_base64: event.audio_base64 });
+          } else {
+            writeNdjsonLine(res, { type: "tts_error", text: event.text, error: event.error || "tts_error" });
+          }
+        }
+        writeNdjsonLine(res, { type: "done", result: outcome, text: streamedText.trim() });
+        res.end();
+        return;
+      }
+
       if (pathname === "/api/shrimp/transcribe") {
         if (req.method !== "POST") {
           throw new ApiError(405, "method_not_allowed", "Metoden är inte tillåten.");
@@ -838,7 +1348,7 @@ export function createAdventureServer({
           throw new ApiError(503, "service_unconfigured", "Det finns ingen tillgänglig HTTP-klient för anslutning till ElevenLabs.");
         }
         const body = await readJsonBody(req);
-        const audio = await requestElevenLabsSpeech(body.text, { env, fetchImpl });
+        const audio = await requestElevenLabsSpeech(body.text, { env, fetchImpl, character: body.character });
         sendBinary(res, 200, audio, "audio/mpeg");
         return;
       }

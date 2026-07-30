@@ -60,6 +60,112 @@
     };
   }
 
+  const MAX_SHRIMP_MESSAGES = 24;
+  const MAX_SHRIMP_TEXT_CHARS = 4000;
+
+  function cleanShrimpConversation(input) {
+    if (!input || typeof input !== "object") throw new Error("Räkchatten är ogiltig.");
+    const step = Number.isInteger(input.step) && input.step >= 0 ? input.step : 0;
+    const attempts = Number.isInteger(input.attempts) && input.attempts >= 0 ? Math.min(input.attempts, 99) : 0;
+    const messages = Array.isArray(input.messages) ? input.messages.slice(-MAX_SHRIMP_MESSAGES) : [];
+    if (!messages.length) throw new Error("Räkchatten innehåller inga meddelanden.");
+
+    return {
+      step,
+      attempts,
+      messages: messages.map((message) => {
+        if (!message || (message.role !== "user" && message.role !== "assistant")) {
+          throw new Error("Räkchattens roll är ogiltig.");
+        }
+        const text = typeof message.text === "string" ? message.text.trim() : "";
+        if (!text) throw new Error("Räkchattens meddelande får inte vara tomt.");
+        return { role: message.role, text: text.slice(0, MAX_SHRIMP_TEXT_CHARS) };
+      }),
+    };
+  }
+
+  function parseNdjsonLine(line) {
+    const trimmed = String(line || "").trim();
+    if (!trimmed) return null;
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return null;
+    }
+  }
+
+  async function readNdjsonResponse(response, { onEvent, signal } = {}) {
+    if (!response.ok) throw response;
+    if (!response.body) {
+      const text = await response.text();
+      let final = null;
+      for (const line of String(text || "").split(/\r?\n/)) {
+        const event = parseNdjsonLine(line);
+        if (!event) continue;
+        if (typeof onEvent === "function") onEvent(event);
+        if (event.type === "done") final = event;
+      }
+      return final;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let final = null;
+
+    try {
+      while (true) {
+        if (signal?.aborted) {
+          await reader.cancel().catch(() => {});
+          throw new DOMException("The operation was aborted.", "AbortError");
+        }
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let boundary;
+        while ((boundary = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary + 1);
+          const event = parseNdjsonLine(line);
+          if (!event) continue;
+          if (typeof onEvent === "function") onEvent(event);
+          if (event.type === "done") final = event;
+        }
+      }
+      buffer += decoder.decode();
+      for (const line of buffer.split(/\r?\n/)) {
+        const event = parseNdjsonLine(line);
+        if (!event) continue;
+        if (typeof onEvent === "function") onEvent(event);
+        if (event.type === "done") final = event;
+      }
+      return final;
+    } finally {
+      reader.releaseLock?.();
+    }
+  }
+
+  async function shrimpConverse(input, options = {}) {
+    const response = await fetch("/api/shrimp/converse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/x-ndjson" },
+      body: JSON.stringify(cleanShrimpConversation(input)),
+      signal: options.signal,
+    });
+
+    if (!response.ok) {
+      let payload = null;
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+      throw new Error(conciseError(payload, "Räkchatten misslyckades."));
+    }
+
+    return await readNdjsonResponse(response, options);
+  }
+
   async function complete(input) {
     const response = await fetch("/api/complete", {
       method: "POST",
@@ -81,5 +187,5 @@
     return content;
   }
 
-  window.claude = Object.assign({}, window.claude, { complete });
+  window.claude = Object.assign({}, window.claude, { complete, shrimpConverse, readNdjsonResponse });
 })();

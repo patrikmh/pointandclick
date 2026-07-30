@@ -91,6 +91,7 @@ test("AI chat replies are normalized before storage and display", async () => {
     charSystemPrompt: () => "Svara som månen.",
     scrollChat: () => {},
     setCharMouth: () => {},
+    speakAs: async () => false,
     setState(update) {
       Object.assign(this.state, typeof update === "function" ? update(this.state) : update);
     },
@@ -168,7 +169,19 @@ test("the inventory is collapsible and camp navigation appears on hover", async 
   assert.match(source, /bottomNavStyle:/);
 });
 
-test("all puzzle objects are available in the starting inventory", async () => {
+test("new image assets are preloaded and wired into runtime UI", async () => {
+  const source = await readFile(gamePath, "utf8");
+
+  assert.match(source, /"rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings"/);
+  assert.match(source, /assets\/octo-splinted\.png/);
+  assert.match(source, /assets\/patriks-currency-2024\.png/);
+  assert.match(source, /assets\/gull-droppings\.png/);
+  assert.match(source, /octoPatientSrc: S\.octoFrame === "splinted" \? "assets\/octo-splinted\.png" : "assets\/octo-open\.png"/);
+  assert.match(source, /droppingsEl/);
+  assert.doesNotMatch(source, /new_images/);
+});
+
+test("all puzzle objects, including the shrimp bottle, are available in the starting inventory", async () => {
   const source = await readFile(gamePath, "utf8");
 
   assert.match(source, /initialPlaced = \[\]/);

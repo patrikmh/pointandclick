@@ -201,8 +201,8 @@
       </sc-if>
 
       <sc-if value="{{ inUnderwater }}" hint-placeholder-val="">
-        <div data-drop="shrimp" role="button" tabindex="0" aria-label="Få en hint om havsskräp" onClick="{{ shrimpClick }}" onKeyDown="{{ shrimpKeyDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ shrimpEnter }}" onMouseLeave="{{ shrimpLeave }}" style="position:absolute;left:70%;top:16%;width:22%;z-index:11;animation:shrimpMarch 5.5s ease-in-out infinite;cursor:pointer">
-          <img src="assets/shrimp-protest.png" alt="Demonstrerande räkor med plakat" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.45))">
+        <div data-drop="shrimp" role="button" tabindex="0" aria-label="Fråga räkan om en ledtråd" onClick="{{ shrimpClick }}" onKeyDown="{{ shrimpKeyDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ shrimpEnter }}" onMouseLeave="{{ shrimpLeave }}" style="position:absolute;left:70%;top:16%;width:22%;z-index:11;animation:shrimpMarch 5.5s ease-in-out infinite;cursor:pointer">
+          <img src="assets/shrimp-protest.png" alt="En ensam räka vid fästningsvallen" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.45))">
         </div>
         <div data-drop="cod" onClick="{{ codClick }}" onContextMenu="{{ infoCtx }}" style="{{ codWrapStyle }}">
           <img src="{{ codSrc }}" alt="En målande torsk med basker och palett" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
@@ -210,6 +210,7 @@
         <div data-drop="chest" onClick="{{ chestClick }}" onContextMenu="{{ infoCtx }}" style="{{ chestWrapStyle }}">
           <img ref="{{ setChestRef }}" src="{{ chestSrc }}" alt="En gammal skattkista" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55))">
           <sc-if value="{{ chestOpen }}" hint-placeholder-val="">
+            <img src="assets/patriks-currency-2024.png" alt="Patriks Currency 2024-mynt" draggable="false" style="position:absolute;left:63%;top:71%;width:18%;transform:translate(-50%,-50%) rotate(-10deg);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.45))">
             <img ref="{{ setMapRef }}" src="assets/treasure-map.png" alt="En skattkarta" draggable="false" style="position:absolute;left:50%;top:96%;width:68%;transform:translate(-50%,0) rotate(7deg);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
           </sc-if>
         </div>
@@ -270,7 +271,7 @@
       <button onClick="{{ inventoryToggle }}" aria-expanded="{{ inventoryOpen }}" aria-controls="inventory-items" aria-label="{{ inventoryToggleAria }}" title="{{ inventoryToggleAria }}" style="min-width:72px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 10px;cursor:pointer">{{ inventoryToggleLabel }} ({{ inventoryCount }})</button>
     </div>
     <sc-if value="{{ inventoryOpen }}" hint-placeholder-val="{{ true }}">
-      <div id="inventory-items" style="display:flex;gap:12px;flex:1;overflow-x:auto;padding:2px 0">
+      <div id="inventory-items" style="display:flex;gap:10px;flex:1;flex-wrap:wrap;align-content:flex-start;max-height:212px;overflow-y:auto;overflow-x:hidden;padding:2px 0">
         <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
           <div data-drop="inv" data-iid="{{ it.iid }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
             <div style="{{ it.imgStyle }}">{{ it.art }}</div>
@@ -278,7 +279,7 @@
           </div>
         </sc-for>
         <sc-if value="{{ emptyInventory }}" hint-placeholder-val="{{ true }}">
-          <div style="width:116px;height:116px;flex-shrink:0;border:1.5px dashed oklch(0.45 0.02 60 / 0.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.02 70);letter-spacing:0.08em">TOM</div>
+          <div style="width:96px;height:96px;flex-shrink:0;border:1.5px dashed oklch(0.45 0.02 60 / 0.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.02 70);letter-spacing:0.08em">TOM</div>
         </sc-if>
       </div>
     </sc-if>
@@ -425,6 +426,39 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ sonarOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:88;background:rgba(2,7,10,0.78);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+      <div role="dialog" aria-modal="true" aria-labelledby="sonar-title" aria-describedby="sonar-help" style="width:min(820px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.15 0.02 195 / 0.97);border:1px solid oklch(0.5 0.08 190 / 0.5);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:14px 20px 16px;display:flex;flex-direction:column;gap:11px;align-items:center">
+
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div id="sonar-title" style="flex:1;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:0.14em;color:oklch(0.66 0.07 180)">EKOLODET · VRAK {{ sonarProgress }}/3</div>
+          <button type="button" aria-label="Stäng ekolodet" onClick="{{ sonarClose }}" style="width:22px;height:22px;border-radius:50%;border:1px solid oklch(0.45 0.04 190 / 0.6);background:transparent;color:oklch(0.72 0.03 190);font-size:11px;cursor:pointer">✕</button>
+        </div>
+
+        <div style="text-align:center">
+          <div style="font-family:'Cinzel',serif;font-size:22px;font-weight:700;letter-spacing:0.07em;color:oklch(0.88 0.12 175);line-height:1.1">{{ sonarTarget }}</div>
+          <div id="sonar-help" style="font-family:'Work Sans',sans-serif;font-size:13.5px;color:oklch(0.8 0.03 185);margin-top:3px">Ett lod ger <b>avstånd i rutor</b> — aldrig riktning. Där ringarna möts ligger vraket.</div>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <sc-for list="{{ sonarWreckChips }}" as="wreck" hint-placeholder-count="3">
+            <span style="{{ wreck.style }}">{{ wreck.mark }} {{ wreck.label }}</span>
+          </sc-for>
+        </div>
+
+        <canvas ref="{{ setSonarCanvas }}" onMouseDown="{{ sonarCanvasClick }}" width="780" height="560" tabindex="0" aria-label="Sjökort för {{ sonarTarget }}" aria-describedby="sonar-help sonar-status" style="display:block;height:clamp(220px,calc(100vh - 380px),540px);max-width:calc(100vw - 64px);width:auto;aspect-ratio:39/28;background:#02090d;border-radius:12px;outline:none;cursor:crosshair;touch-action:none"></canvas>
+
+        <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%">
+          <div style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.78 0.03 185)">Lod fällda: <b>{{ sonarPingCount }}</b> · rent sjömanskap på {{ sonarBudget }}</div>
+          <div style="flex:1;min-width:8px"></div>
+          <button type="button" aria-pressed="{{ sonarMarkMode }}" onClick="{{ sonarToggleMarkAction }}" style="{{ sonarMarkStyle }}">{{ sonarMarkLabel }}</button>
+        </div>
+
+        <div id="sonar-status" role="status" aria-live="polite" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.86 0.06 180);max-width:640px;text-align:center;min-height:1.4em;line-height:1.5">{{ sonarMsg }}</div>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ gullGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
       <div style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
@@ -508,8 +542,9 @@
         <div ref="{{ setOctoGameStage }}" role="application" aria-label="Tentakeltriage spelplan" aria-describedby="octo-game-help octo-game-status" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space Enter Escape" tabindex="0" style="position:relative;z-index:2;min-height:0;outline:none;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch">
           <div style="position:relative;min-height:310px;overflow:hidden;border-right:1px solid rgba(183,151,88,.2);background:radial-gradient(ellipse at 50% 55%,rgba(50,104,101,.34),transparent 60%)">
             <div aria-hidden="true" style="position:absolute;left:50%;top:48%;width:min(74%,330px);aspect-ratio:1;transform:translate(-50%,-50%);border:1px dashed rgba(205,179,117,.26);border-radius:50%"></div>
-            <img src="assets/octo-open.png" alt="Lord Bar-On ligger på operationsbordet med tentakel tre och fyra markerade" draggable="false" style="position:absolute;left:50%;top:51%;width:min(76%,340px);height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 18px 18px rgba(0,0,0,.7));pointer-events:none">
+            <img src="{{ octoPatientSrc }}" alt="Lord Bar-On ligger på operationsbordet med tentakel tre och fyra markerade" draggable="false" style="{{ octoPatientStyle }}">
             <div aria-hidden="true" style="position:absolute;left:13%;right:13%;bottom:8%;height:16%;border-radius:50%;background:radial-gradient(ellipse,rgba(1,3,4,.6),transparent 70%)"></div>
+            <div aria-hidden="true" style="position:absolute;left:50%;bottom:7%;transform:translateX(-50%);padding:7px 12px;border:1px solid rgba(215,189,125,.45);border-radius:999px;background:rgba(8,18,19,.86);color:#eddaa9;font:700 10px 'JetBrains Mono',monospace;letter-spacing:.08em;white-space:nowrap">{{ octoReactionText }}</div>
             <div aria-hidden="true" style="position:absolute;left:8%;top:10%;font:10px 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(222,198,144,.58);writing-mode:vertical-rl">ANATOMISK ÖVERSIKT</div>
           </div>
           <div style="min-width:0;padding:clamp(14px,2.5vw,28px);display:flex;flex-direction:column;justify-content:center;gap:18px;background:linear-gradient(120deg,rgba(13,27,28,.88),rgba(6,15,17,.94))">
@@ -544,30 +579,30 @@
             </sc-if>
             <sc-if value="{{ octoPhaseAnchors }}" hint-placeholder-val="">
               <div style="font:600 15px 'Work Sans',sans-serif;color:#f0e6cf">Linda fiskelinan runt skenan</div>
-              <div onPointerUp="{{ octoRopeEnd }}" onPointerCancel="{{ octoRopeEnd }}" onPointerLeave="{{ octoRopeLeave }}" style="position:relative;width:100%;height:190px;touch-action:none;user-select:none;cursor:crosshair;border:1px solid rgba(183,151,88,.22);background:radial-gradient(ellipse at center,rgba(77,139,134,.15),transparent 72%);overflow:hidden">
+              <div onPointerMove="{{ octoRopeMove }}" onPointerUp="{{ octoRopeEnd }}" onPointerCancel="{{ octoRopeEnd }}" onPointerLeave="{{ octoRopeLeave }}" style="position:relative;width:100%;height:190px;touch-action:none;user-select:none;cursor:crosshair;border:1px solid rgba(183,151,88,.22);background:radial-gradient(ellipse at center,rgba(77,139,134,.15),transparent 72%);overflow:hidden">
                 <img src="assets/tentacle-placeholder.svg" alt="Skadad tentakel som ska lindas" draggable="false" style="position:absolute;left:4%;top:33%;width:92%;height:58%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))">
-                <img src="assets/driftwood.png" alt="" draggable="false" style="position:absolute;left:18%;top:42%;width:64%;height:34%;object-fit:contain;transform:rotate(-2deg);pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.65))">
-                <sc-for list="{{ octoRopeWraps }}" as="wrap" hint-placeholder-count="3">
-                  <div aria-hidden="true" style="{{ wrap.style }}"></div>
-                </sc-for>
+                <img src="assets/driftwood.png" alt="" draggable="false" style="position:absolute;left:-6%;top:25%;width:112%;height:68%;object-fit:contain;transform:rotate(-2deg);pointer-events:none;filter:drop-shadow(0 5px 6px rgba(0,0,0,.72));z-index:2">
+                <sc-for list="{{ octoRopeSegments }}" as="segment" hint-placeholder-count="18"><div aria-hidden="true" style="{{ segment.style }}"></div></sc-for>
+                <sc-for list="{{ octoCompletedRopeWraps }}" as="wrap" hint-placeholder-count="3"><div aria-hidden="true" style="{{ wrap.style }}"></div></sc-for>
                 <sc-for list="{{ octoAnchorChips }}" as="ac" hint-placeholder-count="3">
                   <div role="button" tabindex="0" aria-label="{{ ac.aria }}" aria-pressed="{{ ac.done }}" onPointerDown="{{ ac.start }}" onPointerEnter="{{ ac.enter }}" onKeyDown="{{ ac.keyDown }}" style="{{ ac.style }}">{{ ac.label }}</div>
                 </sc-for>
                 <div style="position:absolute;left:12px;top:10px;font:10px 'JetBrains Mono',monospace;letter-spacing:.1em;color:#b99b63">{{ octoRopeStatus }}</div>
               </div>
-              <div style="font:12px/1.5 'Work Sans',sans-serif;color:#91a8a3;text-align:center">Håll nere musknappen på START och dra linan genom ringarna utan att släppa.</div>
+              <div style="font:12px/1.5 'Work Sans',sans-serif;color:#91a8a3;text-align:center">Håll nere på START. Jaga de blinkande ringarna i ordning — linan måste gå över och under skenan utan att du släpper.</div>
             </sc-if>
             <sc-if value="{{ octoPhaseTension }}" hint-placeholder-val="">
-              <div style="font:600 15px 'Work Sans',sans-serif;color:#f0e6cf">Spänn bandaget — lugnt och jämnt</div>
-              <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
-                <div role="meter" aria-label="Spänning" aria-valuenow="{{ octoGameTensionDisplay }}" aria-valuemin="0" aria-valuemax="100" style="position:relative;width:100%;height:54px;background:#111c1d;border:1px solid rgba(183,151,88,.28);overflow:hidden;touch-action:none">
-                  <div aria-hidden="true" style="position:absolute;left:{{ octoGameTensionBandMin }}%;width:{{ octoGameTensionBandWidth }}%;height:100%;background:rgba(64,153,108,.24);border-left:2px solid #66b67f;border-right:2px solid #66b67f"></div>
-                  <div aria-hidden="true" style="position:absolute;left:0;bottom:0;height:100%;width:{{ octoGameTensionDisplay }}%;background:linear-gradient(90deg,#754340,#d1a14f);transition:width .06s linear;mix-blend-mode:screen"></div>
-                  <div aria-hidden="true" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 12px 'JetBrains Mono',monospace;letter-spacing:.12em;color:#fff;text-shadow:0 1px 3px #000">{{ octoGameTensionDisplay }}%</div>
-                </div>
-                <button type="button" onPointerDown="{{ octoTensionStart }}" onPointerUp="{{ octoTensionStop }}" onPointerLeave="{{ octoTensionStop }}" onPointerCancel="{{ octoTensionStop }}" disabled="{{ octoGameDone }}" aria-label="Håll för att spänna linan" style="width:min(240px,100%);height:60px;border:1px solid #b99b63;background:{{ octoTensionBtnBg }};color:#101817;font:700 15px 'Cinzel',serif;letter-spacing:.08em;cursor:pointer;touch-action:none;user-select:none;box-shadow:0 8px 18px rgba(0,0,0,.35)">{{ octoTensionBtnLabel }}</button>
-                <div style="font:12px/1.5 'Work Sans',sans-serif;color:#91a8a3;text-align:center">Håll knappen eller mellanslag. Släpp innan mätaren passerar det gröna fältet.</div>
+              <div style="font:600 15px 'Work Sans',sans-serif;color:#f0e6cf">Snurra bandaget — tre snabba, jämna varv</div>
+              <div onPointerDown="{{ octoBandageStart }}" onPointerMove="{{ octoBandageMove }}" onPointerUp="{{ octoBandageEnd }}" onPointerLeave="{{ octoBandageEnd }}" onPointerCancel="{{ octoBandageEnd }}" role="application" tabindex="0" aria-label="Linda bandaget tre varv runt tentakeln" style="position:relative;width:100%;height:190px;touch-action:none;cursor:grab;overflow:hidden;border:1px solid rgba(183,151,88,.28);background:radial-gradient(ellipse at center,rgba(79,145,124,.18),#101c1d 70%)">
+                <img src="assets/tentacle-placeholder.svg" alt="Skadad tentakel" draggable="false" style="position:absolute;left:8%;top:37%;width:84%;height:52%;object-fit:contain;pointer-events:none">
+                <div aria-hidden="true" style="position:absolute;left:23%;top:18%;width:54%;height:70%;border:4px dashed rgba(102,182,127,.62);border-radius:50%;animation:pulse 1s ease-in-out infinite;pointer-events:none"></div>
+                <sc-for list="{{ octoBandageRings }}" as="ring" hint-placeholder-count="12"><div aria-hidden="true" style="{{ ring.style }}"></div></sc-for>
+                <div aria-hidden="true" style="{{ octoBandagePointerStyle }}"></div>
+                <div style="position:absolute;left:12px;top:10px;font:700 11px 'JetBrains Mono',monospace;color:#eddaa9">{{ octoBandageStatus }}</div>
+                <div role="meter" aria-label="Bandagespänning" aria-valuenow="{{ octoGameTensionDisplay }}" aria-valuemin="0" aria-valuemax="100" style="position:absolute;right:10px;top:10px;width:90px;height:10px;background:#311f22"><div style="height:100%;width:{{ octoGameTensionDisplay }}%;background:#66b67f"></div></div>
               </div>
+              <button type="button" onPointerDown="{{ octoTensionStart }}" onPointerUp="{{ octoTensionStop }}" onPointerLeave="{{ octoTensionStop }}" aria-label="Tangentbordsalternativ: håll för att linda bandaget" style="border:1px solid rgba(183,151,88,.35);background:#132425;color:#b8cbc5;padding:8px 12px;font:11px 'Work Sans',sans-serif">Tangentbord: håll mellanslag</button>
+              <div style="font:12px/1.5 'Work Sans',sans-serif;color:#91a8a3;text-align:center">Håll musknappen och cirkla i den gröna banan. För nära eller för långt bort tappar bandaget spänningen.</div>
             </sc-if>
           </div>
         </div>
@@ -621,28 +656,29 @@
 
   <sc-if value="{{ shrimpGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.74);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status" style="width:min(840px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:stretch">
+      <div role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status shrimp-game-prompt shrimp-game-history" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:stretch">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="flex:1">
-            <div id="shrimp-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">RÄKDELEGATIONENS RÖSTGÅTA</div>
-            <div id="shrimp-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;line-height:1.4;color:oklch(0.8 0.015 80)">Lyssna på gåtan eller skriv svaret. Tre rätt i rad öppnar utgången. Säger du det hemliga namnet går du direkt vidare.</div>
+            <div id="shrimp-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">VALLGRAVSRÄKAN</div>
+            <div id="shrimp-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;line-height:1.45;color:oklch(0.8 0.015 80)">En ensam portvakt vakar i murgraven. Klicka Starta samtal och svara med röst: tre rätt i rad öppnar vägen; en ung svensk klimatstridare kan också fälla bron direkt. Fel svar kostar inget.</div>
             <div id="shrimp-game-status" role="status" aria-live="polite" aria-atomic="true" style="font-family:'Work Sans',sans-serif;font-size:12.5px;line-height:1.4;color:oklch(0.9 0.07 82);min-height:1.4em">{{ shrimpGameA11yStatus }}</div>
           </div>
-          <button type="button" aria-label="Stäng räkornas röstgåta" onClick="{{ shrimpGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button type="button" aria-label="Stäng räksamtalet" onClick="{{ shrimpGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-          <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.86 0.06 82);background:oklch(0.28 0.04 78 / 0.4);border:1px solid oklch(0.6 0.09 78 / 0.45);border-radius:999px;padding:5px 12px">Gåta {{ Math.min(shrimpGameStep + 1, shrimpGameTotal) }}/{{ shrimpGameTotal }}</div>
-          <button type="button" onClick="{{ shrimpGameReplay }}" disabled="{{ shrimpGameSpeakDisabled }}" aria-disabled="{{ shrimpGameSpeakDisabled }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:oklch(0.22 0.025 65 / 0.7);color:oklch(0.9 0.04 82);cursor:pointer;opacity:{{ shrimpGameSpeakDisabled ? 0.55 : 1 }}">{{ shrimpGameSpeakLabel }}</button>
-          <button type="button" onClick="{{ shrimpGameRecord }}" disabled="{{ shrimpGameRecordDisabled }}" aria-disabled="{{ shrimpGameRecordDisabled }}" aria-pressed="{{ shrimpGameListening }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:{{ shrimpGameListening ? 'oklch(0.34 0.08 150 / 0.45)' : 'oklch(0.22 0.025 65 / 0.7)' }};color:oklch(0.9 0.04 82);cursor:pointer;opacity:{{ shrimpGameRecordDisabled ? 0.55 : 1 }}">{{ shrimpGameRecordLabel }}</button>
+          <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.86 0.06 82);background:oklch(0.28 0.04 78 / 0.4);border:1px solid oklch(0.6 0.09 78 / 0.45);border-radius:999px;padding:5px 12px">Gåta {{ shrimpGameRiddleNumber }}/{{ shrimpGameTotal }}</div>
+          <div style="font-family:'Work Sans',sans-serif;font-size:12px;color:oklch(0.8 0.02 80);background:oklch(0.2 0.02 60 / 0.55);border:1px solid oklch(0.45 0.03 70 / 0.4);border-radius:999px;padding:5px 12px">{{ shrimpGameVoiceState }}</div>
+          <button type="button" onClick="{{ shrimpGameToggle }}" disabled="{{ shrimpGameToggleDisabled }}" aria-disabled="{{ shrimpGameToggleDisabled }}" aria-pressed="{{ shrimpGameActive }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:{{ shrimpGameActive ? 'oklch(0.34 0.08 150 / 0.45)' : 'oklch(0.22 0.025 65 / 0.7)' }};color:oklch(0.9 0.04 82);cursor:pointer;opacity:{{ shrimpGameToggleDisabled ? 0.55 : 1 }}">{{ shrimpGameToggleLabel }}</button>
         </div>
-        <div style="font-family:'Work Sans',sans-serif;font-size:15px;line-height:1.45;color:oklch(0.95 0.05 82);padding:12px 14px;border-radius:12px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.2 0.02 60 / 0.55)">{{ shrimpGamePrompt }}</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <label style="font-family:'Work Sans',sans-serif;font-size:12px;color:oklch(0.76 0.015 80)">Skriv svaret</label>
-          <input value="{{ shrimpGameInput }}" onChange="{{ shrimpGameInputChange }}" onKeyDown="{{ shrimpGameInputKeyDown }}" aria-label="Skriv svaret till räkorna" placeholder="Skriv ditt svar här" style="font-family:'Work Sans',sans-serif;font-size:14px;padding:11px 12px;border-radius:10px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.22 0.014 60);color:oklch(0.92 0.012 80);outline:none">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button type="button" onClick="{{ shrimpGameSubmit }}" disabled="{{ shrimpGameSubmitDisabled }}" aria-disabled="{{ shrimpGameSubmitDisabled }}" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:9px;padding:8px 16px;cursor:pointer;opacity:{{ shrimpGameSubmitDisabled ? 0.55 : 1 }}">Skicka</button>
-            <div style="font-family:'Work Sans',sans-serif;font-size:12px;color:oklch(0.75 0.02 80);min-height:1.2em">Senast transkriberat: {{ shrimpGameTranscript }}</div>
-          </div>
+        <div id="shrimp-game-prompt" style="font-family:'Work Sans',sans-serif;font-size:15px;line-height:1.5;color:oklch(0.95 0.05 82);padding:12px 14px;border-radius:12px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.2 0.02 60 / 0.55)">{{ shrimpGamePrompt }}</div>
+        <div style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.82 0.05 82);padding:0 2px">Ledtråd: {{ shrimpGameHint }}</div>
+        <div id="shrimp-game-history" ref="{{ setShrimpConversationRef }}" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false" style="max-height:240px;overflow:auto;padding:4px 2px 2px;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ shrimpGameMessages }}" as="msg" hint-placeholder-count="0">
+            <div style="{{ msg.style }}">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.76 0.04 80);margin-bottom:4px">{{ msg.label }}</div>
+              <div style="font-size:14px;line-height:1.45">{{ msg.text }}<sc-if value="{{ msg.pending }}" hint-placeholder-val=""><span style="display:inline-block;width:10px;animation:blink 1s step-end infinite">▍</span></sc-if></div>
+            </div>
+          </sc-for>
         </div>
         <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.84 0.05 82)">{{ shrimpGameMsg }}</div>
       </div>
@@ -775,19 +811,17 @@
 </div></x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;bucketX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:5,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Bucket&quot;},&quot;bucketY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-7,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Bucket&quot;},&quot;bucketScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Bucket&quot;},&quot;keyX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Key&quot;},&quot;keyY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Key&quot;},&quot;keyScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.95,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Key&quot;},&quot;shardX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Glass shard&quot;},&quot;shardY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Glass shard&quot;},&quot;shardScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.85,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Glass shard&quot;},&quot;helmetX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:8,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;helmetY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:3,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;helmetScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.35,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Diving helmet&quot;},&quot;moonX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Moon&quot;},&quot;moonY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Moon&quot;},&quot;moonScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Moon&quot;},&quot;crabX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:23,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Crab&quot;},&quot;crabY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Crab&quot;},&quot;crabScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Crab&quot;},&quot;gullX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Gull&quot;},&quot;gullY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Gull&quot;},&quot;gullScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Gull&quot;},&quot;octoX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Octopus&quot;},&quot;octoY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Octopus&quot;},&quot;octoScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.25,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Octopus&quot;},&quot;snorkelX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-12,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Snorkel&quot;},&quot;snorkelY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Snorkel&quot;},&quot;snorkelScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1.4,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Snorkel&quot;},&quot;sealX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-13,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Seal&quot;},&quot;sealY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-4,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Seal&quot;},&quot;sealScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Seal&quot;},&quot;subX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-5,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Submarine&quot;},&quot;subY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-18,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Submarine&quot;},&quot;subScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.9,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Submarine&quot;},&quot;chestX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:4,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;chestY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;chestScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Treasure chest&quot;},&quot;otterX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Otter&quot;},&quot;otterY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Otter&quot;},&quot;otterScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Otter&quot;},&quot;badgerX&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-11,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Badger&quot;},&quot;badgerY&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0,&quot;min&quot;:-25,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;section&quot;:&quot;Badger&quot;},&quot;badgerScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.85,&quot;min&quot;:0.4,&quot;max&quot;:3,&quot;step&quot;:0.05,&quot;section&quot;:&quot;Badger&quot;}}">
 class Component extends DCLogic {
-  initialPlaced = [
-    { uid: 5, defId: "bucket",   x: 24, y: 90, scene: "left" },
-    { uid: 6, defId: "key",      x: 12, y: 87, scene: "left" },
-    { uid: 10, defId: "shard",   x: 34, y: 84 },
-    { uid: 12, defId: "camera",  x: 22, y: 88 },
-    { uid: 13, defId: "driftwood", x: 47, y: 86, scene: "right" },
-    { uid: 11, defId: "helmet",  x: 72, y: 90, scene: "camp" },
-    { uid: 14, defId: "bottle",  x: 28, y: 79, scene: "underwater" },
-  ];
+  initialPlaced = [];
+
+  initialInventory = [
+    "key", "bucket", "shard", "camera", "briefcase", "flashlight",
+    "flashlight-loaded", "battery", "driftwood", "fishline", "bottle",
+    "helmet", "seaweed",
+  ].map((defId, index) => ({ iid: "start-" + index, defId }));
 
   state = {
     placed: this.initialPlaced,
-    inventory: [{ iid: "flashlight-test", defId: "flashlight-loaded" }], 
+    inventory: this.initialInventory.map((item) => ({ ...item })),
     inventoryOpen: true,
     hoveredId: null,
     dialogSpeaker: "",
@@ -838,6 +872,13 @@ class Component extends DCLogic {
     atelierChecklist: [],
     atelierCanUndo: false,
     otterAtelierUnlocked: false,
+    sonarOpen: false,
+    sonarRound: 0,
+    sonarSolved: [],
+    sonarMsg: "",
+    sonarPingCount: 0,
+    sonarMarkMode: false,
+    subHelped: false,
     otterCoutureDone: false,
     otterLook: "",
     otterLookBox: null,
@@ -883,13 +924,14 @@ class Component extends DCLogic {
     badgerGameFeedback: ["", "", ""],
     badgerGameMsg: "",
     shrimpGameOpen: false,
+    shrimpGameActive: false,
     shrimpGameStep: 0,
-    shrimpGameInput: "",
-    shrimpGameTranscript: "",
+    shrimpGameAttempts: 0,
     shrimpGameListening: false,
     shrimpGameBusy: false,
     shrimpGameMsg: "",
     shrimpGameA11yStatus: "",
+    shrimpGameMessages: [],
     shrimpHelped: false,
     shrimpGameSolved: false,
     sheepGameOpen: false,
@@ -1013,6 +1055,7 @@ class Component extends DCLogic {
 
   defs = {
     key:      { type: "item", name: "Rostig nyckel", art: "", pickable: true, desc: "En gammal järnnyckel, orange av rost. Den kan nog fortfarande vrida om ett envist lås.", sceneImg: "assets/key-buried.png", img: "assets/key-full.png" },
+    map:      { type: "item", name: "Skattkarta", art: "", img: "assets/treasure-map.png", pickable: true, desc: "Ett vattenskadat sjökort. Ett kryss, tre vrak utsatta med darrig hand — men ingen skala och ingen kompassros." },
     bucket:   { type: "item", name: "Hink med vatten", art: "", img: "assets/bucket.png", pickable: true, desc: "En trähink, bräddfull med kallt havsvatten." },
     shard:    { type: "item", name: "Glasskärva", art: "", img: "assets/shard.png", pickable: true, desc: "En skärva av havsglas, slipad matt av vågorna. Vass nog att skära med." },
     camera:   { type: "item", name: "Kamera", art: "", img: "assets/camera.png", pickable: true, desc: "En gammal mätsökarkamera från Junkyard Optics. Någon som gillar att synas skulle nog älska den." },
@@ -1072,7 +1115,7 @@ class Component extends DCLogic {
     // preload every scene background + character/item frame so scene switches are instant
     this._imgCache = [];
     Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
-    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
+    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","octo-splinted","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full","rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
     // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
     try {
       this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
@@ -1239,10 +1282,10 @@ class Component extends DCLogic {
       prompt: "Du är Fåret: ett autistiskt och ensamt musikälskande får med hörlurar och solglasögon som gömmer sig i en mörk grotta. Du uppskattar tydlighet, förutsägbarhet, dämpade sinnesintryck och ärliga samtal, och du tolkar ofta ord bokstavligt. Svara kort (1-2 meningar) på svenska, säg ibland bää och jämför saker med musik. Skildra autism respektfullt; humorn ska komma från den absurda situationen, inte från autismen. Om grottan ännu är mörk kan du försiktigt antyda att ljus behövs.",
     },
     shrimp: {
-      name: "ROSA RÄKEMBURG", img: "assets/shrimp-protest.png", placeholder: "Tala med räkorna...",
-      greeting: "RÄTTVISA ÅT RÄKORNA! Delegationen ger dig ordet — kortfattat!",
-      thinking: "Räkorna håller rådslag",
-      prompt: "Du är Räkdelegationen: en liten högljudd facklig demonstration av räkor på havsbottnen. Svara kollektivt, kort (1-2 meningar) på svenska med fyndiga plakatparoller. Ni kan känna till undervattensområdet men ger bara stegvisa ledtrådar.",
+      name: "VALLGRAVSRÄKAN", img: "assets/shrimp-protest.png", placeholder: "Prata med räkan...",
+      greeting: "Mellan murarna och tången vakar jag ensam. Tala lugnt, så hör jag portgångens eko.",
+      thinking: "Räkan lyssnar i vallen",
+      prompt: "Du är Vallgravsräkan: en ensam svensk räka som vakar vid en gammal fästningsvallgrav. Svara kort (1-3 meningar) på svenska med gåtfull, lågmäld och lite torr ton. En enda röst, inga rollnamn, inga citattecken eller markdown. Låt småprat om murar, dimma och salt vatten smyga in, men håll det kort.",
     },
   };
 
@@ -1252,26 +1295,44 @@ class Component extends DCLogic {
   }
 
   helpedTotal = 11;
-  shrimpGameIntro = "Räkorna viskar att någon som brukar stå ute i vind och väder med en skylt skulle nicka åt tålamodet här.";
+  shrimpGameIntro = "Mellan murkrönet och det svarta vattnet står en åldrad räka på post. Tala lugnt, så öppnar hon sprickan i stenen.";
   shrimpGameRiddles = [
     {
-      prompt: "Jag har tangenter men inga lås. Vad är jag?",
+      prompt: "Jag bär tangenter men inga lås, och ändå ekar salen när jag rör mig. Vad är jag?",
       answers: ["piano", "ett piano"],
-      hint: "Tänk på ett instrument som spelar när du trycker på tangenterna.",
-      success: "Rätt. Räkorna slår i sina plåtskyltar.",
+      hint: "Lyssna efter ett instrument med svarta och vita nycklar.",
+      success: "Rätt. Murens damm skälver i takt.",
     },
     {
       prompt: "Ju mer du tar från mig, desto större blir jag. Vad är jag?",
       answers: ["hål", "ett hål"],
-      hint: "Jag växer av tomrum.",
-      success: "Rätt. Räkorna håller andan.",
+      hint: "Jag växer av tomrum och tuggar i sten.",
+      success: "Rätt. Vallgraven håller andan ett ögonblick.",
     },
     {
       prompt: "Vilket ord stavas fel i ordboken?",
       answers: ["fel"],
-      hint: "Svaret står och blinkar i frågan.",
-      success: "Perfekt. Räkorna kapitulerar.",
+      hint: "Det gömmer sig mitt i frågan och blinkar som en lykta.",
+      success: "Rätt. Portjärnet sjunger lågt.",
     },
+  ];
+
+  shrimpGameHintStages = [
+    [
+      "Lyssna efter ett instrument med svarta och vita nycklar.",
+      "Tangenterna är svarta och vita, och salen svarar i toner när de trycks ner.",
+      "Det är ett stort klaviaturinstrument som salen älskar. Det börjar på bokstaven P.",
+    ],
+    [
+      "Jag växer av tomrum och tuggar i sten.",
+      "Tänk på det som blir kvar när allt annat tagits bort; ju mer som försvinner, desto större blir det.",
+      "Det finns i ostar, i strumpor och i gamla murar. Det börjar på bokstaven H.",
+    ],
+    [
+      "Det gömmer sig mitt i frågan och blinkar som en lykta.",
+      "Ordet i ordboken som aldrig kan bli rätt stavat, hur noga man än letar.",
+      "Ordet är motsatsen till rätt. Tre bokstäver, och det börjar på F.",
+    ],
   ];
 
   helpedCount(S) {
@@ -1285,7 +1346,7 @@ class Component extends DCLogic {
       gull: S.gullFreed,
       crab: S.crabFreed,
       cod: S.codDone,
-      sub: d.sub,
+      sub: S.subHelped,
       sheep: d.sheep,
       shrimp: S.shrimpHelped,
     };
@@ -1294,7 +1355,7 @@ class Component extends DCLogic {
 
   toggleChat(charId, forceOpen = false) {
     if (this.state.moonState === "asleep") {
-      this.say("", "Det är ingen idé att försöka prata ännu. Väck månen först.", null);
+      this.say("", "Det är ingen idé att försöka prata ännu. Väck månen först.", null, "narr-det-ar-ingen-id-att");
       return;
     }
     const char = charId && this.personas[charId] ? charId : "moon";
@@ -1378,6 +1439,7 @@ class Component extends DCLogic {
     if (!reply) reply = "Jag tappade tråden. Försök fråga igen.";
     clearInterval(this.flap);
     this.setCharMouth(char, false);
+    void this.speakAs(char, reply);
     this.chatLogs[char] = [...this.chatLogs[char], { role: "char", text: reply }];
     this.setState((s) => ({
       chatMsgs: s.chatChar === char ? this.chatLogs[char] : s.chatMsgs,
@@ -1395,7 +1457,7 @@ class Component extends DCLogic {
   moonEnter() {
     if (this.state.moonState === "asleep") {
       if (!this.snore) {
-        this.snore = new Audio("assets/moon-snore.mp3");
+        this.snore = new Audio("assets/vo/moon-snore.mp3");
         this.snore.loop = true;
         this.snore.volume = 1.0;
       }
@@ -1440,17 +1502,17 @@ class Component extends DCLogic {
   useItemOn(defId, target, targetUid) {
     const characterTargets = ["crab", "gull", "seal", "octo", "otter", "badger"];
     if (characterTargets.includes(target)) {
-      if (this.state.moonState === "asleep") { this.say("", "Det händer ingenting.", null); return; }
+      if (this.state.moonState === "asleep") { this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting"); return; }
       this.discoverChar(target);
     }
     this.sfx("drop");
     if (defId === "bucket" && target === "crab") {
-      if (this.state.crabFreed) { this.say("", "Krabban är redan fri.", null); return; }
+      if (this.state.crabFreed) { this.say("", "Krabban är redan fri.", null, "narr-krabban-ar-redan-fri"); return; }
       this.throwWater();
       return;
     }
     if (defId === "shard" && target === "otter") {
-      if (this.state.otterCoutureDone) { this.say("Uttern", "Kollektionen är visad och flaskan är avlagd. En dam upprepar sig inte.", null); return; }
+      if (this.state.otterCoutureDone) { this.say("Uttern", "Kollektionen är visad och flaskan är avlagd. En dam upprepar sig inte.", null, "otter-done", "otter"); return; }
       if (this.state.otterAtelierUnlocked) { this.otterAtelierInvite(); return; }
       const snip = new Audio("assets/cutting.mp3");
       snip.volume = 0.85;
@@ -1486,38 +1548,47 @@ class Component extends DCLogic {
       return;
     }
     if (defId === "flashlight" && target === "cave") {
-      this.say("", "Du klickar på knappen. Ingenting. Ficklampan är död — den behöver ett batteri. Kombinera dem i ryggsäcken.", null);
+      this.say("", "Du klickar på knappen. Ingenting. Ficklampan är död — den behöver ett batteri. Kombinera dem i ryggsäcken.", null, "narr-du-klickar-pa-knappen-ingenting");
       return;
     }
     if (defId === "flashlight-loaded" && target === "cave") {
-      if (this.state.sheepRevealed) { this.say("", "Fåret står redan här och myser i ljuset.", null); return; }
+      if (this.state.sheepRevealed) { this.say("", "Fåret står redan här och myser i ljuset.", null, "narr-faret-star-redan-har-och"); return; }
       if (this.caveSound) this.caveSound.pause();
       this.openSheepGame();
       return;
     }
     if (defId === "briefcase" && target === "badger") {
-      if (this.state.badgerHappy) { this.say("", "Grävlingen har redan sin portfölj.", null); return; }
+      if (this.state.badgerHappy) { this.say("", "Grävlingen har redan sin portfölj.", null, "narr-gravlingen-har-redan-sin-portfolj"); return; }
       this.openBadgerGame();
       return;
     }
     if (defId === "camera" && target === "seal") {
-      if (this.state.sealHappy) { this.say("", "Sälen poserar redan för fullt.", null); return; }
+      if (this.state.sealHappy) { this.say("", "Sälen poserar redan för fullt.", null, "narr-salen-poserar-redan-for-fullt"); return; }
       this.openSealGame();
       return;
     }
     if (defId === "shard" && target === "gull") {
-      if (this.state.gullFreed) { this.say("", "Måsen är redan fri från linan.", null); return; }
+      if (this.state.gullFreed) { this.say("", "Måsen är redan fri från linan.", null, "narr-masen-ar-redan-fri-fran"); return; }
       this.openGullGame();
       return;
     }
     if (target === "snorkel") {
       if (defId === "helmet") {
         this.setState({ underwaterUnlocked: true });
-        this.say("", "Du kopplar dykhjälmen till snorkeln och sjunker ner under ytan...", null);
+        this.say("", "Du kopplar dykhjälmen till snorkeln och sjunker ner under ytan...", null, "narr-du-kopplar-dykhjalmen-till-snorkeln");
         this.scheduleGameAction(() => this.goScene("underwater"), 900);
         return;
       }
-      this.say("", "Det händer ingenting.", null);
+      this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting");
+      return;
+    }
+    if (defId === "map" && target === "sub") {
+      if (this.state.subHelped) { this.say("Kaptenen", "Alla tre vraken är prickade. Kartan är ett minne nu, inte ett uppdrag.", null); return; }
+      this.say(
+        "Kaptenen",
+        "Mjau. Tre vrak, ingen skala, ingen kompassros. Turligt nog har jag ett ekolod och du har ingenting bättre för dig. Det ger avstånd — aldrig riktning.",
+        { label: "Ta rodret", onClick: () => this.openSonarGame() }
+      );
       return;
     }
     if (target === "chest") {
@@ -1525,15 +1596,15 @@ class Component extends DCLogic {
         this.openChest();
         return;
       }
-      this.say("", "Det händer ingenting.", null);
+      this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting");
       return;
     }
-    this.say("", "Det händer ingenting.", null);
+    this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting");
   }
 
   repairOctopus(defId) {
     if (this.state.octoHealed) {
-      this.say("Bläckfisken", "Redan förstklassigt reparerad, min gode vän. Tentakel tre och fyra dansar nästan.", null);
+      this.say("Bläckfisken", "Redan förstklassigt reparerad, min gode vän. Tentakel tre och fyra dansar nästan.", null, "octo-already", "octo");
       return;
     }
     const otherId = defId === "driftwood" ? "fishline" : "driftwood";
@@ -1552,7 +1623,7 @@ class Component extends DCLogic {
     splintTargets: [0, 0],
     splintTolerance: 12,
     splintStep: 11,
-    anchorCount: 3,
+    anchorCount: 7,
     tensionBandMin: 60,
     tensionBandMax: 80,
     tensionRisePerSec: 70,
@@ -1580,6 +1651,10 @@ class Component extends DCLogic {
 
   openOctoGame() {
     this.teardownOctoGame();
+    clearInterval(this.octoCycle);
+    this.octoCycle = null;
+    clearTimeout(this.octoBlinkEnd);
+    if (this.octoVoice) this.octoVoice.pause();
     const cfg = this.octoGameConfig;
     this.setState({
       octoGameOpen: true,
@@ -1594,10 +1669,17 @@ class Component extends DCLogic {
       })),
       octoGameAnchors: Array(cfg.anchorCount).fill(false),
       octoRopeDragging: false,
+      octoRopePointer: null,
+      octoRopeTrail: [],
+      octoBandageDragging: false,
+      octoBandageLastAngle: null,
+      octoBandagePointer: null,
+      octoBandageTurns: 0,
       octoGameTension: 0,
       octoGameTensionHold: 0,
       octoGameHolding: false,
       octoGameDone: false,
+      octoFrame: "open",
     });
   }
 
@@ -1747,7 +1829,12 @@ class Component extends DCLogic {
   octoRopeStart(i, e) {
     if (this.state.octoGamePhase !== 2 || i !== 0) return;
     if (e && e.preventDefault) e.preventDefault();
-    this.setState({ octoRopeDragging: true, octoGameAnchors: [false, false, false] }, () => this.octoClickAnchor(0));
+    this.setState({
+      octoRopeDragging: true,
+      octoGameAnchors: Array(this.octoGameConfig.anchorCount).fill(false),
+      octoRopePointer: { x: 14, y: 50 },
+      octoRopeTrail: [{ x: 14, y: 50 }],
+    }, () => this.octoClickAnchor(0));
   }
 
   octoRopeEnter(i) {
@@ -1755,12 +1842,36 @@ class Component extends DCLogic {
     this.octoClickAnchor(i);
   }
 
+  octoRopeMove(e) {
+    if (!this.state.octoRopeDragging || this.state.octoGamePhase !== 2 || !e || !e.currentTarget) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const point = {
+      x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)),
+    };
+    const targets = this.octoRopeTargets();
+    const expected = this.state.octoGameAnchors.indexOf(false);
+    const target = targets[expected];
+    const trail = (this.state.octoRopeTrail || []).concat(point).slice(-48);
+    this.setState({ octoRopePointer: point, octoRopeTrail: trail });
+    if (target && Math.hypot(point.x - target.x, point.y - target.y) < 8) this.octoClickAnchor(expected);
+  }
+
+  octoRopeTargets() {
+    return [
+      { x: 14, y: 50 }, { x: 29, y: 24 }, { x: 40, y: 72 },
+      { x: 51, y: 27 }, { x: 62, y: 70 }, { x: 73, y: 24 }, { x: 86, y: 50 },
+    ];
+  }
+
   octoRopeEnd() {
     if (!this.state.octoRopeDragging) return;
     if (this.state.octoGamePhase === 2) {
       this.setState({
         octoRopeDragging: false,
-        octoGameAnchors: [false, false, false],
+        octoGameAnchors: Array(this.octoGameConfig.anchorCount).fill(false),
+        octoRopePointer: null,
+        octoRopeTrail: [],
         octoGameMsg: "Linan släpptes för tidigt — börja om vid START.",
         octoGameA11yStatus: "Linan släpptes för tidigt. Börja om vid start.",
       });
@@ -1778,6 +1889,52 @@ class Component extends DCLogic {
     e.preventDefault();
     if (i === 0 && !this.state.octoRopeDragging) this.setState({ octoRopeDragging: true }, () => this.octoClickAnchor(0));
     else this.octoRopeEnter(i);
+  }
+
+  octoBandageStart(e) {
+    if (this.state.octoGamePhase !== 3 || this.state.octoGameDone) return;
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.currentTarget && e.currentTarget.setPointerCapture && e.pointerId != null) {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    this.setState({ octoBandageDragging: true, octoBandageLastAngle: null });
+  }
+
+  octoBandageMove(e) {
+    if (!this.state.octoBandageDragging || this.state.octoGamePhase !== 3 || !e || !e.currentTarget) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    const dx = x - 0.5;
+    const dy = (y - 0.56) * (rect.height / rect.width);
+    const radius = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+    const tension = Math.max(0, Math.min(100, 76 - Math.abs(radius - 0.27) * 190));
+    let delta = 0;
+    if (this.state.octoBandageLastAngle != null) {
+      delta = angle - this.state.octoBandageLastAngle;
+      while (delta > Math.PI) delta -= Math.PI * 2;
+      while (delta < -Math.PI) delta += Math.PI * 2;
+    }
+    const controlled = tension >= 45 && tension <= 90 && Math.abs(delta) < 1.35;
+    const turns = Math.max(0, this.state.octoBandageTurns + (controlled ? Math.abs(delta) / (Math.PI * 2) : -0.012));
+    if (turns >= 3) {
+      this.setState({ octoGameTension: tension, octoBandageTurns: 3, octoBandageDragging: false });
+      this.octoGameComplete();
+      return;
+    }
+    this.setState({
+      octoBandageLastAngle: angle,
+      octoBandagePointer: { x: x * 100, y: y * 100 },
+      octoBandageTurns: turns,
+      octoGameTension: tension,
+      octoGameProgress: 75 + Math.min(25, Math.round((turns / 3) * 25)),
+      octoGameA11yStatus: controlled ? "Bandaget lindas med jämn spänning." : "Följ den gröna omloppsbanan jämnare.",
+    });
+  }
+
+  octoBandageEnd() {
+    if (this.state.octoBandageDragging) this.setState({ octoBandageDragging: false, octoBandageLastAngle: null });
   }
 
   octoTensionStart() {
@@ -1798,7 +1955,8 @@ class Component extends DCLogic {
     if (this.octoGameLastTs == null) this.octoGameLastTs = ts;
     const dt = Math.min(0.05, (ts - this.octoGameLastTs) / 1000);
     this.octoGameLastTs = ts;
-    if (this.state.octoGamePhase === 3 && !this.state.octoGameDone) {
+    if (this.state.octoGamePhase === 3 && !this.state.octoGameDone
+      && !this.state.octoBandageDragging && !(this.state.octoBandageTurns > 0)) {
       const cfg = this.octoGameConfig;
       let tension = this.state.octoGameTension;
       if (this.octoGameHoldingNow) tension += cfg.tensionRisePerSec * dt;
@@ -1828,6 +1986,7 @@ class Component extends DCLogic {
       octoGamePhase: newPhase,
       octoGameMsg: this.octoGameMsgs()[newPhase],
       octoGameA11yStatus: this.octoGameA11yForPhase(newPhase),
+      octoFrame: newPhase >= 1 ? "splinted" : "open",
     });
   }
 
@@ -1860,7 +2019,7 @@ class Component extends DCLogic {
         { duration: 750, easing: "ease-out" }
       );
     }
-    this.say("Bläckfisken", "Kära nån — en skena av drivved och ett bandage av fiskelina! Tentakel tre och fyra fungerar igen. Du har min eviga tacksamhet, min gode vän!", null);
+    this.say("Bläckfisken", "Kära nån — en skena av drivved och ett bandage av fiskelina! Tentakel tre och fyra fungerar igen. Du har min eviga tacksamhet, min gode vän!", null, "octo-healed", "octo");
     if (this._octoGameReturnFocus) {
       try { this._octoGameReturnFocus.focus({ preventScroll: true }); } catch (err) { this._octoGameReturnFocus.focus(); }
       this._octoGameReturnFocus = null;
@@ -1873,8 +2032,13 @@ class Component extends DCLogic {
   }
 
   openChest() {
-    if (this.state.chestOpen) { this.say("", "Kistan är redan öppen.", null); return; }
-    this.setState({ chestOpen: true });
+    if (this.state.chestOpen) { this.say("", "Kistan är redan öppen.", null, "narr-kistan-ar-redan-oppen"); return; }
+    this.setState((s) => ({
+      chestOpen: true,
+      inventory: s.inventory
+        .filter((item) => item.defId !== "key")
+        .concat([{ iid: "map-" + Date.now(), defId: "map" }]),
+    }));
     this.mapShouldFall = true;
     const lockSound = new Audio("assets/key-turning-in-lock.mp3");
     lockSound.volume = 0.85;
@@ -1890,22 +2054,22 @@ class Component extends DCLogic {
         { duration: 500, easing: "ease-out" }
       );
     }
-    this.say("", "Nyckeln passar! Locket knarrar upp och guld glittrar i mörkret.", null);
+    this.say("", "Nyckeln passar! Locket knarrar upp och guld glittrar i mörkret.", null, "narr-nyckeln-passar-locket-knarrar-upp");
   }
 
   chestClick(e) {
     e.stopPropagation();
     if (this.state.chestOpen) {
-      this.say("", "En gammal skattkista, fylld med guldmynt.", null);
+      this.say("", "En gammal skattkista, fylld med guldmynt.", null, "narr-en-gammal-skattkista-fylld-med");
     } else {
-      this.say("", "En låst skattkista ligger på havsbotten. Den behöver nog en nyckel.", null);
+      this.say("", "En låst skattkista ligger på havsbotten. Den behöver nog en nyckel.", null, "narr-en-last-skattkista-ligger-pa");
     }
   }
 
   badgerClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En grävling i slips sitter orörlig vid lägerelden.", null);
+      this.say("", "En grävling i slips sitter orörlig vid lägerelden.", null, "narr-en-gravling-i-slips-sitter");
       return;
     }
     this.discoverChar("badger");
@@ -1929,7 +2093,7 @@ class Component extends DCLogic {
     this.badgerVoice = new Audio(badgerClips[this.badgerVoiceIdx]);
     this.badgerVoice.volume = 0.85;
     this.badgerVoice.play().catch(() => {});
-    if (this.badgerVoiceIdx === 0) this.say("Grävlingen", "Tid är pengar, min vän. Klockan går, och affärer väntar inte.", null);
+    if (this.badgerVoiceIdx === 0) this.say("Grävlingen", "Tid är pengar, min vän. Klockan går, och affärer väntar inte.", null, "badger-greet", "badger");
     else this.say("Grävlingen", "(Grävlingen fortsätter tala affärer.)", null);
     this.badgerMouthLoop = this.lipSyncFor(this.badgerVoice, (open) => this.setState({ badgerFrame: open ? "open" : "closed" }), 130);
     this.badgerVoice.onended = () => {
@@ -2034,36 +2198,252 @@ class Component extends DCLogic {
     return this.shrimpNormalizeText(text).includes("greta thunberg");
   }
 
+  shrimpDetermineOutcome(text, step = this.state?.shrimpGameStep ?? 0) {
+    const currentStep = Number.isInteger(step) && step >= 0 ? step : 0;
+    const riddle = this.shrimpGameRiddles[Math.min(currentStep, this.shrimpGameRiddles.length - 1)];
+    if (this.shrimpMentionsGreta(text)) {
+      return {
+        kind: "win",
+        reason: "greta",
+        step: currentStep,
+        nextStep: this.shrimpGameRiddles.length,
+        riddle,
+        nextRiddle: null,
+      };
+    }
+    if (this.shrimpTextMatchesAnswer(text, riddle.answers)) {
+      const nextStep = currentStep + 1;
+      const nextRiddle = nextStep < this.shrimpGameRiddles.length ? this.shrimpGameRiddles[nextStep] : null;
+      return nextStep >= this.shrimpGameRiddles.length
+        ? {
+            kind: "win",
+            reason: "riddles",
+            step: currentStep,
+            nextStep,
+            riddle,
+            nextRiddle,
+          }
+        : {
+            kind: "advance",
+            step: currentStep,
+            nextStep,
+            riddle,
+            nextRiddle,
+            success: riddle.success,
+          };
+    }
+    return {
+      kind: "wrong",
+      step: currentStep,
+      nextStep: currentStep,
+      riddle,
+      nextRiddle: currentStep + 1 < this.shrimpGameRiddles.length ? this.shrimpGameRiddles[currentStep + 1] : null,
+    };
+  }
+
+  shrimpBuildFallbackReply(result) {
+    const riddle = result?.riddle || this.shrimpCurrentRiddle();
+    if (result?.kind === "wrong") {
+      const clue = typeof this.shrimpAdaptiveHint === "function" ? this.shrimpAdaptiveHint() : riddle.hint;
+      return `Mellan stenarna hör jag att du är nära. ${clue} Försök igen; vallgraven väntar tålmodigt.`;
+    }
+    if (result?.kind === "advance") {
+      const transition = [
+        "Bra där. Den första portstenen skälver.",
+        "Rätt igen. Saltvinden drar vidare genom valvet.",
+        "Så ja. Mörkret i portgången flyttar på sig.",
+      ][Math.min(Number.isInteger(result.step) ? result.step : 0, 2)];
+      return `${transition} ${riddle.success}${result.nextRiddle ? ` Nästa gåta: ${result.nextRiddle.prompt}` : ""}`;
+    }
+    if (result?.reason === "greta") {
+      return "Du sade det hemliga namnet. Räkan gör honnör och järnet ger vika.";
+    }
+    return "Tre rätt i rad. Porten gnisslar upp och räkan håller vakt i det öppna ljuset.";
+  }
+
+  shrimpSplitSentences(text) {
+    const cleaned = String(text ?? "").replace(/\s+/g, " ").trim();
+    if (!cleaned) return [];
+    if (typeof Intl !== "undefined" && typeof Intl.Segmenter === "function") {
+      try {
+        return [...new Intl.Segmenter("sv", { granularity: "sentence" }).segment(cleaned)]
+          .map((part) => part.segment.trim())
+          .filter(Boolean);
+      } catch (err) { /* ignored */ }
+    }
+    const sentences = [];
+    let start = 0;
+    for (let i = 0; i < cleaned.length; i += 1) {
+      if (!/[.!?…]/.test(cleaned[i])) continue;
+      let end = i + 1;
+      while (end < cleaned.length && /\s/.test(cleaned[end])) end += 1;
+      if (end < cleaned.length) {
+        const sentence = cleaned.slice(start, end).trim();
+        if (sentence) sentences.push(sentence);
+        start = end;
+        i = end - 1;
+      }
+    }
+    const remainder = cleaned.slice(start).trim();
+    if (remainder) sentences.push(remainder);
+    return sentences;
+  }
+
   shrimpSetStatus(message) {
     this.setState({ shrimpGameMsg: message, shrimpGameA11yStatus: message });
+  }
+
+  shrimpAdaptiveHint() {
+    const step = Number.isInteger(this.state?.shrimpGameStep) ? this.state.shrimpGameStep : 0;
+    const stages = this.shrimpGameHintStages[Math.min(step, this.shrimpGameHintStages.length - 1)] || [];
+    const attempts = Number.isInteger(this.state?.shrimpGameAttempts) && this.state.shrimpGameAttempts > 0
+      ? this.state.shrimpGameAttempts
+      : 0;
+    const level = Math.min(attempts, 2);
+    return stages[Math.min(level, stages.length - 1)] || this.shrimpCurrentRiddle().hint;
+  }
+
+  shrimpAppendConversationMessage(message) {
+    this.setState((s) => ({
+      shrimpGameMessages: [...(s.shrimpGameMessages || []), message],
+    }), () => this.shrimpScrollConversation());
+  }
+
+  shrimpUpdateConversationMessage(index, updater) {
+    this.setState((s) => {
+      const messages = [...(s.shrimpGameMessages || [])];
+      if (!messages[index]) return null;
+      const patch = typeof updater === "function" ? updater(messages[index]) : updater;
+      messages[index] = { ...messages[index], ...patch };
+      return { shrimpGameMessages: messages };
+    }, () => this.shrimpScrollConversation());
+  }
+
+  shrimpScrollConversation() {
+    requestAnimationFrame(() => {
+      if (this.shrimpConversationEl) this.shrimpConversationEl.scrollTop = this.shrimpConversationEl.scrollHeight;
+    });
+  }
+
+  shrimpConversationLabel(role) {
+    return role === "user" ? "Du" : "Vallgravsräkan";
+  }
+
+  shrimpInterruptSpeech() {
+    this.shrimpSpeechQueue = [];
+    this.shrimpSpeechBusy = false;
+    if (this.shrimpListeningRetryTimer) {
+      try { clearTimeout(this.shrimpListeningRetryTimer); } catch (err) { /* ignored */ }
+      this.shrimpListeningRetryTimer = null;
+    }
+    if (this.shrimpConversationAbort) {
+      try { this.shrimpConversationAbort.abort(); } catch (err) { /* ignored */ }
+      this.shrimpConversationAbort = null;
+    }
+    if (this.shrimpVoiceAudio) {
+      try {
+        this.shrimpVoiceAudio.pause();
+        this.shrimpVoiceAudio.currentTime = 0;
+      } catch (err) { /* ignored */ }
+    }
+    if (typeof this.shrimpVoiceAudioDone === "function") {
+      try { this.shrimpVoiceAudioDone(); } catch (err) { /* ignored */ }
+      this.shrimpVoiceAudioDone = null;
+    }
+    if (this.shrimpVoiceAudioUrl) {
+      try { URL.revokeObjectURL(this.shrimpVoiceAudioUrl); } catch (err) { /* ignored */ }
+      this.shrimpVoiceAudioUrl = null;
+    }
+    this.shrimpVoiceAudio = null;
+    if (typeof this.shrimpSpeechSynthesisDone === "function") {
+      try { this.shrimpSpeechSynthesisDone(); } catch (err) { /* ignored */ }
+      this.shrimpSpeechSynthesisDone = null;
+    }
+    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
   }
 
   openShrimpGame() {
     this.teardownShrimpGame();
     this.shrimpGameSession = (this.shrimpGameSession || 0) + 1;
-    const riddle = this.shrimpGameRiddles[0];
     const alreadyHelped = !!this.state.shrimpHelped;
+    const intro = alreadyHelped
+      ? "Du har redan hjälpt räkan. Porten står öppen, men hon kan fortfarande småprata."
+      : this.shrimpGameIntro;
     this.setState({
       shrimpGameOpen: true,
+      shrimpGameActive: false,
       shrimpGameStep: 0,
-      shrimpGameInput: "",
-      shrimpGameTranscript: "",
       shrimpGameListening: false,
       shrimpGameBusy: false,
       shrimpGameSolved: alreadyHelped,
-      shrimpGameMsg: alreadyHelped ? "Räkorna är redan nöjda. Du kan stänga rutan." : this.shrimpGameIntro,
-      shrimpGameA11yStatus: alreadyHelped ? "Räkorna är redan nöjda." : `Gåta 1 av ${this.shrimpGameRiddles.length}. ${riddle.prompt}`,
+      shrimpGameAttempts: 0,
+      shrimpGameMessages: [{ role: "assistant", text: intro, pending: false }],
+      shrimpGameMsg: intro,
+      shrimpGameA11yStatus: intro,
     });
+    void this.shrimpSpeak(intro);
     if (this.shrimpSound) this.shrimpSound.pause();
+  }
+
+  shrimpStartConversation() {
+    if (!this.state.shrimpGameOpen || this.state.shrimpGameSolved || this.state.shrimpGameActive) return;
+    this.setState({
+      shrimpGameActive: true,
+      shrimpGameMsg: "Startar samtal…",
+      shrimpGameA11yStatus: "Startar samtal.",
+    }, () => {
+      void this.shrimpStartRecording();
+    });
+  }
+
+  shrimpToggleConversation() {
+    if (this.state.shrimpGameActive) {
+      this.shrimpStopConversation();
+      return;
+    }
+    this.shrimpStartConversation();
+  }
+
+  shrimpStopConversation() {
+    this.teardownShrimpGame();
+    if (!this.state.shrimpGameOpen) return;
+    this.setState({
+      shrimpGameActive: false,
+      shrimpGameListening: false,
+      shrimpGameBusy: false,
+      shrimpGameMsg: "Samtalet stoppat.",
+      shrimpGameA11yStatus: "Samtalet stoppat.",
+    });
   }
 
   closeShrimpGame() {
     this.teardownShrimpGame();
-    this.setState({ shrimpGameOpen: false, shrimpGameListening: false, shrimpGameBusy: false });
+    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false });
   }
 
   teardownShrimpGame() {
     this.shrimpGameSession = (this.shrimpGameSession || 0) + 1;
+    this.shrimpInterruptSpeech();
+    if (this.shrimpListeningRetryTimer) {
+      try { clearTimeout(this.shrimpListeningRetryTimer); } catch (err) { /* ignored */ }
+      this.shrimpListeningRetryTimer = null;
+    }
+    if (this.shrimpVoiceActivityFrame) {
+      try { cancelAnimationFrame(this.shrimpVoiceActivityFrame); } catch (err) { /* ignored */ }
+      this.shrimpVoiceActivityFrame = null;
+    }
+    if (this.shrimpRecorderAudioContext) {
+      try { this.shrimpRecorderAudioContext.close(); } catch (err) { /* ignored */ }
+    }
+    if (this.shrimpRecorderSource) {
+      try { this.shrimpRecorderSource.disconnect(); } catch (err) { /* ignored */ }
+    }
+    if (this.shrimpRecorderAnalyser) {
+      try { this.shrimpRecorderAnalyser.disconnect(); } catch (err) { /* ignored */ }
+    }
+    this.shrimpRecorderAudioContext = null;
+    this.shrimpRecorderSource = null;
+    this.shrimpRecorderAnalyser = null;
     if (this.shrimpRecorder) {
       try {
         this.shrimpRecorder.ondataavailable = null;
@@ -2078,34 +2458,36 @@ class Component extends DCLogic {
     this.shrimpRecorderStream = null;
     this.shrimpRecorderChunks = [];
     this.shrimpRecordingMimeType = "";
-    if (this.shrimpVoiceAudio) {
+    this.shrimpRecorderVoiceSeen = false;
+    this.shrimpRecorderSilenceAt = 0;
+    this.shrimpRecorderRms = 0;
+    if (this.shrimpRecognition) {
       try {
-        this.shrimpVoiceAudio.pause();
-        this.shrimpVoiceAudio.currentTime = 0;
+        this.shrimpRecognition.onresult = null;
+        this.shrimpRecognition.onend = null;
+        this.shrimpRecognition.onerror = null;
+        this.shrimpRecognition.abort?.();
       } catch (err) { /* ignored */ }
     }
-    if (this.shrimpVoiceAudioUrl) {
-      try { URL.revokeObjectURL(this.shrimpVoiceAudioUrl); } catch (err) { /* ignored */ }
-    }
-    this.shrimpVoiceAudio = null;
-    this.shrimpVoiceAudioUrl = null;
-    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
+    this.shrimpRecognition = null;
+    this.shrimpRecognitionTranscript = "";
   }
 
-  async shrimpSpeak(text) {
+  async shrimpSpeak(text, options = {}) {
     const message = typeof text === "string" ? text.trim() : "";
+    if (!message) return Promise.resolve();
+    if (options.interrupt !== false) this.shrimpInterruptSpeech();
+    const sentences = this.shrimpSplitSentences(message);
+    if (!sentences.length) return Promise.resolve();
+    this.shrimpSpeechQueue = [...(this.shrimpSpeechQueue || []), ...sentences];
+    return this.shrimpDrainSpeechQueue();
+  }
+
+  async shrimpPlaySentence(sentence) {
+    const message = typeof sentence === "string" ? sentence.trim() : "";
     if (!message) return;
     const session = this.shrimpGameSession || 0;
-    if (this.shrimpVoiceAudio) {
-      try {
-        this.shrimpVoiceAudio.pause();
-        this.shrimpVoiceAudio.currentTime = 0;
-      } catch (err) { /* ignored */ }
-    }
-    if (this.shrimpVoiceAudioUrl) {
-      try { URL.revokeObjectURL(this.shrimpVoiceAudioUrl); } catch (err) { /* ignored */ }
-      this.shrimpVoiceAudioUrl = null;
-    }
+    let settleAudio = null;
     try {
       const response = await fetch("/api/shrimp/speak", {
         method: "POST",
@@ -2115,32 +2497,117 @@ class Component extends DCLogic {
       if (!response.ok) throw new Error("TTS misslyckades.");
       const bytes = await response.arrayBuffer();
       if ((this.shrimpGameSession || 0) !== session) return;
+      if (this.shrimpVoiceAudio) {
+        try { this.shrimpVoiceAudio.pause(); this.shrimpVoiceAudio.currentTime = 0; } catch (err) { /* ignored */ }
+      }
+      if (this.shrimpVoiceAudioUrl) {
+        try { URL.revokeObjectURL(this.shrimpVoiceAudioUrl); } catch (err) { /* ignored */ }
+      }
       const url = URL.createObjectURL(new Blob([bytes], { type: "audio/mpeg" }));
       this.shrimpVoiceAudioUrl = url;
       const audio = new Audio(url);
       this.shrimpVoiceAudio = audio;
-      audio.onended = () => {
-        if (this.shrimpVoiceAudioUrl === url) {
-          try { URL.revokeObjectURL(url); } catch (err) { /* ignored */ }
-          this.shrimpVoiceAudioUrl = null;
-        }
-      };
-      audio.onerror = () => {
-        if (this.shrimpVoiceAudioUrl === url) {
-          try { URL.revokeObjectURL(url); } catch (err) { /* ignored */ }
-          this.shrimpVoiceAudioUrl = null;
-        }
-      };
-      await audio.play();
-      return;
+      let settled = false;
+      const finished = new Promise((resolve) => {
+        settleAudio = () => {
+          if (settled) return;
+          settled = true;
+          if (this.shrimpVoiceAudioUrl === url) {
+            try { URL.revokeObjectURL(url); } catch (err) { /* ignored */ }
+            this.shrimpVoiceAudioUrl = null;
+          }
+          if (this.shrimpVoiceAudio === audio) this.shrimpVoiceAudio = null;
+          if (this.shrimpVoiceAudioDone === settleAudio) this.shrimpVoiceAudioDone = null;
+          resolve();
+        };
+        this.shrimpVoiceAudioDone = settleAudio;
+        audio.onended = settleAudio;
+        audio.onerror = settleAudio;
+      });
+      try {
+        await audio.play();
+        await finished;
+        return;
+      } catch (playError) {
+        if (typeof settleAudio === "function") settleAudio();
+        throw playError;
+      }
     } catch (err) {
       if (typeof window !== "undefined" && window.speechSynthesis && typeof window.SpeechSynthesisUtterance === "function") {
-        const utterance = new SpeechSynthesisUtterance(message);
-        utterance.lang = "sv-SE";
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
+        await new Promise((resolve) => {
+          const utterance = new SpeechSynthesisUtterance(message);
+          utterance.lang = "sv-SE";
+          let settled = false;
+          const cleanup = () => {
+            if (settled) return;
+            settled = true;
+            if (this.shrimpSpeechSynthesisDone === cleanup) this.shrimpSpeechSynthesisDone = null;
+            resolve();
+          };
+          this.shrimpSpeechSynthesisDone = cleanup;
+          utterance.onend = cleanup;
+          utterance.onerror = cleanup;
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utterance);
+        });
       }
     }
+  }
+
+  async shrimpDrainSpeechQueue() {
+    if (this.shrimpSpeechBusy) return;
+    this.shrimpSpeechBusy = true;
+    const session = this.shrimpGameSession || 0;
+    try {
+      while (this.shrimpSpeechQueue?.length && this.state.shrimpGameOpen && (this.shrimpGameSession || 0) === session) {
+        const sentence = this.shrimpSpeechQueue.shift();
+        await this.shrimpPlaySentence(sentence);
+      }
+    } finally {
+      this.shrimpSpeechBusy = false;
+      if ((this.shrimpGameSession || 0) === session && this.state.shrimpGameOpen && this.state.shrimpGameActive && !this.state.shrimpGameSolved) {
+        void this.shrimpMaybeResumeListening(0);
+      }
+    }
+  }
+
+  shrimpMaybeResumeListening(delay = 300) {
+    if (this.shrimpListeningRetryTimer) {
+      try { clearTimeout(this.shrimpListeningRetryTimer); } catch (err) { /* ignored */ }
+      this.shrimpListeningRetryTimer = null;
+    }
+    const session = this.shrimpGameSession || 0;
+    this.shrimpListeningRetryTimer = setTimeout(() => {
+      this.shrimpListeningRetryTimer = null;
+      if ((this.shrimpGameSession || 0) !== session) return;
+      if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameSolved || this.state.shrimpGameListening || this.state.shrimpGameBusy || this.shrimpSpeechBusy) return;
+      void this.shrimpStartRecording();
+    }, Math.max(0, delay));
+  }
+
+  shrimpFinalizeConversationTurn(result, assistantText, transcript, source = "voice", serverAttempts = null) {
+    const message = String(assistantText ?? "").trim();
+    const nextState = {
+      shrimpGameBusy: false,
+      shrimpGameListening: false,
+    };
+    if (Number.isInteger(serverAttempts)) {
+      nextState.shrimpGameAttempts = serverAttempts;
+    } else if (result?.kind === "wrong") {
+      nextState.shrimpGameAttempts = (this.state.shrimpGameAttempts || 0) + 1;
+    } else {
+      nextState.shrimpGameAttempts = 0;
+    }
+    if (result?.kind === "win") {
+      nextState.shrimpHelped = true;
+      nextState.shrimpGameSolved = true;
+      nextState.shrimpGameActive = false;
+      nextState.shrimpGameStep = this.shrimpGameRiddles.length;
+    } else if (result?.kind === "advance") {
+      nextState.shrimpGameStep = Math.min(result.nextStep ?? (this.state.shrimpGameStep + 1), this.shrimpGameRiddles.length - 1);
+    }
+    this.setState(nextState);
+    this.shrimpSetStatus(message || this.shrimpBuildFallbackReply(result));
   }
 
   async shrimpAdvanceRiddle(nextStep, reply) {
@@ -2148,8 +2615,6 @@ class Component extends DCLogic {
     const success = reply ? `${reply} Nästa gåta: ${nextRiddle.prompt}` : `Nästa gåta: ${nextRiddle.prompt}`;
     this.setState({
       shrimpGameStep: nextStep,
-      shrimpGameInput: "",
-      shrimpGameTranscript: "",
       shrimpGameListening: false,
       shrimpGameBusy: false,
     });
@@ -2163,6 +2628,7 @@ class Component extends DCLogic {
     this.setState({
       shrimpHelped: true,
       shrimpGameSolved: true,
+      shrimpGameActive: false,
       shrimpGameStep: this.shrimpGameRiddles.length,
       shrimpGameBusy: false,
       shrimpGameListening: false,
@@ -2171,42 +2637,91 @@ class Component extends DCLogic {
     await this.shrimpSpeak(message);
   }
 
-  async shrimpHandleAnswer(rawText, source = "text") {
+  async shrimpHandleAnswer(rawText, source = "voice") {
     const text = typeof rawText === "string" ? rawText.trim() : "";
     if (!text || !this.state.shrimpGameOpen || this.state.shrimpGameBusy || this.state.shrimpGameSolved) return;
-    this.setState({ shrimpGameBusy: true, shrimpGameListening: false });
-    const riddle = this.shrimpCurrentRiddle();
-    if (this.shrimpMentionsGreta(text)) {
-      await this.shrimpWin("Du sa det hemliga namnet.");
-      this.setState({ shrimpGameInput: text, shrimpGameTranscript: source === "voice" ? text : this.state.shrimpGameTranscript });
-      return;
-    }
-    if (this.shrimpTextMatchesAnswer(text, riddle.answers)) {
-      const nextStep = this.state.shrimpGameStep + 1;
-      const reply = riddle.success;
-      this.setState({ shrimpGameInput: text, shrimpGameTranscript: source === "voice" ? text : this.state.shrimpGameTranscript });
-      if (nextStep >= this.shrimpGameRiddles.length) {
-        await this.shrimpWin("Räkorna jublar. Du löste alla tre gåtor i rad.");
+    const session = this.shrimpGameSession || 0;
+    const currentStep = this.state.shrimpGameStep;
+    const outcomeFallback = this.shrimpDetermineOutcome(text, currentStep);
+    const messages = [...(this.state.shrimpGameMessages || []), { role: "user", text }];
+    const assistantIndex = messages.length;
+    const placeholder = { role: "assistant", text: "", pending: true };
+    const abortController = typeof AbortController === "function" ? new AbortController() : null;
+
+    this.shrimpInterruptSpeech();
+    this.shrimpConversationAbort = abortController;
+    this.setState({
+      shrimpGameMessages: [...messages, placeholder],
+      shrimpGameListening: false,
+      shrimpGameBusy: true,
+    }, () => this.shrimpScrollConversation());
+
+    let result = outcomeFallback;
+    let assistantText = "";
+    let hadStream = false;
+    let spokeSentence = false;
+    let serverAttempts = null;
+    try {
+      if (typeof window !== "undefined" && window.claude?.shrimpConverse) {
+        hadStream = true;
+        const done = await window.claude.shrimpConverse({
+          step: currentStep,
+          attempts: this.state.shrimpGameAttempts || 0,
+          messages,
+        }, {
+          signal: abortController ? abortController.signal : undefined,
+          onEvent: (event) => {
+            if ((this.shrimpGameSession || 0) !== session) return;
+            if (event?.type === "meta" && event.result) {
+              result = event.result;
+              if (Number.isInteger(event.attempts)) serverAttempts = event.attempts;
+            } else if (event?.type === "delta" && typeof event.text === "string") {
+              assistantText += event.text;
+              this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText, pending: true });
+            } else if (event?.type === "sentence" && typeof event.text === "string") {
+              spokeSentence = true;
+              void this.shrimpSpeak(event.text, { interrupt: false });
+            } else if (event?.type === "done") {
+              if (typeof event.text === "string" && event.text.trim()) assistantText = event.text;
+              if (event.result) result = event.result;
+            }
+          },
+        });
+        if (done?.result) result = done.result;
+        if (typeof done?.text === "string" && done.text.trim()) assistantText = done.text;
+      } else {
+        assistantText = this.shrimpBuildFallbackReply(result);
+      }
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        this.shrimpConversationAbort = null;
+        if (assistantText.trim()) {
+          this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText.trim(), pending: false });
+          this.shrimpSetStatus(assistantText.trim());
+        } else {
+          this.setState((s) => ({
+            shrimpGameMessages: (s.shrimpGameMessages || []).filter((_, index) => index !== assistantIndex),
+          }));
+        }
+        this.setState({ shrimpGameBusy: false, shrimpGameListening: false });
         return;
       }
-      await this.shrimpAdvanceRiddle(nextStep, reply);
-      return;
+      assistantText = this.shrimpBuildFallbackReply(outcomeFallback);
+      result = outcomeFallback;
     }
-    const message = `Nej. ${riddle.hint}`;
-    this.setState({
-      shrimpGameInput: text,
-      shrimpGameTranscript: source === "voice" ? text : this.state.shrimpGameTranscript,
-      shrimpGameListening: false,
-      shrimpGameBusy: false,
-    });
-    this.shrimpSetStatus(message);
-    void this.shrimpSpeak(message);
+
+    this.shrimpConversationAbort = null;
+    if ((this.shrimpGameSession || 0) !== session) return;
+    assistantText = String(assistantText || this.shrimpBuildFallbackReply(result)).trim();
+    this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText, pending: false });
+    if (!spokeSentence && assistantText) await this.shrimpSpeak(assistantText, { interrupt: false });
+    this.shrimpFinalizeConversationTurn(result, assistantText, text, source, serverAttempts);
   }
 
   shrimpClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.say("", "Sök havsskräp — en plastflaska behövs här.", null);
+    this.say("", "En flaska först, sedan talar jag i murarnas skugga.", null);
   }
 
   shrimpKeyDown(e) {
@@ -2229,6 +2744,12 @@ class Component extends DCLogic {
   }
 
   shrimpStopRecording() {
+    if (this.shrimpRecognition) {
+      try {
+        this.shrimpRecognition.stop();
+      } catch (err) { /* ignored */ }
+      return;
+    }
     const recorder = this.shrimpRecorder;
     if (!recorder || recorder.state === "inactive") return;
     try {
@@ -2237,9 +2758,72 @@ class Component extends DCLogic {
   }
 
   async shrimpStartRecording() {
-    if (!this.state.shrimpGameOpen || this.state.shrimpGameBusy || this.state.shrimpGameListening || this.state.shrimpGameSolved) return;
+    if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameBusy || this.state.shrimpGameListening || this.state.shrimpGameSolved) return;
+    if (this.shrimpSpeechBusy || this.shrimpVoiceAudio) return;
+    this.shrimpInterruptSpeech();
+    const SpeechRecognitionCtor = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (SpeechRecognitionCtor) {
+      try {
+        const recognition = new SpeechRecognitionCtor();
+        const session = this.shrimpGameSession || 0;
+        this.shrimpRecognition = recognition;
+        this.shrimpRecognitionTranscript = "";
+        recognition.lang = "sv-SE";
+        recognition.interimResults = true;
+        recognition.continuous = false;
+        recognition.maxAlternatives = 1;
+        this.setState({
+          shrimpGameListening: true,
+          shrimpGameMsg: "Lyssnar efter din röst…",
+          shrimpGameA11yStatus: "Lyssnar efter din röst.",
+        });
+        recognition.onresult = (event) => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          let transcript = "";
+          let sawFinal = false;
+          for (let i = event.resultIndex; i < event.results.length; i += 1) {
+            transcript += event.results[i][0]?.transcript || "";
+            if (event.results[i].isFinal) sawFinal = true;
+          }
+          transcript = transcript.trim();
+          if (transcript) this.shrimpRecognitionTranscript = transcript;
+          if (sawFinal && transcript) {
+            try { recognition.stop(); } catch (err) { /* ignored */ }
+          }
+        };
+        recognition.onerror = (event) => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          this.setState({ shrimpGameListening: false, shrimpGameBusy: false });
+          if (event?.error === "not-allowed" || event?.error === "service-not-allowed") {
+            this.setState({ shrimpGameActive: false });
+            this.shrimpSetStatus("Mikrofonåtkomst saknas.");
+            return;
+          }
+          this.shrimpSetStatus("Röstsamtalet tappade kontakten.");
+          this.shrimpMaybeResumeListening(400);
+        };
+        recognition.onend = async () => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          const transcript = this.shrimpRecognitionTranscript.trim();
+          this.shrimpRecognition = null;
+          this.shrimpRecognitionTranscript = "";
+          this.setState({ shrimpGameListening: false });
+          if (!transcript) {
+            this.shrimpSetStatus("Jag hörde ingen tydlig röst.");
+            this.shrimpMaybeResumeListening(400);
+            return;
+          }
+          await this.shrimpHandleAnswer(transcript, "voice");
+        };
+        recognition.start();
+        return;
+      } catch (error) {
+        this.shrimpRecognition = null;
+      }
+    }
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      this.shrimpSetStatus("Din webbläsare stödjer inte mikrofoninspelning. Skriv svaret i stället.");
+      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameActive: false });
+      this.shrimpSetStatus("Röstsamtal stöds inte i den här webbläsaren.");
       return;
     }
     try {
@@ -2258,9 +2842,46 @@ class Component extends DCLogic {
       this.shrimpRecordingMimeType = mimeType || recorder.mimeType || "audio/webm";
       this.setState({
         shrimpGameListening: true,
-        shrimpGameMsg: "Lyssnar efter ditt svar…",
-        shrimpGameA11yStatus: "Lyssnar efter ditt svar.",
+        shrimpGameMsg: "Lyssnar efter din röst…",
+        shrimpGameA11yStatus: "Lyssnar efter din röst.",
       });
+      const AudioContextCtor = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
+      if (AudioContextCtor) {
+        try {
+          const audioContext = new AudioContextCtor();
+          if (audioContext.state === "suspended") await audioContext.resume().catch(() => {});
+          const analyser = audioContext.createAnalyser();
+          analyser.fftSize = 2048;
+          const source = audioContext.createMediaStreamSource(stream);
+          source.connect(analyser);
+          this.shrimpRecorderAudioContext = audioContext;
+          this.shrimpRecorderSource = source;
+          this.shrimpRecorderAnalyser = analyser;
+          const samples = new Uint8Array(analyser.fftSize);
+          const sampleMonitor = () => {
+            if ((this.shrimpGameSession || 0) !== session || this.shrimpRecorder !== recorder) return;
+            analyser.getByteTimeDomainData(samples);
+            let sum = 0;
+            for (let i = 0; i < samples.length; i += 1) {
+              const centered = (samples[i] - 128) / 128;
+              sum += centered * centered;
+            }
+            const rms = Math.sqrt(sum / samples.length);
+            const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+            this.shrimpRecorderRms = rms;
+            if (rms > 0.03) {
+              this.shrimpRecorderVoiceSeen = true;
+              this.shrimpRecorderSilenceAt = now;
+              if (this.state.shrimpGameBusy) this.shrimpInterruptSpeech();
+            } else if (this.shrimpRecorderVoiceSeen && this.shrimpRecorderSilenceAt && now - this.shrimpRecorderSilenceAt > 900) {
+              this.shrimpStopRecording();
+              return;
+            }
+            this.shrimpVoiceActivityFrame = requestAnimationFrame(sampleMonitor);
+          };
+          this.shrimpVoiceActivityFrame = requestAnimationFrame(sampleMonitor);
+        } catch (err) { /* ignored */ }
+      }
       recorder.ondataavailable = (event) => {
         if (event.data && event.data.size) this.shrimpRecorderChunks.push(event.data);
       };
@@ -2268,6 +2889,25 @@ class Component extends DCLogic {
         const chunks = this.shrimpRecorderChunks.slice();
         this.shrimpRecorderChunks = [];
         this.shrimpRecorder = null;
+        this.shrimpRecorderVoiceSeen = false;
+        this.shrimpRecorderSilenceAt = 0;
+        this.shrimpRecorderRms = 0;
+        if (this.shrimpVoiceActivityFrame) {
+          try { cancelAnimationFrame(this.shrimpVoiceActivityFrame); } catch (err) { /* ignored */ }
+          this.shrimpVoiceActivityFrame = null;
+        }
+        if (this.shrimpRecorderSource) {
+          try { this.shrimpRecorderSource.disconnect(); } catch (err) { /* ignored */ }
+        }
+        if (this.shrimpRecorderAnalyser) {
+          try { this.shrimpRecorderAnalyser.disconnect(); } catch (err) { /* ignored */ }
+        }
+        if (this.shrimpRecorderAudioContext) {
+          try { this.shrimpRecorderAudioContext.close(); } catch (err) { /* ignored */ }
+        }
+        this.shrimpRecorderSource = null;
+        this.shrimpRecorderAnalyser = null;
+        this.shrimpRecorderAudioContext = null;
         if (this.shrimpRecorderStream) {
           try { this.shrimpRecorderStream.getTracks().forEach((track) => track.stop()); } catch (err) { /* ignored */ }
           this.shrimpRecorderStream = null;
@@ -2275,23 +2915,25 @@ class Component extends DCLogic {
         if ((this.shrimpGameSession || 0) !== session) return;
         this.setState({ shrimpGameListening: false });
         if (!chunks.length) {
-          this.shrimpSetStatus("Inspelningen var tom. Skriv svaret i stället.");
+          this.shrimpSetStatus("Jag hörde ingen tydlig röst.");
+          this.shrimpMaybeResumeListening(400);
           return;
         }
         const blob = new Blob(chunks, { type: this.shrimpRecordingMimeType || chunks[0].type || "audio/webm" });
-        this.setState({ shrimpGameBusy: true, shrimpGameMsg: "Tolkar inspelningen…", shrimpGameA11yStatus: "Tolkar inspelningen." });
+        this.setState({ shrimpGameBusy: true, shrimpGameMsg: "Tolkar rösten…", shrimpGameA11yStatus: "Tolkar rösten." });
         try {
           await this.shrimpTranscribeAudio(blob, session);
         } catch (error) {
           if ((this.shrimpGameSession || 0) !== session) return;
           this.setState({ shrimpGameBusy: false });
-          this.shrimpSetStatus("Mikrofonen kunde inte tolkas. Skriv svaret i stället.");
+          this.shrimpSetStatus("Röstsamtalet kunde inte tolkas.");
+          this.shrimpMaybeResumeListening(400);
         }
       };
       recorder.start();
     } catch (error) {
-      this.setState({ shrimpGameListening: false, shrimpGameBusy: false });
-      this.shrimpSetStatus("Mikrofonen kunde inte starta. Skriv svaret i stället.");
+      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameActive: false });
+      this.shrimpSetStatus("Mikrofonen kunde inte starta.");
     }
   }
 
@@ -2304,26 +2946,24 @@ class Component extends DCLogic {
         audioBase64: base64,
         mimeType: blob.type || "audio/webm",
         fileName: "shrimp-answer.webm",
-        keyterms: ["piano", "hål", "fel", "räkor"],
+        keyterms: ["piano", "hål", "fel", "räkor", "Greta Thunberg"],
       }),
     });
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
-      const message = typeof payload?.error?.message === "string" ? payload.error.message : "Mikrofonen kunde inte tolkas.";
+      const message = typeof payload?.error?.message === "string" ? payload.error.message : "Rösten kunde inte tolkas.";
       throw new Error(message);
     }
     const text = typeof payload?.text === "string" ? payload.text.trim() : "";
-    if (!text) throw new Error("Mikrofonen gav inget tydligt svar.");
+    if (!text) throw new Error("Rösten gav inget tydligt svar.");
     if ((this.shrimpGameSession || 0) !== session) return text;
-    this.setState({ shrimpGameTranscript: text, shrimpGameInput: text, shrimpGameBusy: false });
+    this.setState({ shrimpGameBusy: false });
     await this.shrimpHandleAnswer(text, "voice");
     return text;
   }
 
   async shrimpSubmitText() {
-    const text = this.state.shrimpGameInput.trim();
-    if (!text || this.state.shrimpGameBusy || this.state.shrimpGameSolved) return;
-    await this.shrimpHandleAnswer(text, "text");
+    return;
   }
 
   /* SHEEP_CONTRACT_START */
@@ -3949,7 +4589,7 @@ class Component extends DCLogic {
     this.setState((s) => ({
       inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: "flashlight-" + Date.now(), defId: "flashlight" }]),
     }));
-    this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null);
+    this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null, "badger-reward", "badger");
     if (this.badgerNode) {
       this.badgerNode.animate(
         [
@@ -3967,7 +4607,7 @@ class Component extends DCLogic {
   otterClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En utter i klänning, fast med en flaska på huvudet, vilar stilla.", null);
+      this.say("", "En utter i klänning, fast med en flaska på huvudet, vilar stilla.", null, "narr-en-utter-i-klanning-fast");
       return;
     }
     this.discoverChar("otter");
@@ -4006,13 +4646,350 @@ class Component extends DCLogic {
     this.subHoverSound.play().catch(() => {});
   }
 
+  // ---- Kapten Ne-Moes ekolod ------------------------------------------------
+  // Distance-only sonar: a ping reports how far the wreck is, never which way.
+  // Each ping draws a ring of that radius, so two or three rings intersect on
+  // the answer — the puzzle is read off the screen, not guessed. Everything is
+  // deterministic; the captain only supplies scorn.
+  sonarGrid = { cols: 9, rows: 7 };
+  sonarStage = { w: 780, h: 560 };
+  sonarColumns = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
+
+  sonarContract = {
+    rounds: [
+      { id: "slupen", label: "Slupen Vinga", target: { x: 5, y: 2 }, budget: 4 },
+      { id: "angaren", label: "Ångaren Nordkust", target: { x: 2, y: 5 }, budget: 4 },
+      { id: "ubaten", label: "Systerubåten U-9", target: { x: 6, y: 1 }, budget: 3 },
+    ],
+  };
+
+  sonarPings = [];
+  sonarCursor = { x: 4, y: 3 };
+  sonarMarking = false;
+
+  sonarRound() {
+    return this.sonarContract.rounds[this.state.sonarRound] || this.sonarContract.rounds[0];
+  }
+
+  sonarDistance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  sonarCellLabel(cell) {
+    return this.sonarColumns[cell.x] + (cell.y + 1);
+  }
+
+  // Distance bands only — a bearing would hand over the answer.
+  sonarEchoLine(distance) {
+    if (distance < 1.2) return "Under kölen, nästan. Håll den kursen.";
+    if (distance < 2.5) return "Nära. Jag hör det i skrovet.";
+    if (distance < 4) return "Något därute. Långt nog för att uttråka mig.";
+    return "Tomt vatten, styrman. Fullständigt tomt.";
+  }
+
+  sonarMatchesAll(cell, pings) {
+    return pings.every((ping) => Math.abs(this.sonarDistance(ping, cell) - ping.distance) < 0.001);
+  }
+
+  // Cells still consistent with every echo so far — drawn faintly so the
+  // player can see the search closing in.
+  sonarCandidates(pings) {
+    const candidates = [];
+    for (let y = 0; y < this.sonarGrid.rows; y++) {
+      for (let x = 0; x < this.sonarGrid.cols; x++) {
+        if (this.sonarMatchesAll({ x, y }, pings)) candidates.push({ x, y });
+      }
+    }
+    return candidates;
+  }
+
+  openSonarGame() {
+    this.teardownSonarGame();
+    this.sonarPings = [];
+    this.sonarCursor = { x: 4, y: 3 };
+    this.sonarMarking = false;
+    this._sonarKeyDown = (event) => this.handleSonarKeyDown(event);
+    window.addEventListener("keydown", this._sonarKeyDown);
+    this.setState({
+      sonarOpen: true,
+      sonarMsg: "\"Ekolodet ger avstånd. Inte riktning. Tänk, styrman.\"",
+      sonarPingCount: 0,
+      sonarMarkMode: false,
+    });
+  }
+
+  closeSonarGame() {
+    this.teardownSonarGame();
+    this.setState({ sonarOpen: false });
+  }
+
+  teardownSonarGame() {
+    this.sonarGeneration = (this.sonarGeneration || 0) + 1;
+    if (this._sonarKeyDown) {
+      window.removeEventListener("keydown", this._sonarKeyDown);
+      this._sonarKeyDown = null;
+    }
+    if (this.sonarRAF) { cancelAnimationFrame(this.sonarRAF); this.sonarRAF = null; }
+    this.sonarCanvasEl = null;
+    this.sonarCtx = null;
+  }
+
+  initSonarCanvas(element) {
+    if (!element || element === this.sonarCanvasEl) return;
+    this.sonarCanvasEl = element;
+    this.sonarCtx = element.getContext("2d");
+    this.startSonarLoop();
+    try { element.focus({ preventScroll: true }); } catch (err) { element.focus(); }
+  }
+
+  startSonarLoop() {
+    if (this.sonarRAF) cancelAnimationFrame(this.sonarRAF);
+    const generation = this.sonarGeneration || 0;
+    const step = () => {
+      if (!this.sonarCtx || !this.state.sonarOpen || (this.sonarGeneration || 0) !== generation) {
+        this.sonarRAF = null;
+        return;
+      }
+      this.drawSonar();
+      this.sonarRAF = requestAnimationFrame(step);
+    };
+    this.sonarRAF = requestAnimationFrame(step);
+  }
+
+  sonarCellRect(cell) {
+    const stage = this.sonarStage;
+    const pad = 46;
+    const cellW = (stage.w - pad * 2) / this.sonarGrid.cols;
+    const cellH = (stage.h - pad * 2) / this.sonarGrid.rows;
+    return { x: pad + cell.x * cellW, y: pad + cell.y * cellH, w: cellW, h: cellH, cx: pad + (cell.x + 0.5) * cellW, cy: pad + (cell.y + 0.5) * cellH, cellW, cellH };
+  }
+
+  sonarCellAt(event) {
+    const el = this.sonarCanvasEl;
+    if (!el) return null;
+    const bounds = el.getBoundingClientRect();
+    const px = (event.clientX - bounds.left) * (this.sonarStage.w / bounds.width);
+    const py = (event.clientY - bounds.top) * (this.sonarStage.h / bounds.height);
+    const pad = 46;
+    const cellW = (this.sonarStage.w - pad * 2) / this.sonarGrid.cols;
+    const cellH = (this.sonarStage.h - pad * 2) / this.sonarGrid.rows;
+    const x = Math.floor((px - pad) / cellW);
+    const y = Math.floor((py - pad) / cellH);
+    if (x < 0 || y < 0 || x >= this.sonarGrid.cols || y >= this.sonarGrid.rows) return null;
+    return { x, y };
+  }
+
+  handleSonarCanvasClick(event) {
+    const cell = this.sonarCellAt(event);
+    if (!cell) return;
+    event.preventDefault();
+    this.sonarCursor = cell;
+    if (this.sonarMarking) this.sonarMarkCell(cell);
+    else this.sonarPingCell(cell);
+  }
+
+  sonarPingCell(cell) {
+    if (this.sonarPings.some((ping) => ping.x === cell.x && ping.y === cell.y)) {
+      this.setState({ sonarMsg: "\"Vi har redan lyssnat där. Mjau.\"" });
+      return;
+    }
+    const distance = this.sonarDistance(cell, this.sonarRound().target);
+    this.sonarPings.push({ x: cell.x, y: cell.y, distance });
+    this.sfx("click");
+    this.setState({
+      sonarPingCount: this.sonarPings.length,
+      sonarMsg: "Ekolod " + this.sonarCellLabel(cell) + ": " + distance.toFixed(1) + " rutor. \"" + this.sonarEchoLine(distance) + "\"",
+    });
+  }
+
+  sonarMarkCell(cell) {
+    const round = this.sonarRound();
+    this.sonarMarking = false;
+    if (cell.x !== round.target.x || cell.y !== round.target.y) {
+      this.sonarPings.push({ x: cell.x, y: cell.y, distance: this.sonarDistance(cell, round.target), missed: true });
+      this.setState({
+        sonarMarkMode: false,
+        sonarPingCount: this.sonarPings.length,
+        sonarMsg: "\"Fel ruta. Sonden kostade oss ett lod, och mig min sista tålamodsdroppe.\"",
+      });
+      return;
+    }
+    this.sonarSolveRound();
+  }
+
+  sonarSolveRound() {
+    const round = this.sonarRound();
+    const pure = this.sonarPings.length <= round.budget;
+    const nextRound = this.state.sonarRound + 1;
+    const solved = this.state.sonarSolved.concat([{ id: round.id, label: round.label, pure }]);
+    this.sfx("confirm");
+
+    if (nextRound >= this.sonarContract.rounds.length) {
+      this.teardownSonarGame();
+      this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true });
+      this.subTalk();
+      this.say(
+        "Kaptenen",
+        "Tre vrak på en vakt. Du är fortfarande en styrman, men du är min styrman. Behöver du skjuts upp till ytan så säg till — jag ligger ändå bara här och rostar.",
+        null
+      );
+      return;
+    }
+    this.sonarPings = [];
+    this.sonarMarking = false;
+    this.setState({
+      sonarRound: nextRound,
+      sonarSolved: solved,
+      sonarPingCount: 0,
+      sonarMarkMode: false,
+      sonarMsg: (pure ? "\"Rent sjömanskap. Noterat.\"" : "\"Hittat. Långsamt, men hittat.\"") + " Nästa vrak: " + this.sonarContract.rounds[nextRound].label + ".",
+    });
+  }
+
+  sonarToggleMark() {
+    if (!this.sonarPings.length) {
+      this.setState({ sonarMsg: "\"Fäll ett lod först. Gissningar är för fritidsseglare.\"" });
+      return;
+    }
+    this.sonarMarking = !this.sonarMarking;
+    this.setState({ sonarMarkMode: this.sonarMarking, sonarMsg: this.sonarMarking ? "\"Peka ut vraket. Jag väntar.\"" : "Ekolodet är aktivt igen." });
+  }
+
+  handleSonarKeyDown(event) {
+    if (!this.state.sonarOpen) return;
+    if (event.key === "Escape") { event.preventDefault(); this.closeSonarGame(); return; }
+    if (event.key === "Tab" || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target && event.target.tagName)) return;
+    const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    const move = moves[event.key];
+    if (move) {
+      event.preventDefault();
+      this.sonarCursor = {
+        x: Math.max(0, Math.min(this.sonarGrid.cols - 1, this.sonarCursor.x + move[0])),
+        y: Math.max(0, Math.min(this.sonarGrid.rows - 1, this.sonarCursor.y + move[1])),
+      };
+      this.setState({ sonarMsg: "Roder på " + this.sonarCellLabel(this.sonarCursor) + "." });
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (this.sonarMarking) this.sonarMarkCell(this.sonarCursor);
+      else this.sonarPingCell(this.sonarCursor);
+      return;
+    }
+    if (event.key.toLowerCase() === "m") { event.preventDefault(); this.sonarToggleMark(); }
+  }
+
+  drawSonar() {
+    const ctx = this.sonarCtx;
+    if (!ctx) return;
+    const stage = this.sonarStage;
+    const time = performance.now() / 1000;
+
+    const water = ctx.createLinearGradient(0, 0, 0, stage.h);
+    water.addColorStop(0, "#05161b");
+    water.addColorStop(1, "#02090d");
+    ctx.fillStyle = water;
+    ctx.fillRect(0, 0, stage.w, stage.h);
+
+    const first = this.sonarCellRect({ x: 0, y: 0 });
+    const cellW = first.cellW;
+    const cellH = first.cellH;
+
+    ctx.save();
+    ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "rgba(120,220,190,0.5)";
+    ctx.textAlign = "center";
+    for (let x = 0; x < this.sonarGrid.cols; x++) {
+      ctx.fillText(this.sonarColumns[x], this.sonarCellRect({ x, y: 0 }).cx, 30);
+    }
+    ctx.textAlign = "right";
+    for (let y = 0; y < this.sonarGrid.rows; y++) {
+      ctx.fillText(String(y + 1), 36, this.sonarCellRect({ x: 0, y }).cy + 4);
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = "rgba(90,200,170,0.16)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= this.sonarGrid.cols; x++) {
+      const gx = this.sonarCellRect({ x: 0, y: 0 }).x + x * cellW;
+      ctx.beginPath(); ctx.moveTo(gx, 46); ctx.lineTo(gx, 46 + this.sonarGrid.rows * cellH); ctx.stroke();
+    }
+    for (let y = 0; y <= this.sonarGrid.rows; y++) {
+      const gy = this.sonarCellRect({ x: 0, y: 0 }).y + y * cellH;
+      ctx.beginPath(); ctx.moveTo(46, gy); ctx.lineTo(46 + this.sonarGrid.cols * cellW, gy); ctx.stroke();
+    }
+
+    const candidates = this.sonarPings.length ? this.sonarCandidates(this.sonarPings.filter((ping) => !ping.missed)) : [];
+    candidates.forEach((cell) => {
+      const rect = this.sonarCellRect(cell);
+      ctx.fillStyle = "rgba(120,240,200,0.14)";
+      ctx.fillRect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4);
+    });
+
+    this.sonarPings.forEach((ping, index) => {
+      const rect = this.sonarCellRect(ping);
+      const pulse = 0.45 + 0.2 * Math.sin(time * 1.6 + index);
+      ctx.save();
+      ctx.strokeStyle = ping.missed ? `rgba(240,140,120,${pulse})` : `rgba(120,240,200,${pulse})`;
+      ctx.lineWidth = ping.missed ? 1 : 1.6;
+      ctx.setLineDash(ping.missed ? [4, 4] : []);
+      ctx.beginPath();
+      ctx.ellipse(rect.cx, rect.cy, ping.distance * cellW, ping.distance * cellH, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = ping.missed ? "rgba(240,140,120,0.85)" : "rgba(150,250,215,0.9)";
+      ctx.beginPath();
+      ctx.arc(rect.cx, rect.cy, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = "10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(ping.distance.toFixed(1), rect.cx, rect.cy - 9);
+    });
+
+    const sweep = (time * 0.55) % (Math.PI * 2);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const centerX = stage.w / 2;
+    const centerY = stage.h / 2;
+    const beam = ctx.createLinearGradient(centerX, centerY, centerX + Math.cos(sweep) * stage.w, centerY + Math.sin(sweep) * stage.w);
+    beam.addColorStop(0, "rgba(120,240,200,0.10)");
+    beam.addColorStop(1, "rgba(120,240,200,0)");
+    ctx.strokeStyle = beam;
+    ctx.lineWidth = 26;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX + Math.cos(sweep) * stage.w, centerY + Math.sin(sweep) * stage.w);
+    ctx.stroke();
+    ctx.restore();
+
+    const cursor = this.sonarCellRect(this.sonarCursor);
+    ctx.strokeStyle = this.sonarMarking ? "rgba(255,205,120,0.95)" : "rgba(150,250,215,0.7)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash(this.sonarMarking ? [6, 4] : []);
+    ctx.strokeRect(cursor.x + 2, cursor.y + 2, cursor.w - 4, cursor.h - 4);
+    ctx.setLineDash([]);
+  }
+
   subClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "Ubåtskatten ligger och slumrar bakom rodret.", null);
+      this.say("", "Ubåtskatten ligger och slumrar bakom rodret.", null, "narr-ubatskatten-ligger-och-slumrar-bakom");
       return;
     }
     this.discoverChar("sub");
+    if (this.state.subHelped) {
+      this.say(
+        "Kaptenen",
+        "Vraken är prickade och kaffet är kallt. Ska du upp till ytan eller tänker du stå där och andas i min ubåt?",
+        { label: "Låt kaptenen skjutsa dig upp", onClick: () => this.goScene(this.state.returnScene || "center") }
+      );
+      return;
+    }
+    if (this.state.chestOpen && !this.state.sonarSolved.length) {
+      this.say("Kaptenen", "Du bär på ett sjökort och ser vilse ut. Visa det för mig i stället för att andas på mitt periskop.", null);
+      return;
+    }
     this.subClicking = true;
     this.setState({ subFrame: "roar" });
     if (this.subNode) {
@@ -4027,7 +5004,7 @@ class Component extends DCLogic {
         { duration: 600, easing: "ease-out" }
       );
     }
-    this.say("Ubåtskatten", "Mjaaau! Stör inte kaptenen under uppdrag!", null);
+    this.say("Ubåtskatten", "Mjaaau! Stör inte kaptenen under uppdrag!", null, "sub-disturbed", "sub");
     clearTimeout(this.subClickEnd);
     this.subClickEnd = setTimeout(() => {
       this.subClicking = false;
@@ -4038,11 +5015,11 @@ class Component extends DCLogic {
   snorkelClick(e) {
     e.stopPropagation();
     if (this.state.underwaterUnlocked) {
-      this.say("", "Du sjunker ner mot vraket igen...", null);
+      this.say("", "Du sjunker ner mot vraket igen...", null, "narr-du-sjunker-ner-mot-vraket");
       this.scheduleGameAction(() => this.goScene("underwater"), 700);
       return;
     }
-    this.say("", "En snorkel sticker upp ur vattnet längre ut. Något behöver kopplas till den för att andas där under.", null);
+    this.say("", "En snorkel sticker upp ur vattnet längre ut. Något behöver kopplas till den för att andas där under.", null, "narr-en-snorkel-sticker-upp-ur");
   }
 
   sealEnter() {
@@ -4070,7 +5047,7 @@ class Component extends DCLogic {
     e.stopPropagation();
     if (this.sealHoverSound) this.sealHoverSound.pause();
     if (this.state.moonState === "asleep") {
-      this.say("", "Sälen ligger och slumrar, cigaretten fortfarande i mungipan.", null);
+      this.say("", "Sälen ligger och slumrar, cigaretten fortfarande i mungipan.", null, "narr-salen-ligger-och-slumrar-cigaretten");
       return;
     }
     this.discoverChar("seal");
@@ -4091,7 +5068,7 @@ class Component extends DCLogic {
     }
     if (this.sealVoice) this.sealVoice.pause();
     if (this.sealMouthLoop) this.sealMouthLoop();
-    const clips = ["assets/seal-voice-1.mp3", "assets/seal-voice-2.mp3", "assets/seal-voice-3.mp3"];
+    const clips = ["assets/vo/seal-chat-1.mp3", "assets/vo/seal-chat-2.mp3", "assets/vo/seal-chat-3.mp3"];
     const lines = [
       "SKRÅVEL-bimbo-yaaa, lyssna här kompis, jag e' typ helt seriös, glimp-glimp-JA!",
       "Blipp-blorp majestätisk, jag e' faktiskt geniet här, hörru, flimflam-STARK!",
@@ -4503,7 +5480,7 @@ class Component extends DCLogic {
     this.setState((s) => ({
       inventory: s.inventory.concat([{ iid: ++this.uid, defId: "battery" }]),
     }));
-    this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null);
+    this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null, "seal-photo", "seal");
     if (this.sealNode && !this.sealGamePrefersReducedMotion()) {
       this.sealNode.animate(
         [
@@ -4527,7 +5504,7 @@ class Component extends DCLogic {
     const key = [a.defId, b.defId].sort().join("+");
     const result = this.recipes[key];
     if (!result) {
-      this.say("", "De där går inte ihop.", null);
+      this.say("", "De där går inte ihop.", null, "narr-de-dar-gar-inte-ihop");
       return;
     }
     this.setState((s) => ({
@@ -4648,7 +5625,7 @@ class Component extends DCLogic {
     this.setState({ moonOff: { x: 0, y: 0 }, moonDragging: false });
     if (!d.moved) {
       if (this.state.moonState === "asleep") {
-        this.say("", "Månen snarkar mjukt. Kanske en ordentlig skakning väcker den.", null);
+        this.say("", "Månen snarkar mjukt. Kanske en ordentlig skakning väcker den.", null, "narr-manen-snarkar-mjukt-kanske-en");
       } else {
         this.toggleChat();
       }
@@ -4678,7 +5655,7 @@ class Component extends DCLogic {
 
   playMoonAudio(audioName) {
     try {
-      const audio = new Audio("assets/" + audioName + ".mp3");
+      const audio = new Audio("assets/vo/" + audioName + ".mp3");
       audio.__channel = "sfx";
       audio.play();
       this.setState({ moonFrame: "talk" });
@@ -4723,7 +5700,7 @@ class Component extends DCLogic {
     if (withVoice) {
       if (this.moonLipStop) this.moonLipStop();
       if (this.voice) this.voice.pause();
-      this.voice = new Audio("assets/moon-talk.mp3?v=2");
+      this.voice = new Audio("assets/vo/moon-talk.mp3");
       this.voice.volume = 0.95;
       this.voice.onended = () => { if (this.moonLipStop) this.moonLipStop(); stopFlap(); };
       this.voice.play().then(() => {
@@ -4765,7 +5742,7 @@ class Component extends DCLogic {
   }
 
   octoEnter() {
-    if (this.octoCycle) return;
+    if (this.octoCycle || this.state.octoFrame === "splinted") return;
     // slow blink: eye closes briefly every ~1.4s
     const blinkOnce = () => {
       this.setState({ octoFrame: "blink" });
@@ -4776,7 +5753,7 @@ class Component extends DCLogic {
   }
 
   octoTranslate() {
-    this.say("Bläckfisken (kort sagt)", "Jag gick vilse, skadade tentaklerna och behöver din hjälp med nummer tre och fyra, min gode vän.", null);
+    this.say("Bläckfisken (kort sagt)", "Jag gick vilse, skadade tentaklerna och behöver din hjälp med nummer tre och fyra, min gode vän.", null, "octo-intro", "octo");
   }
 
   octoLeave() {
@@ -4784,7 +5761,9 @@ class Component extends DCLogic {
     this.octoCycle = null;
     clearTimeout(this.octoBlinkEnd);
     if (this.octoVoice) this.octoVoice.pause();
-    this.setState({ octoFrame: "open" });
+    if (!this.state.octoGameOpen && this.state.octoFrame !== "splinted") {
+      this.setState({ octoFrame: "open" });
+    }
   }
 
   paintTargets = [
@@ -4800,13 +5779,13 @@ class Component extends DCLogic {
   codClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En torsk med basker svävar stilla över sin tomma duk.", null);
+      this.say("", "En torsk med basker svävar stilla över sin tomma duk.", null, "narr-en-torsk-med-basker-svavar");
       return;
     }
     this.discoverChar("cod");
     this.codTalk();
     if (this.state.codDone) {
-      this.say("Torsken", "Min vän! Skolans stolthet! Kom tillbaka när du vill måla mer.", null);
+      this.say("Torsken", "Min vän! Skolans stolthet! Kom tillbaka när du vill måla mer.", null, "cod-return", "cod");
       return;
     }
     this.say(
@@ -4967,9 +5946,10 @@ class Component extends DCLogic {
 
   sheepTalk() {
     this.discoverChar("sheep");
-    if (!this.sheepVoice) this.sheepVoice = new Audio("assets/sheep.mp3");
-    this.sheepVoice.volume = 0.7;
-    this.sheepVoice.currentTime = 0;
+    this.sheepLineIdx = (this.sheepLineIdx == null) ? 0 : (this.sheepLineIdx + 1) % 3;
+    if (this.sheepVoice) { try { this.sheepVoice.pause(); } catch (err) { /* redan stoppad */ } }
+    this.sheepVoice = new Audio("assets/vo/sheep-chat-" + (this.sheepLineIdx + 1) + ".mp3");
+    this.sheepVoice.volume = 0.9;
     this.sheepVoice.play().catch(() => {});
     if (this.sheepFlapStop) this.sheepFlapStop();
     this.sheepFlapStop = this.lipSyncFor(this.sheepVoice, (open) => this.setState({ sheepFrame: open ? "open" : "closed" }), 150);
@@ -4978,7 +5958,6 @@ class Component extends DCLogic {
       "Vackert ljus... varmt ljus... nästan lika skönt som basgångarna i mina lurar. Bää.",
       "Fortfarande så ljust. Solglasögonen hjälper, men BÄÄ vilken lampa.",
     ];
-    this.sheepLineIdx = (this.sheepLineIdx == null) ? 0 : (this.sheepLineIdx + 1) % lines.length;
     this.say("Fåret", lines[this.sheepLineIdx], null);
   }
 
@@ -5102,7 +6081,7 @@ class Component extends DCLogic {
       if (nextIdx >= 5) {
         this.setState({ paintBusy: false, paintOpen: false, paintIdx: 0, codDone: true });
         this.codTalk();
-        this.say("Picasso", "Magnifikt! Du är härigenom antagen till min exklusiva konstakademi! Och vänta — jag hittade den här portföljen flytande i vattnet häromdagen. Ta den, en konstnär reser lätt!", null);
+        this.say("Picasso", "Magnifikt! Du är härigenom antagen till min exklusiva konstakademi! Och vänta — jag hittade den här portföljen flytande i vattnet häromdagen. Ta den, en konstnär reser lätt!", null, "cod-accepted", "cod");
         this.setState((s) => ({ inventory: [...s.inventory, { iid: "briefcase-" + Date.now(), defId: "briefcase" }] }));
       } else {
         this.clearPaintCanvas();
@@ -5116,7 +6095,7 @@ class Component extends DCLogic {
   octoClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En bläckfisk med hög hatt vilar bland stenarna, alldeles orörlig.", null);
+      this.say("", "En bläckfisk med hög hatt vilar bland stenarna, alldeles orörlig.", null, "narr-en-blackfisk-med-hog-hatt");
       return;
     }
     this.discoverChar("octo");
@@ -5288,6 +6267,8 @@ class Component extends DCLogic {
 
   openOtterAtelier() {
     this.teardownOtterAtelier();
+    this.teardownSonarGame();
+    this.sonarPings = [];
     this.atelierPlaced = [];
     this.atelierSelectedId = null;
     this.atelierHistory = [];
@@ -5966,7 +6947,7 @@ class Component extends DCLogic {
   gullClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En intrasslad mås. Den kastar en misstänksam blick men säger inget.", null);
+      this.say("", "En intrasslad mås. Den kastar en misstänksam blick men säger inget.", null, "narr-en-intrasslad-mas-den-kastar");
       return;
     }
     this.discoverChar("gull");
@@ -5982,7 +6963,7 @@ class Component extends DCLogic {
   }
 
   gullTranslate() {
-    this.say("Fiskmåsen (översatt)", "Krossa kapitalet! Kapitalism är organiserad brottslighet!", null);
+    this.say("Fiskmåsen (översatt)", "Krossa kapitalet! Kapitalism är organiserad brottslighet!", null, "gull-slogan", "gull");
   }
 
   gullGameConfig = {
@@ -6283,10 +7264,10 @@ class Component extends DCLogic {
         b.shadowEl.style.transform = `translate(-50%,-50%) scale(${1 - p * 0.72})`;
         b.shadowEl.style.opacity = String(0.45 + p * 0.4);
       }
-      if (b.poopEl) {
+      if (b.droppingsEl) {
         const fallLift = (1 - p) * 46;
-        b.poopEl.style.transform = `translate(-50%,-50%) translateY(-${fallLift.toFixed(1)}px) scale(${(0.35 + p * 0.85).toFixed(2)}) rotate(${(p * 70).toFixed(1)}deg)`;
-        b.poopEl.style.opacity = String(0.5 + p * 0.5);
+        b.droppingsEl.style.transform = `translate(-50%,-50%) translateY(-${fallLift.toFixed(1)}px) scale(${(0.35 + p * 0.85).toFixed(2)}) rotate(${(p * 70).toFixed(1)}deg)`;
+        b.droppingsEl.style.opacity = String(0.5 + p * 0.5);
       }
       if (!b.evaded && p > 0.55) {
         const edx = boat.x - b.x, edy = boat.y - b.y;
@@ -6330,10 +7311,14 @@ class Component extends DCLogic {
     const shadow = document.createElement("div");
     shadow.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:30px;height:14px;border-radius:50%;background:rgba(10,10,10,0.55);transform:translate(-50%,-50%);pointer-events:none;z-index:5`;
     stage.appendChild(shadow);
-    const poop = document.createElement("div");
-    poop.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:13px;height:17px;border-radius:50% 50% 50% 0;background:radial-gradient(circle at 35% 30%, #fffef8, #f2f0e4 55%, #d8d5c4);box-shadow:0 2px 3px rgba(0,0,0,0.35);pointer-events:none;z-index:8`;
-    stage.appendChild(poop);
-    this.gullBombs.push({ x, y, dropTs: now, shadowEl: shadow, poopEl: poop, evaded: false });
+    const droppings = document.createElement("img");
+    droppings.src = "assets/gull-droppings.png";
+    droppings.alt = "";
+    droppings.draggable = false;
+    droppings.setAttribute("aria-hidden", "true");
+    droppings.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:46px;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 2px 3px rgba(0,0,0,0.35));pointer-events:none;z-index:8`;
+    stage.appendChild(droppings);
+    this.gullBombs.push({ x, y, dropTs: now, shadowEl: shadow, droppingsEl: droppings, evaded: false });
     this.setState((s) => ({ gullGameBombs: Math.max(0, s.gullGameBombs - 1) }));
   }
 
@@ -6375,7 +7360,7 @@ class Component extends DCLogic {
 
   resolveGullBomb(b) {
     if (b.shadowEl) b.shadowEl.remove();
-    if (b.poopEl) b.poopEl.remove();
+    if (b.droppingsEl) b.droppingsEl.remove();
     const boat = this.gullBoat;
     const cfg = this.gullGameConfig;
     const ndx = (b.x - boat.x) / cfg.hitRx;
@@ -6438,7 +7423,7 @@ class Component extends DCLogic {
       gullFrame: "freed",
       inventory: [...s.inventory, { iid: "line-" + Date.now(), defId: "fishline" }],
     }));
-    this.say("Fiskmåsen", "Skrii...! Linan är av! Måsen skakar om fjädrarna och ser genast gladare ut. Du rullar ihop fiskelinan — den kan nog komma till nytta.", null);
+    this.say("Fiskmåsen", "Skrii...! Linan är av! Måsen skakar om fjädrarna och ser genast gladare ut. Du rullar ihop fiskelinan — den kan nog komma till nytta.", null, "gull-freed", "gull");
   }
 
   crabEnter() {
@@ -6495,17 +7480,17 @@ class Component extends DCLogic {
   crabClick(e) {
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
-      this.say("", "En hög med sjögräs. Den rör sig... lite.", null);
+      this.say("", "En hög med sjögräs. Den rör sig... lite.", null, "narr-en-hog-med-sjogras-den");
       return;
     }
     this.discoverChar("crab");
     if (this.state.crabFreed) {
-      this.crabSpeak("Puh! Tack igen, vännen. Havet känns mycket bättre utan sjögräs i munnen.");
+      this.crabSpeak("Puh! Tack igen, vännen. Havet känns mycket bättre utan sjögräs i munnen.", "assets/vo/crab-after.mp3");
       return;
     }
     if (this.state.crabWatered) {
       this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 });
-      this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null);
+      this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null, "narr-sjograset-ar-fortfarande-mjukt-av");
       return;
     }
     const hasBucket = this.state.inventory.some((it) => it.defId === "bucket");
@@ -6516,7 +7501,7 @@ class Component extends DCLogic {
         { label: "Kasta vattnet på krabban", onClick: () => this.throwWater() }
       );
     } else {
-      this.say("", "Något väser och skriker under sjögräshögen. Den verkar sitta fast. Kanske kan lite vatten skölja bort gräset?", null);
+      this.say("", "Något väser och skriker under sjögräshögen. Den verkar sitta fast. Kanske kan lite vatten skölja bort gräset?", null, "narr-nagot-vaser-och-skriker-under");
     }
   }
 
@@ -6536,7 +7521,7 @@ class Component extends DCLogic {
     this.setState({ crabWatered: true });
     // water loosens the seaweed — now scrub it off
     this.scheduleGameAction(() => this.setState({ scrubOpen: true, scrubPct: 0 }), 600);
-    this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null);
+    this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null, "narr-vattnet-mjukar-upp-sjograset-nu");
   }
 
   initScrubCanvas(el) {
@@ -6827,7 +7812,7 @@ class Component extends DCLogic {
   failScrub() {
     this.teardownScrubHeat();
     this.setState({ scrubOpen: false, scrubPct: 0, crabHeat: 0 });
-    this.crabSpeak("AJ! Nu blev det för hårt! Krabban har gömt sig djupare i sjögräset igen.", null);
+    this.crabSpeak("AJ! Nu blev det för hårt! Krabban har gömt sig djupare i sjögräset igen.", "assets/vo/crab-toohard.mp3");
   }
 
   finishScrub() {
@@ -6845,7 +7830,7 @@ class Component extends DCLogic {
         { duration: 700, easing: "ease-out" }
       );
     }
-    this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen! Här, ta den här biten som minne.", "assets/crab-thanks.mp3");
+    this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen! Här, ta den här biten som minne.", "assets/vo/crab-freed.mp3");
 
     // The bucket is spent now that the water actually did its job, and
     // the crab hands over a seaweed keepsake as a reward.
@@ -6981,8 +7966,62 @@ class Component extends DCLogic {
     }
   }
 
-  say(speaker, text, action) {
+  // Röstklipp ligger i assets/vo/ och läggs på karaktärens mun via lipSyncFor, samma väg som
+  // chattrösterna. Ett klipp som ännu inte är inspelat failar tyst, så spelet är fullt spelbart
+  // medan inläsningen pågår.
+  playVoice(voiceId, charId) {
+    if (!voiceId) return;
+    this.stopVoice();
+    const audio = new Audio("assets/vo/" + voiceId + ".mp3");
+    audio.__channel = "voice";
+    audio.volume = 0.95;
+    this._voAudio = audio;
+    this._voChar = charId || null;
+    audio.play().catch(() => this.stopVoice());
+    if (charId) this._voStop = this.lipSyncFor(audio, (open) => this.setCharMouth(charId, open), 140);
+  }
+
+  stopVoice() {
+    if (this._voStop) { this._voStop(); this._voStop = null; }
+    if (this._voAudio) { try { this._voAudio.pause(); } catch (err) { /* redan stoppad */ } this._voAudio = null; }
+    if (this._voChar) { this.setCharMouth(this._voChar, false); this._voChar = null; }
+  }
+
+  // Chattsvaren är AI-genererade och obegränsade, så de kan inte förinspelas. De talas i stället
+  // live genom serverns ElevenLabs-proxy, med karaktärens egen röst. Misslyckas det (ingen nyckel,
+  // ingen nät) faller vi tillbaka på den stumma munrörelsen som fanns innan.
+  async speakAs(charId, text) {
+    const line = typeof text === "string" ? text.trim().slice(0, 1000) : "";
+    if (!line) return false;
+    const generation = this.chatGeneration || 0;
+    this.stopVoice();
+    try {
+      const response = await fetch("/api/shrimp/speak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "audio/mpeg" },
+        body: JSON.stringify({ text: line, character: charId }),
+      });
+      if (!response.ok) return false;
+      const bytes = await response.arrayBuffer();
+      if ((this.chatGeneration || 0) !== generation) return false;
+      const url = URL.createObjectURL(new Blob([bytes], { type: "audio/mpeg" }));
+      const audio = new Audio(url);
+      audio.__channel = "voice";
+      audio.volume = 0.95;
+      audio.onended = () => { try { URL.revokeObjectURL(url); } catch (err) { /* ignorerad */ } };
+      this._voAudio = audio;
+      this._voChar = charId || null;
+      await audio.play();
+      if (charId) this._voStop = this.lipSyncFor(audio, (open) => this.setCharMouth(charId, open), 140);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  say(speaker, text, action, voiceId, charId) {
     clearInterval(this.typer);
+    this.playVoice(voiceId, charId);
     this.setState({ dialogSpeaker: speaker, dialogText: "", dialogAction: action || null });
     let i = 0;
     this.typer = setInterval(() => {
@@ -7022,6 +8061,7 @@ class Component extends DCLogic {
     if (this.badgerMouthLoop) this.badgerMouthLoop();
     if (this.codFlapStop) this.codFlapStop();
     if (this.sheepFlapStop) this.sheepFlapStop();
+    this.stopVoice();
     ["voice", "snore", "crabScreamAudio", "crabVoice", "crabHiss", "gullVoice", "gullHoverSound", "octoVoice", "sealVoice", "otterVoice", "badgerVoice", "sheepVoice", "caveSound", "shrimpSound", "shrimpVoiceAudio", "subHoverSound", "sealHoverSound", "snorkelHoverSound", "bottleSound", "sealCameraSound", "gullEngineSnd", "gullBombDropSnd", "gullSquawkSnd", "gullHornSnd", "gullLaughSnd"].forEach((key) => {
       if (this[key]) { this[key].pause(); this[key].currentTime = 0; }
     });
@@ -7132,6 +8172,13 @@ class Component extends DCLogic {
       atelierChecklist: [],
       atelierCanUndo: false,
       otterAtelierUnlocked: false,
+      sonarOpen: false,
+      sonarRound: 0,
+      sonarSolved: [],
+      sonarMsg: "",
+      sonarPingCount: 0,
+      sonarMarkMode: false,
+      subHelped: false,
       otterCoutureDone: false,
       otterLook: "",
       otterLookBox: null,
@@ -7262,7 +8309,7 @@ class Component extends DCLogic {
     });
 
     const slotBase =
-      "width:116px;height:116px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 6px 6px;border-radius:14px;border:1px solid oklch(0.55 0.05 72 / 0.55);background:linear-gradient(180deg, oklch(0.24 0.02 62 / 0.9), oklch(0.18 0.016 60 / 0.9));box-shadow:inset 0 1px 0 oklch(0.5 0.04 75 / 0.4), inset 0 -6px 12px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.4);transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;touch-action:none";
+      "width:96px;height:96px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 6px 6px;border-radius:14px;border:1px solid oklch(0.55 0.05 72 / 0.55);background:linear-gradient(180deg, oklch(0.24 0.02 62 / 0.9), oklch(0.18 0.016 60 / 0.9));box-shadow:inset 0 1px 0 oklch(0.5 0.04 75 / 0.4), inset 0 -6px 12px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.4);transition:transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;touch-action:none";
     const inventory = S.inventory.map((it) => {
       const def = this.defs[it.defId];
       const zoom = this.invZoom[it.defId] || 1;
@@ -7405,7 +8452,7 @@ class Component extends DCLogic {
       chestWrapStyle: `position:absolute;left:${50 + this.posFor("chest").ox}%;top:${86 + this.posFor("chest").oy}%;width:${26 * this.posFor("chest").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
       caveEnter: () => {
         if (this.state.sheepRevealed) return;
-        if (!this.caveSound) { this.caveSound = new Audio("assets/sheep.mp3"); }
+        if (!this.caveSound) { this.caveSound = new Audio("assets/cave-ambience.mp3"); this.caveSound.loop = true; }
         this.caveSound.volume = 0.5;
         this.caveSound.currentTime = 0;
         this.caveSound.play().catch(() => {});
@@ -7485,26 +8532,33 @@ class Component extends DCLogic {
       shrimpGameStep: S.shrimpGameStep,
       shrimpGameTotal: this.shrimpGameRiddles.length,
       shrimpGamePrompt: this.shrimpCurrentRiddle().prompt,
-      shrimpGameHint: this.shrimpCurrentRiddle().hint,
+      shrimpGameHint: this.shrimpAdaptiveHint(),
       shrimpGameMsg: S.shrimpGameMsg,
       shrimpGameA11yStatus: S.shrimpGameA11yStatus || S.shrimpGameMsg,
-      shrimpGameInput: S.shrimpGameInput,
-      shrimpGameTranscript: S.shrimpGameTranscript,
+      shrimpGameActive: S.shrimpGameActive,
       shrimpGameListening: S.shrimpGameListening,
       shrimpGameBusy: S.shrimpGameBusy,
       shrimpGameSolved: S.shrimpGameSolved,
-      shrimpGameSubmitDisabled: !S.shrimpGameInput.trim() || S.shrimpGameBusy || S.shrimpGameSolved,
-      shrimpGameRecordLabel: S.shrimpGameSolved ? "Redan löst" : (S.shrimpGameListening ? "Stoppa inspelningen" : "Spela in svar"),
-      shrimpGameSpeakLabel: S.shrimpGameSolved ? "Redan löst" : (S.shrimpGameBusy ? "Vänta..." : "Lyssna på frågan"),
-      shrimpGameRecordDisabled: S.shrimpGameSolved || S.shrimpGameBusy,
-      shrimpGameSpeakDisabled: S.shrimpGameSolved || S.shrimpGameBusy,
-      shrimpGameProgressPct: Math.round((S.shrimpGameStep / this.shrimpGameRiddles.length) * 100),
+      shrimpGameVoiceState: S.shrimpGameSolved
+        ? "Räkan har redan öppnat porten."
+        : S.shrimpGameActive
+          ? (S.shrimpGameListening ? "Lyssnar efter din röst." : S.shrimpGameBusy ? "Räkan svarar." : "Samtalet är igång.")
+          : "Klicka Starta samtal när du är redo.",
+      shrimpGameToggleLabel: S.shrimpGameSolved ? "Redan löst" : (S.shrimpGameActive ? "Stoppa samtal" : "Starta samtal"),
+      shrimpGameToggleDisabled: S.shrimpGameSolved,
+      shrimpGameMessages: (S.shrimpGameMessages || []).map((m) => ({
+        text: m.text,
+        label: this.shrimpConversationLabel(m.role),
+        pending: !!m.pending,
+        style: m.role === "user"
+          ? `align-self:flex-end;max-width:88%;background:oklch(0.34 0.06 90 / 0.9);border:1px solid oklch(0.5 0.06 90 / 0.5);color:oklch(0.95 0.02 90);border-radius:12px 12px 3px 12px;padding:10px 12px;${m.pending ? "opacity:0.92" : ""}`
+          : `align-self:flex-start;max-width:88%;background:oklch(0.24 0.016 60);border:1px solid oklch(0.4 0.02 60 / 0.6);color:oklch(0.92 0.012 80);border-radius:12px 12px 12px 3px;padding:10px 12px;${m.pending ? "opacity:0.92" : ""}`,
+      })),
+      shrimpGameRiddleNumber: Math.min((S.shrimpGameStep || 0) + 1, this.shrimpGameRiddles.length),
+      shrimpGameToggle: () => this.shrimpToggleConversation(),
       shrimpGameClose: () => this.closeShrimpGame(),
-      shrimpGameSubmit: () => this.shrimpSubmitText(),
-      shrimpGameRecord: () => (S.shrimpGameListening ? this.shrimpStopRecording() : this.shrimpStartRecording()),
-      shrimpGameReplay: () => this.shrimpSpeak(this.shrimpCurrentRiddle().prompt),
-      shrimpGameInputChange: (e) => this.setState({ shrimpGameInput: e.target.value, shrimpGameTranscript: e.target.value }),
-      shrimpGameInputKeyDown: (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.shrimpSubmitText(); } },
+      shrimpClick: (e) => this.shrimpClick(e),
+      shrimpKeyDown: (e) => this.shrimpKeyDown(e),
       shrimpEnter: () => {
         if (this.state.moonState !== "asleep") this.discoverChar("shrimp");
         if (!this.shrimpSound) { this.shrimpSound = new Audio("assets/shrimp-protest.mp3?v=2"); this.shrimpSound.loop = true; }
@@ -7612,6 +8666,28 @@ class Component extends DCLogic {
       atelierGrow: () => this.atelierTransformSelected({ scale: 0.1 }),
       atelierShrink: () => this.atelierTransformSelected({ scale: -0.1 }),
       atelierControlStyle: "font-family:'Work Sans',sans-serif;font-size:12px;padding:6px 11px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:oklch(0.22 0.025 65 / 0.7);color:oklch(0.88 0.03 82);cursor:pointer",
+      sonarOpen: S.sonarOpen,
+      sonarProgress: Math.min(S.sonarRound + 1, this.sonarContract.rounds.length),
+      sonarTarget: this.sonarContract.rounds[S.sonarRound] ? this.sonarContract.rounds[S.sonarRound].label : "",
+      sonarBudget: this.sonarContract.rounds[S.sonarRound] ? this.sonarContract.rounds[S.sonarRound].budget + " lod" : "",
+      sonarMsg: S.sonarMsg,
+      sonarPingCount: S.sonarPingCount,
+      sonarMarkMode: S.sonarMarkMode,
+      sonarMarkLabel: S.sonarMarkMode ? "Pekar ut vraket…" : "Peka ut vraket (M)",
+      sonarMarkStyle: `font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;border:none;border-radius:9px;padding:8px 18px;cursor:pointer;color:${S.sonarMarkMode ? "oklch(0.18 0.02 70)" : "oklch(0.92 0.05 185)"};background:${S.sonarMarkMode ? "oklch(0.84 0.14 82)" : "oklch(0.3 0.06 190 / 0.8)"}`,
+      sonarClose: () => this.closeSonarGame(),
+      setSonarCanvas: (el) => this.initSonarCanvas(el),
+      sonarCanvasClick: (e) => this.handleSonarCanvasClick(e),
+      sonarToggleMarkAction: () => this.sonarToggleMark(),
+      sonarWreckChips: this.sonarContract.rounds.map((round, index) => {
+        const solved = S.sonarSolved.find((entry) => entry.id === round.id);
+        const active = index === S.sonarRound && !solved;
+        return {
+          label: round.label,
+          mark: solved ? (solved.pure ? "★" : "✓") : (active ? "◉" : "○"),
+          style: `font-family:'Work Sans',sans-serif;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid ${solved ? "oklch(0.7 0.13 165 / 0.5)" : "oklch(0.45 0.04 190 / 0.4)"};background:${solved ? "oklch(0.32 0.08 170 / 0.35)" : (active ? "oklch(0.28 0.05 190 / 0.5)" : "transparent")};color:${solved ? "oklch(0.9 0.12 165)" : "oklch(0.76 0.03 185)"}`,
+        };
+      }),
       atelierTheme: this.atelierBriefs[S.atelierRound] ? this.atelierBriefs[S.atelierRound].theme : "",
       atelierHelpOpen: S.atelierHelpOpen,
       atelierHelpToggle: () => this.setState({ atelierHelpOpen: !S.atelierHelpOpen }),
@@ -7678,6 +8754,13 @@ class Component extends DCLogic {
       octoTensionStop: () => this.octoTensionStop(),
       octoTensionBtnLabel: S.octoGameHolding ? "Håller..." : "Håll",
       octoTensionBtnBg: S.octoGameHolding ? "oklch(0.7 0.14 145)" : "oklch(0.6 0.1 145 / 0.6)",
+      octoPatientStyle: "position:absolute;left:50%;top:51%;width:min(76%,340px);height:auto;transform:translate(-50%,-50%) " + (S.octoRopeDragging || S.octoBandageDragging ? "rotate(-1.5deg) scale(1.025)" : "rotate(0) scale(1)") + ";filter:drop-shadow(0 18px 18px rgba(0,0,0,.7)) " + ((S.octoGameTension || 0) > 90 ? "saturate(1.5)" : "") + ";pointer-events:none;transition:transform .18s ease,filter .18s ease",
+      octoPatientSrc: S.octoFrame === "splinted" ? "assets/octo-splinted.png" : "assets/octo-open.png",
+      octoReactionText: S.octoGamePhase === 2
+        ? (S.octoRopeDragging ? "HÅLL KURSEN, MIN GODE VÄN!" : "REDO FÖR FISKELINAN")
+        : S.octoGamePhase === 3
+          ? ((S.octoGameTension || 0) < 45 ? "LITE NÄRMARE…" : (S.octoGameTension || 0) > 90 ? "FÖR HÅRT!" : "UTMÄRKT SPÄNNING!")
+          : "PATIENTEN ÄR VID GOTT MOD",
       octoTentacleChips: [0, 1, 2, 3].map((idx) => {
         const selected = !!(S.octoGameTentacles && S.octoGameTentacles[idx]);
         const valid = idx === 2 || idx === 3;
@@ -7702,32 +8785,43 @@ class Component extends DCLogic {
           rotateRightAria: "Vrid skena " + (i + 1) + " medurs",
         };
       }),
-      octoRopeWraps: [
-        { left: 20, top: 22, rot: -18 },
-        { left: 43, top: 48, rot: 8 },
-        { left: 66, top: 22, rot: 18 },
-      ].slice(0, (S.octoGameAnchors || []).filter(Boolean).length).map((wrap) => ({
-        style: "position:absolute;left:" + wrap.left + "%;top:" + wrap.top + "%;width:16%;height:58%;border:3px solid #ead69d;border-left-color:rgba(234,214,157,.28);border-radius:50%;transform:rotate(" + wrap.rot + "deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.8));pointer-events:none;z-index:3",
+      octoRopeSegments: (S.octoRopeTrail || []).slice(1).map((point, i) => {
+        const previous = S.octoRopeTrail[i];
+        const dx = point.x - previous.x;
+        const dy = point.y - previous.y;
+        return {
+          style: "position:absolute;left:" + previous.x + "%;top:" + previous.y + "%;width:" + Math.hypot(dx, dy) + "%;height:4px;border-radius:4px;transform-origin:0 50%;transform:rotate(" + Math.atan2(dy, dx) * 180 / Math.PI + "deg);background:linear-gradient(#fff4c9,#c7ae75);box-shadow:0 1px 2px #000,0 0 5px rgba(234,214,157,.7);pointer-events:none;z-index:5",
+        };
+      }),
+      octoCompletedRopeWraps: Array.from({ length: Math.floor(((S.octoGameAnchors || []).filter(Boolean).length) / 2) }, (_, i) => ({
+        style: "position:absolute;left:" + (25 + i * 20) + "%;top:" + (22 + (i % 2) * 18) + "%;width:18%;height:58%;border:4px solid #ead69d;border-left-color:rgba(234,214,157,.22);border-radius:50%;transform:rotate(" + (-14 + i * 14) + "deg);filter:drop-shadow(0 2px 2px #000);pointer-events:none;z-index:" + (i % 2 ? 1 : 3),
       })),
-      octoRopeStatus: S.octoRopeDragging ? "LINAN FÖLJER MUSEN" : "STARTA HÄR OCH HÅLL NERE",
+      octoRopeStatus: S.octoRopeDragging ? "JAGA NÄSTA RING • " + (S.octoGameAnchors || []).filter(Boolean).length + "/7" : "STARTA HÄR OCH HÅLL NERE",
+      octoRopeMove: (e) => this.octoRopeMove(e),
       octoRopeEnd: () => this.octoRopeEnd(),
       octoRopeLeave: () => this.octoRopeLeave(),
-      octoAnchorChips: [
-        { x: 26, y: 32, label: "START" },
-        { x: 50, y: 68, label: "2" },
-        { x: 74, y: 32, label: "3" },
-      ].map((point, i) => {
+      octoAnchorChips: this.octoRopeTargets().map((point, i) => {
         const done = !!(S.octoGameAnchors && S.octoGameAnchors[i]);
         return {
-          label: done ? "✓" : point.label,
+          label: done ? "✓" : (i === 0 ? "START" : String(i + 1)),
           done: done ? "true" : "false",
           aria: "Lindningspunkt " + (i + 1) + (done ? " passerad" : ". Dra fiskelinan hit."),
           start: (e) => this.octoRopeStart(i, e),
           enter: () => this.octoRopeEnter(i),
           keyDown: (e) => this.octoRopeKey(i, e),
-          style: "position:absolute;left:" + point.x + "%;top:" + point.y + "%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:" + (i === 0 ? 58 : 42) + "px;height:42px;border-radius:50%;border:2px solid " + (done ? "#78c894" : "#d7bd7d") + ";background:" + (done ? "#214b3b" : "#142526") + ";box-shadow:0 0 0 5px rgba(8,18,19,.7),0 4px 12px rgba(0,0,0,.6);color:#f5e7bd;font:700 " + (i === 0 ? 9 : 14) + "px 'JetBrains Mono',monospace;letter-spacing:.05em;cursor:crosshair;z-index:4",
+          style: "position:absolute;left:" + point.x + "%;top:" + point.y + "%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;width:" + (i === 0 ? 58 : 34) + "px;height:34px;border-radius:50%;border:2px solid " + (done ? "#78c894" : "#d7bd7d") + ";background:" + (done ? "#214b3b" : "#142526") + ";box-shadow:0 0 0 5px rgba(8,18,19,.7),0 0 16px " + (done ? "transparent" : "rgba(215,189,125,.65)") + ";color:#f5e7bd;font:700 " + (i === 0 ? 9 : 12) + "px 'JetBrains Mono',monospace;cursor:crosshair;z-index:4;transition:all .12s",
         };
       }),
+      octoBandageStart: (e) => this.octoBandageStart(e),
+      octoBandageMove: (e) => this.octoBandageMove(e),
+      octoBandageEnd: () => this.octoBandageEnd(),
+      octoBandageStatus: "VARV " + Math.min(3, Math.floor(S.octoBandageTurns || 0)) + "/3 • SPÄNNING " + Math.round(S.octoGameTension || 0) + "%",
+      octoBandageRings: Array.from({ length: Math.ceil((S.octoBandageTurns || 0) * 5) }, (_, i) => ({
+        style: "position:absolute;left:" + (28 + i * 2.9) + "%;top:" + (29 + (i % 2) * 2) + "%;width:17%;height:56%;border:6px solid " + ((S.octoGameTension || 0) < 45 ? "#b58b78" : "#ece1c1") + ";border-left-color:rgba(236,225,193,.45);border-radius:50%;transform:rotate(" + (-16 + i * 4) + "deg);box-shadow:0 3px 5px rgba(0,0,0,.45);pointer-events:none;z-index:" + (3 + i),
+      })),
+      octoBandagePointerStyle: S.octoBandagePointer
+        ? "position:absolute;left:" + S.octoBandagePointer.x + "%;top:" + S.octoBandagePointer.y + "%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:#f7edcf;box-shadow:0 0 0 5px rgba(102,182,127,.28),0 2px 6px #000;pointer-events:none;z-index:30"
+        : "display:none",
       gullSrc: "assets/gull-" + S.gullFrame + ".png",
       gullEnter: () => this.gullEnter(),
       gullLeave: () => this.gullLeave(),

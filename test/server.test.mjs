@@ -4,7 +4,13 @@ import { afterEach, test } from "node:test";
 
 import {
   MAX_BODY_BYTES,
+  SHRIMP_RIDDLES,
   buildOpenRouterRequest,
+  buildShrimpAdaptiveHint,
+  buildShrimpFallbackReply,
+  buildShrimpSystemPrompt,
+  classifyShrimpAnswer,
+  shrimpHintLevel,
   convertAnthropicMessages,
   createAdventureServer,
   extractCompletionContent,
@@ -33,6 +39,14 @@ function successfulUpstream(content = "Ahoy!") {
   }), {
     status: 200,
     headers: { "content-type": "application/json" },
+  });
+}
+
+function streamingUpstream(chunks) {
+  const body = chunks.join("");
+  return async () => new Response(body, {
+    status: 200,
+    headers: { "content-type": "text/event-stream" },
   });
 }
 
@@ -222,6 +236,13 @@ test("default chat and vision routes use OpenRouter's stable latest alias", () =
 
   assert.equal(chat.model, "~google/gemini-flash-latest");
   assert.equal(vision.model, "~google/gemini-flash-latest");
+});
+
+test("shrimp answers resolve deterministically before any model call", () => {
+  assert.equal(classifyShrimpAnswer("en fiol", 0).kind, "wrong");
+  assert.equal(classifyShrimpAnswer("piano", 0).kind, "advance");
+  assert.equal(classifyShrimpAnswer("Greta Thunberg", 1).kind, "win");
+  assert.equal(classifyShrimpAnswer("Greta Thunberg", 1).nextStep, SHRIMP_RIDDLES.length);
 });
 
 test("malformed and oversized completion requests are rejected before provider calls", async () => {
@@ -435,6 +456,133 @@ test("shrimp voice routes proxy ElevenLabs STT, TTS, and token generation server
   assert.equal(entries.find(([key]) => key === "language_code")[1], "swe");
   assert.equal(entries.find(([key]) => key === "file")[1].type, "audio/webm");
   assert.ok(entries.filter(([key]) => key === "keyterms").length >= 2);
+});
+
+test("shrimp conversation streams NDJSON and uses OpenRouter stream mode", async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, options });
+    if (String(url).includes("text-to-speech")) {
+      return new Response(new Uint8Array([1, 2, 3, 4]), {
+        status: 200,
+        headers: { "content-type": "audio/mpeg" },
+      });
+    }
+    return new Response([
+      'data: {"choices":[{"delta":{"content":"Mellan murarna "}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"hör jag ditt svar."}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join(""), {
+      status: 200,
+      headers: { "content-type": "text/event-stream" },
+    });
+  };
+  const server = await listen({
+    env: { OPENROUTER_API_KEY: "test-key", ELEVENLABS_API_KEY: "voice-key", ELEVENLABS_VOICE_ID: "voice-id" },
+    fetchImpl,
+  });
+
+  const response = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/converse",
+    body: JSON.stringify({
+      step: 0,
+      messages: [
+        { role: "assistant", text: "Mellan murarna och tången vakar jag ensam." },
+        { role: "user", text: "piano" },
+      ],
+    }),
+    headers: { "content-type": "application/json" },
+  });
+
+  assert.equal(response.status, 200);
+  const events = response.text.trim().split(/\n+/).map((line) => JSON.parse(line));
+  assert.equal(events[0].type, "meta");
+  assert.equal(events[0].result.kind, "advance");
+  assert.equal(events[0].attempts, 0);
+  const audioEvents = events.filter((event) => event.type === "audio");
+  assert.ok(audioEvents.length >= 1);
+  assert.ok(events.some((event) => event.type === "sentence"));
+  assert.match(audioEvents[0].audio_base64, /^[A-Za-z0-9+/=]+$/);
+  assert.equal(events.at(-1).type, "done");
+  assert.equal(events.at(-1).result.kind, "advance");
+  assert.match(events.at(-1).text, /Mellan murarna/);
+  const upstreamBody = JSON.parse(calls[0].options.body);
+  assert.equal(upstreamBody.stream, true);
+  assert.equal(upstreamBody.messages[0].role, "system");
+  assert.match(upstreamBody.messages[0].content, /Vallgravsräkan/);
+  assert.match(upstreamBody.messages[0].content, /kind=advance/);
+});
+
+test("shrimp prompt keeps the hidden name subtle and the fallback voice atmospheric", () => {
+  const prompt = buildShrimpSystemPrompt({
+    outcome: { kind: "advance" },
+    step: 0,
+    riddle: SHRIMP_RIDDLES[0],
+    nextRiddle: SHRIMP_RIDDLES[1],
+    playerText: "piano",
+  });
+  const wrong = buildShrimpFallbackReply({
+    outcome: { kind: "wrong" },
+    riddle: SHRIMP_RIDDLES[0],
+    nextRiddle: SHRIMP_RIDDLES[1],
+  });
+  const win = buildShrimpFallbackReply({
+    outcome: { kind: "win", reason: "greta" },
+    riddle: SHRIMP_RIDDLES[2],
+    nextRiddle: null,
+  });
+
+  assert.match(prompt, /väderbiten räka/);
+  assert.match(prompt, /servern bestämmer alltid utgången/);
+  assert.match(prompt, /första gåtan nyfiket/);
+  assert.match(prompt, /salt och järn/);
+  assert.match(prompt, /steg=1\/3/);
+  assert.doesNotMatch(prompt, /nivå 2 av 2/);
+  assert.doesNotMatch(prompt, /Greta Thunberg/);
+  assert.equal(shrimpHintLevel(0), 0);
+  assert.equal(shrimpHintLevel(1), 1);
+  assert.equal(shrimpHintLevel(5), 2);
+  assert.equal(buildShrimpAdaptiveHint({ step: 0, attempts: 0 }), SHRIMP_RIDDLES[0].hint);
+  assert.match(buildShrimpAdaptiveHint({ step: 0, attempts: 2 }), /bokstaven P/);
+  assert.match(wrong, /vallgraven väntar tålmodigt/);
+  assert.match(win, /hemliga namnet/);
+});
+
+test("shrimp conversation echoes attempt counters and adaptive hints", async () => {
+  const server = await listen({
+    fetchImpl: successfulUpstream("Mellan murarna hör jag dig."),
+  });
+
+  const wrong = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/converse",
+    body: JSON.stringify({
+      step: 0,
+      attempts: 1,
+      messages: [{ role: "user", text: "fiol" }],
+    }),
+    headers: { "content-type": "application/json" },
+  });
+  const wrongEvents = wrong.text.trim().split(/\n+/).map((line) => JSON.parse(line));
+  assert.equal(wrongEvents[0].type, "meta");
+  assert.equal(wrongEvents[0].attempts, 2);
+  assert.equal(wrongEvents[0].hintLevel, 2);
+  assert.match(wrongEvents.at(-1).text, /bokstaven P/);
+
+  const advance = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/converse",
+    body: JSON.stringify({
+      step: 0,
+      attempts: 4,
+      messages: [{ role: "user", text: "piano" }],
+    }),
+    headers: { "content-type": "application/json" },
+  });
+  const advanceEvents = advance.text.trim().split(/\n+/).map((line) => JSON.parse(line));
+  assert.equal(advanceEvents[0].attempts, 0);
+  assert.equal(advanceEvents[0].hintLevel, 0);
 });
 
 test("completion requests are rate-limited per client IP", async () => {

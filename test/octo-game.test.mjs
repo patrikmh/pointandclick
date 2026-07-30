@@ -145,6 +145,22 @@ test("phase 1 marks splints aligned within tolerance and advances when both are 
   assert.deepEqual(advanceCalls, [2]);
 });
 
+test("octoAdvancePhase switches the patient art to splinted once the splints are on", () => {
+  const advance = loadMethod("  octoAdvancePhase(newPhase) {", "\n  octoGameComplete() {");
+  const game = {
+    state: { octoFrame: "open" },
+    octoGameMsgs: () => ["a", "b", "c", "d"],
+    octoGameA11yForPhase: () => "",
+    setState(up) { this.state = { ...this.state, ...(typeof up === "function" ? up(this.state) : up) }; },
+  };
+
+  advance.call(game, 1);
+  assert.equal(game.state.octoFrame, "splinted");
+
+  advance.call(game, 0);
+  assert.equal(game.state.octoFrame, "open");
+});
+
 // ── Phase 2: ordered anchor clicking ──────────────────────────────────────
 
 test("phase 2 requires anchors in order and resets on wrong order", () => {
@@ -330,7 +346,10 @@ test("octoGameComplete is idempotent — calling twice does not consume twice", 
 // ── Reset: reopening preserves items and resets progress ──────────────────
 
 test("openOctoGame tears down previous session and resets phase without consuming items", () => {
-  const open = loadMethod("  openOctoGame() {", "\n  closeOctoGame() {");
+  const open = loadMethod("  openOctoGame() {", "\n  closeOctoGame() {", {
+    clearInterval: () => {},
+    clearTimeout: () => {},
+  });
   let tornDown = 0;
   const game = {
     octoGameConfig: {
@@ -359,6 +378,7 @@ test("openOctoGame tears down previous session and resets phase without consumin
   assert.equal(game.state.octoGamePhase, 0);
   assert.equal(game.state.octoGameProgress, 0);
   assert.equal(game.state.octoGameDone, false);
+  assert.equal(game.state.octoFrame, "open");
   // Items preserved.
   assert.equal(game.state.inventory.length, 2);
   assert.equal(game.state.inventory.filter((i) => i.defId === "driftwood").length, 1);
@@ -500,8 +520,8 @@ test("modal has dialog role, progress bar, and live status with Swedish labels",
   assert.match(source, /aria-label="Stäng tentakeltriagen"/);
 });
 
-test("tension meter exposes a meter role with live value", () => {
-  assert.match(source, /role="meter" aria-label="Spänning" aria-valuenow="\{\{ octoGameTensionDisplay \}\}"/);
+test("bandage tension meter exposes a meter role with live value", () => {
+  assert.match(source, /role="meter" aria-label="Bandagespänning" aria-valuenow="\{\{ octoGameTensionDisplay \}\}"/);
 });
 
 test("tentacle selection and mouse-guided rope points expose interaction state", () => {
@@ -510,7 +530,13 @@ test("tentacle selection and mouse-guided rope points expose interaction state",
   assert.match(source, /onPointerDown="\{\{ ac.start \}\}"/);
   assert.match(source, /onPointerEnter="\{\{ ac.enter \}\}"/);
   assert.match(source, /assets\/tentacle-placeholder\.svg/);
-  assert.match(source, /octoRopeWraps/);
+  assert.match(source, /octoRopeSegments/);
+  assert.match(source, /octoCompletedRopeWraps/);
+  assert.match(source, /octoBandagePointerStyle/);
+  assert.match(source, /octoReactionText/);
+  assert.match(source, /onPointerMove="\{\{ octoRopeMove \}\}"/);
+  assert.match(source, /octoBandageMove/);
+  assert.match(source, /octoBandageTurns/);
   assert.match(source, /octoTentacleChips/);
   assert.match(source, /octoSplintChips/);
   assert.match(source, /octoAnchorChips/);
@@ -522,7 +548,7 @@ test("octo game config defines four phases with balanced thresholds", () => {
   assert.match(source, /phases: 4/);
   assert.match(source, /splintTargets: \[0, 0\]/);
   assert.match(source, /splintTolerance: 12/);
-  assert.match(source, /anchorCount: 3/);
+  assert.match(source, /anchorCount: 7/);
   assert.match(source, /tensionBandMin: 60/);
   assert.match(source, /tensionBandMax: 80/);
   assert.match(source, /tensionHoldNeeded: 1\.6/);
