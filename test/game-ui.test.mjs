@@ -146,7 +146,8 @@ test("the inventory is collapsible and camp navigation appears on hover", async 
 
   assert.match(source, /inventoryOpen: true/);
   assert.match(source, /aria-expanded="\{\{ inventoryOpen \}\}"/);
-  assert.match(source, /<sc-if value="\{\{ inventoryOpen \}\}"/);
+  assert.match(source, /<sc-if value="\{\{ inventoryStripOpen \}\}"/);
+  assert.match(source, /inventoryStripOpen: S\.inventoryOpen && !S\.invDrag/);
   assert.match(source, /inventoryToggle: \(\) => this\.setState/);
   assert.match(source, />NATTLÄGRET ↓<\/button>/);
   assert.match(source, /showArrowB: S\.scene !== "camp" && S\.scene !== "underwater"/);

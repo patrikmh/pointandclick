@@ -16,7 +16,7 @@ function loadMethod(signature, nextSignature, context = {}) {
   assert.notEqual(end, -1, `missing method boundary: ${nextSignature.trim()}`);
   const methodSource = source.slice(start, end).trim();
   const methodName = signature.match(/(?:async\s+)?([\w$]+)\s*\(/)?.[1];
-  return vm.runInNewContext(`({${methodSource}}).${methodName}`, context);
+  return vm.runInNewContext(`({\n${methodSource}\n}).${methodName}`, context);
 }
 
 test("shrimp modal is voice-only with a single toggle control", () => {
@@ -208,4 +208,108 @@ test("shrimp conversation speaks streamed sentences once and falls back when no 
   delete window.claude;
   await shrimpHandleAnswer.call(game, "något annat");
   assert.deepEqual(spoken, ["Fallbackrepliken."]);
+});
+
+test("shrimp conversation plays server-synthesized audio once and skips per-sentence speech", async () => {
+  const window = {
+    claude: {
+      shrimpConverse: async (_input, { onEvent }) => {
+        onEvent({ type: "meta", result: { kind: "advance" } });
+        onEvent({ type: "sentence", text: "Hej på dig." });
+        onEvent({ type: "audio", text: "Hej på dig.", audio_base64: "QUFBQQ==" });
+        onEvent({ type: "done", text: "Hej på dig.", result: { kind: "advance" } });
+        return { text: "Hej på dig.", result: { kind: "advance" } };
+      },
+    },
+  };
+  const shrimpHandleAnswer = loadMethod("  async shrimpHandleAnswer(rawText, source = \"voice\") {", "\n  shrimpClick(e) {", { window, AbortController: globalThis.AbortController });
+  const spoken = [];
+  const audioPlayed = [];
+  const game = {
+    state: { shrimpGameOpen: true, shrimpGameBusy: false, shrimpGameSolved: false, shrimpGameStep: 0, shrimpGameMessages: [] },
+    shrimpGameSession: 1,
+    shrimpGameAttempts: 0,
+    shrimpDetermineOutcome: () => ({ kind: "advance", step: 0, nextStep: 1, riddle: {}, nextRiddle: {} }),
+    shrimpInterruptSpeech() {},
+    setState(update, callback) {
+      this.state = { ...this.state, ...(typeof update === "function" ? update(this.state) : update) };
+      if (callback) callback();
+    },
+    shrimpScrollConversation() {},
+    shrimpUpdateConversationMessage() {},
+    shrimpFinalizeConversationTurn() {
+      this.state = { ...this.state, shrimpGameBusy: false, shrimpGameListening: false };
+    },
+    shrimpBuildFallbackReply() { return "Fallbackrepliken."; },
+    shrimpConsumePending(pending, text) {
+      const index = pending.indexOf(text);
+      if (index >= 0) pending.splice(index, 1);
+    },
+    shrimpPlayAudioEvent: async (text, audioBase64) => {
+      audioPlayed.push({ text, audioBase64 });
+    },
+    shrimpSpeak: async (text) => {
+      spoken.push(text);
+    },
+    shrimpConversationAbort: null,
+  };
+
+  await shrimpHandleAnswer.call(game, "piano");
+  assert.deepEqual(audioPlayed, [{ text: "Hej på dig.", audioBase64: "QUFBQQ==" }]);
+  assert.deepEqual(spoken, []);
+});
+
+test("shrimp consume-pending removes the first matching buffered sentence", () => {
+  const shrimpConsumePending = loadMethod("  shrimpConsumePending(pending, text) {", "\n  async shrimpPlayAudioEvent(text, audioBase64) {");
+  const pending = ["A", "B", "C"];
+  shrimpConsumePending.call(null, pending, "B");
+  assert.deepEqual(pending, ["A", "C"]);
+  shrimpConsumePending.call(null, pending, "Saknas");
+  assert.deepEqual(pending, ["A", "C"]);
+});
+
+test("shrimp scribe commit guards against speaker echo", () => {
+  const shrimpHandleScribeCommit = loadMethod("  shrimpHandleScribeCommit(committedText) {", "\n  shrimpProcessAudioFrame(input, sampleRate) {");
+  const handled = [];
+  const game = {
+    state: { shrimpGameOpen: true, shrimpGameSolved: false, shrimpGameBusy: false },
+    shrimpVoiceAudio: null,
+    shrimpSpeechBusy: null,
+    shrimpUtteranceHadLocalSpeech: false,
+    setState(update) {
+      this.state = { ...this.state, ...(typeof update === "function" ? update(this.state) : update) };
+    },
+    shrimpSetStatus() {},
+    shrimpHandleAnswer: async (text) => {
+      handled.push(text);
+    },
+  };
+
+  // Assistant is talking, no local speech -> echo, rejected.
+  game.shrimpVoiceAudio = {};
+  shrimpHandleScribeCommit.call(game, "eko");
+  assert.deepEqual(handled, []);
+
+  // Real local speech while the assistant is idle -> accepted.
+  game.shrimpVoiceAudio = null;
+  game.shrimpUtteranceHadLocalSpeech = true;
+  shrimpHandleScribeCommit.call(game, "piano");
+  assert.deepEqual(handled, ["piano"]);
+});
+
+test("shrimp audio helpers resample, encode PCM16, and base64 without external APIs", () => {
+  const ctx = { btoa: globalThis.btoa };
+  const shrimpResample = loadMethod("  shrimpResample(buffer, inputRate, outputRate) {", "\n  shrimpBytesToBase64(bytes) {", ctx);
+  const shrimpFloatTo16 = loadMethod("  shrimpFloatTo16(float32) {", "\n  shrimpResample(buffer, inputRate, outputRate) {", ctx);
+  const shrimpBytesToBase64 = loadMethod("  shrimpBytesToBase64(bytes) {", "\n  async shrimpBlobToBase64(blob) {", ctx);
+
+  const downsampled = shrimpResample.call(null, new Float32Array([0, 0.5, 1, 0.5, 0, -0.5]), 48000, 16000);
+  assert.equal(downsampled.length, 2);
+  const pcm = shrimpFloatTo16.call(null, new Float32Array([0, 1]));
+  assert.equal(pcm.length, 4);
+  const view = new DataView(pcm.buffer);
+  assert.equal(view.getInt16(0, true), 0);
+  assert.equal(view.getInt16(2, true), 0x7fff);
+  const base64 = shrimpBytesToBase64.call(null, new Uint8Array([0, 1, 2, 3]));
+  assert.equal(base64, btoa(String.fromCharCode(0, 1, 2, 3)));
 });

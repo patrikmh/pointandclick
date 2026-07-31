@@ -585,6 +585,44 @@ test("shrimp conversation echoes attempt counters and adaptive hints", async () 
   assert.equal(advanceEvents[0].hintLevel, 0);
 });
 
+test("shrimp conversation emits tts_error events and keeps done last when TTS fails", async () => {
+  const fetchImpl = async (url) => {
+    if (String(url).includes("text-to-speech")) {
+      return new Response(JSON.stringify({ error: { message: "voice down" } }), {
+        status: 503,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    return new Response([
+      'data: {"choices":[{"delta":{"content":"Mellan murarna hör jag dig."}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join(""), {
+      status: 200,
+      headers: { "content-type": "text/event-stream" },
+    });
+  };
+  const server = await listen({
+    env: { OPENROUTER_API_KEY: "test-key", ELEVENLABS_API_KEY: "voice-key", ELEVENLABS_VOICE_ID: "voice-id" },
+    fetchImpl,
+  });
+
+  const response = await request(server, {
+    method: "POST",
+    path: "/api/shrimp/converse",
+    body: JSON.stringify({ step: 0, messages: [{ role: "user", text: "piano" }] }),
+    headers: { "content-type": "application/json" },
+  });
+
+  const events = response.text.trim().split(/\n+/).map((line) => JSON.parse(line));
+  assert.equal(events[0].type, "meta");
+  const ttsErrors = events.filter((event) => event.type === "tts_error");
+  assert.ok(ttsErrors.length >= 1);
+  assert.ok(ttsErrors.every((event) => typeof event.text === "string" && event.text.length > 0));
+  assert.equal(events.at(-1).type, "done");
+  const doneIndex = events.findIndex((event) => event.type === "done");
+  assert.equal(events.slice(doneIndex + 1).length, 0);
+});
+
 test("completion requests are rate-limited per client IP", async () => {
   const server = await listen({
     env: {

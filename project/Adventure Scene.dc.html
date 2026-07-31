@@ -270,7 +270,7 @@
       </div>
       <button onClick="{{ inventoryToggle }}" aria-expanded="{{ inventoryOpen }}" aria-controls="inventory-items" aria-label="{{ inventoryToggleAria }}" title="{{ inventoryToggleAria }}" style="min-width:72px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 10px;cursor:pointer">{{ inventoryToggleLabel }} ({{ inventoryCount }})</button>
     </div>
-    <sc-if value="{{ inventoryOpen }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ inventoryStripOpen }}" hint-placeholder-val="{{ true }}">
       <div id="inventory-items" style="display:flex;gap:10px;flex:1;flex-wrap:wrap;align-content:flex-start;max-height:212px;overflow-y:auto;overflow-x:hidden;padding:2px 0">
         <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
           <div data-drop="inv" data-iid="{{ it.iid }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
@@ -932,6 +932,8 @@ class Component extends DCLogic {
     shrimpGameMsg: "",
     shrimpGameA11yStatus: "",
     shrimpGameMessages: [],
+    shrimpGamePartial: "",
+    shrimpGameRealtime: false,
     shrimpHelped: false,
     shrimpGameSolved: false,
     sheepGameOpen: false,
@@ -1496,7 +1498,6 @@ class Component extends DCLogic {
     }
     this.invDragInfo = { iid, defId, sx: e.clientX, sy: e.clientY, moved: false };
     document.body.classList.add("grabbing");
-    this.setState({ invDrag: { x: e.clientX, y: e.clientY, defId } });
   }
 
   useItemOn(defId, target, targetUid) {
@@ -2377,6 +2378,8 @@ class Component extends DCLogic {
       shrimpGameBusy: false,
       shrimpGameSolved: alreadyHelped,
       shrimpGameAttempts: 0,
+      shrimpGamePartial: "",
+      shrimpGameRealtime: false,
       shrimpGameMessages: [{ role: "assistant", text: intro, pending: false }],
       shrimpGameMsg: intro,
       shrimpGameA11yStatus: intro,
@@ -2392,7 +2395,7 @@ class Component extends DCLogic {
       shrimpGameMsg: "Startar samtal…",
       shrimpGameA11yStatus: "Startar samtal.",
     }, () => {
-      void this.shrimpStartRecording();
+      void this.shrimpStartRealtimeSession();
     });
   }
 
@@ -2418,12 +2421,13 @@ class Component extends DCLogic {
 
   closeShrimpGame() {
     this.teardownShrimpGame();
-    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false });
+    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false });
   }
 
   teardownShrimpGame() {
     this.shrimpGameSession = (this.shrimpGameSession || 0) + 1;
     this.shrimpInterruptSpeech();
+    void this.shrimpStopRealtimeSession();
     if (this.shrimpListeningRetryTimer) {
       try { clearTimeout(this.shrimpListeningRetryTimer); } catch (err) { /* ignored */ }
       this.shrimpListeningRetryTimer = null;
@@ -2479,23 +2483,32 @@ class Component extends DCLogic {
     if (options.interrupt !== false) this.shrimpInterruptSpeech();
     const sentences = this.shrimpSplitSentences(message);
     if (!sentences.length) return Promise.resolve();
-    this.shrimpSpeechQueue = [...(this.shrimpSpeechQueue || []), ...sentences];
+    this.shrimpSpeechQueue = [...(this.shrimpSpeechQueue || []), ...sentences.map((sentence) => ({ text: sentence }))];
     return this.shrimpDrainSpeechQueue();
   }
 
-  async shrimpPlaySentence(sentence) {
+  async shrimpPlaySentence(sentence, audioBase64 = null) {
     const message = typeof sentence === "string" ? sentence.trim() : "";
     if (!message) return;
     const session = this.shrimpGameSession || 0;
     let settleAudio = null;
     try {
-      const response = await fetch("/api/shrimp/speak", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "audio/mpeg" },
-        body: JSON.stringify({ text: message }),
-      });
-      if (!response.ok) throw new Error("TTS misslyckades.");
-      const bytes = await response.arrayBuffer();
+      let bytes;
+      if (typeof audioBase64 === "string" && audioBase64) {
+        // The server already synthesized this sentence during /api/shrimp/converse; decode and
+        // play it directly instead of making another round-trip to /api/shrimp/speak.
+        const binary = atob(audioBase64);
+        bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      } else {
+        const response = await fetch("/api/shrimp/speak", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "audio/mpeg" },
+          body: JSON.stringify({ text: message }),
+        });
+        if (!response.ok) throw new Error("TTS misslyckades.");
+        bytes = new Uint8Array(await response.arrayBuffer());
+      }
       if ((this.shrimpGameSession || 0) !== session) return;
       if (this.shrimpVoiceAudio) {
         try { this.shrimpVoiceAudio.pause(); this.shrimpVoiceAudio.currentTime = 0; } catch (err) { /* ignored */ }
@@ -2560,8 +2573,8 @@ class Component extends DCLogic {
     const session = this.shrimpGameSession || 0;
     try {
       while (this.shrimpSpeechQueue?.length && this.state.shrimpGameOpen && (this.shrimpGameSession || 0) === session) {
-        const sentence = this.shrimpSpeechQueue.shift();
-        await this.shrimpPlaySentence(sentence);
+        const item = this.shrimpSpeechQueue.shift();
+        await this.shrimpPlaySentence(item?.text, item?.audioBase64);
       }
     } finally {
       this.shrimpSpeechBusy = false;
@@ -2659,8 +2672,9 @@ class Component extends DCLogic {
     let result = outcomeFallback;
     let assistantText = "";
     let hadStream = false;
-    let spokeSentence = false;
+    let spokeAny = false;
     let serverAttempts = null;
+    const pendingSentences = [];
     try {
       if (typeof window !== "undefined" && window.claude?.shrimpConverse) {
         hadStream = true;
@@ -2679,7 +2693,16 @@ class Component extends DCLogic {
               assistantText += event.text;
               this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText, pending: true });
             } else if (event?.type === "sentence" && typeof event.text === "string") {
-              spokeSentence = true;
+              // Buffer the sentence; the matching audio event (or tts_error) drives playback so we
+              // never synthesize the same line twice. If neither arrives we flush at done.
+              pendingSentences.push(event.text);
+            } else if (event?.type === "audio" && typeof event.text === "string" && typeof event.audio_base64 === "string") {
+              spokeAny = true;
+              this.shrimpConsumePending(pendingSentences, event.text);
+              void this.shrimpPlayAudioEvent(event.text, event.audio_base64);
+            } else if (event?.type === "tts_error" && typeof event.text === "string") {
+              spokeAny = true;
+              this.shrimpConsumePending(pendingSentences, event.text);
               void this.shrimpSpeak(event.text, { interrupt: false });
             } else if (event?.type === "done") {
               if (typeof event.text === "string" && event.text.trim()) assistantText = event.text;
@@ -2714,7 +2737,12 @@ class Component extends DCLogic {
     if ((this.shrimpGameSession || 0) !== session) return;
     assistantText = String(assistantText || this.shrimpBuildFallbackReply(result)).trim();
     this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText, pending: false });
-    if (!spokeSentence && assistantText) await this.shrimpSpeak(assistantText, { interrupt: false });
+    while (pendingSentences.length) {
+      const pending = pendingSentences.shift();
+      spokeAny = true;
+      await this.shrimpSpeak(pending, { interrupt: false });
+    }
+    if (!spokeAny && assistantText) await this.shrimpSpeak(assistantText, { interrupt: false });
     this.shrimpFinalizeConversationTurn(result, assistantText, text, source, serverAttempts);
   }
 
@@ -2729,6 +2757,248 @@ class Component extends DCLogic {
     e.preventDefault();
     e.stopPropagation();
     this.shrimpClick(e);
+  }
+
+  // Removes the first buffered sentence matching `text` so a later audio/tts_error event does
+  // not get spoken again by the done-time flush.
+  shrimpConsumePending(pending, text) {
+    if (!Array.isArray(pending) || typeof text !== "string") return;
+    const index = pending.indexOf(text);
+    if (index >= 0) pending.splice(index, 1);
+  }
+
+  // Plays a server-synthesized sentence (base64 mp3) through the shared speech queue so it lines
+  // up behind any in-flight playback and stays interruptible by barge-in.
+  async shrimpPlayAudioEvent(text, audioBase64) {
+    const message = typeof text === "string" ? text.trim() : "";
+    if (!message || typeof audioBase64 !== "string" || !audioBase64) return Promise.resolve();
+    this.shrimpSpeechQueue = [...(this.shrimpSpeechQueue || []), { text: message, audioBase64 }];
+    return this.shrimpDrainSpeechQueue();
+  }
+
+  // Continuous realtime voice: open the mic + ElevenLabs Scribe WebSocket, run local VAD for
+  // barge-in and echo guarding, and feed committed transcripts into the normal turn handler.
+  // If anything is unavailable (no bridge, no mic, blocked token) we fall back to the existing
+  // turn-based recorder so the riddle game still works without realtime STT.
+  async shrimpStartRealtimeSession() {
+    if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameSolved) return;
+    const bridge = typeof window !== "undefined" ? window.claude?.shrimpRealtimeScribe : undefined;
+    if (typeof bridge !== "function") {
+      void this.shrimpStartRecording();
+      return;
+    }
+    const session = this.shrimpGameSession || 0;
+    const abort = typeof AbortController === "function" ? new AbortController() : null;
+    this.shrimpScribeAbort = abort;
+    try {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Mikrofonen är inte tillgänglig.");
+      }
+      this.shrimpRealtimeStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      });
+      const AudioContextCtor = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
+      if (!AudioContextCtor) throw new Error("Webbläsaren saknar Web Audio.");
+      const ctx = new AudioContextCtor();
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
+      const source = ctx.createMediaStreamSource(this.shrimpRealtimeStream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      const mute = ctx.createGain();
+      mute.gain.value = 0;
+      this.shrimpRealtimeCtx = ctx;
+      this.shrimpRealtimeSource = source;
+      this.shrimpRealtimeProcessor = processor;
+      this.shrimpRealtimeMute = mute;
+      this.shrimpVadNoiseFloor = Number.isFinite(this.shrimpVadNoiseFloor) ? this.shrimpVadNoiseFloor : 0.012;
+      this.shrimpVadLocalSpeech = false;
+      this.shrimpVadAbove = 0;
+      this.shrimpVadQuiet = 0;
+      this.shrimpUtteranceHadLocalSpeech = false;
+      processor.onaudioprocess = (event) => {
+        if ((this.shrimpGameSession || 0) !== session) return;
+        const input = event.inputBuffer.getChannelData(0);
+        this.shrimpProcessAudioFrame(input, ctx.sampleRate);
+      };
+      source.connect(processor);
+      processor.connect(mute);
+      mute.connect(ctx.destination);
+
+      const keyterms = ["piano", "hål", "fel", "räkor", "Greta Thunberg"];
+      this.shrimpScribe = await bridge({
+        signal: abort ? abort.signal : undefined,
+        keyterms,
+        onPartial: (partial) => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          this.setState({ shrimpGamePartial: partial || "" });
+        },
+        onCommit: (committed) => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          this.shrimpHandleScribeCommit(committed);
+        },
+        onError: (message) => {
+          if ((this.shrimpGameSession || 0) !== session) return;
+          this.shrimpSetStatus(message || "STT-fel.");
+        },
+      });
+      if ((this.shrimpGameSession || 0) !== session) { await this.shrimpStopRealtimeSession(); return; }
+      this.setState({
+        shrimpGameRealtime: true,
+        shrimpGameListening: true,
+        shrimpGameBusy: false,
+        shrimpGamePartial: "",
+        shrimpGameMsg: "Samtalet är igång – prata när du vill.",
+        shrimpGameA11yStatus: "Samtalet är igång. Prata när du vill.",
+      });
+    } catch (error) {
+      await this.shrimpStopRealtimeSession();
+      if ((this.shrimpGameSession || 0) !== session) return;
+      this.shrimpSetStatus("Realtime-röst gick inte att starta – använder inspelning.");
+      void this.shrimpStartRecording();
+    }
+  }
+
+  async shrimpStopRealtimeSession() {
+    if (this.shrimpScribeAbort) {
+      try { this.shrimpScribeAbort.abort(); } catch (err) { /* ignored */ }
+      this.shrimpScribeAbort = null;
+    }
+    if (this.shrimpScribe) {
+      try { this.shrimpScribe.close(); } catch (err) { /* ignored */ }
+      this.shrimpScribe = null;
+    }
+    if (this.shrimpRealtimeProcessor) {
+      try { this.shrimpRealtimeProcessor.disconnect(); } catch (err) { /* ignored */ }
+      try { this.shrimpRealtimeProcessor.onaudioprocess = null; } catch (err) { /* ignored */ }
+      this.shrimpRealtimeProcessor = null;
+    }
+    if (this.shrimpRealtimeSource) {
+      try { this.shrimpRealtimeSource.disconnect(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeSource = null;
+    }
+    if (this.shrimpRealtimeMute) {
+      try { this.shrimpRealtimeMute.disconnect(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeMute = null;
+    }
+    if (this.shrimpRealtimeCtx) {
+      try { await this.shrimpRealtimeCtx.close(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeCtx = null;
+    }
+    if (this.shrimpRealtimeStream) {
+      try { this.shrimpRealtimeStream.getTracks().forEach((track) => track.stop()); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeStream = null;
+    }
+    this.shrimpVadLocalSpeech = false;
+    this.shrimpVadAbove = 0;
+    this.shrimpVadQuiet = 0;
+    this.shrimpUtteranceHadLocalSpeech = false;
+  }
+
+  // Called when Scribe commits a turn. We guard against speaker leakage: if the assistant was
+  // busy and the local VAD never saw real speech, the commit is almost certainly echo.
+  shrimpHandleScribeCommit(committedText) {
+    const text = typeof committedText === "string" ? committedText.trim() : "";
+    if (!text) return;
+    if (!this.state.shrimpGameOpen || this.state.shrimpGameSolved) return;
+    const assistantActive = !!(this.state.shrimpGameBusy || this.shrimpVoiceAudio || this.shrimpSpeechBusy);
+    const hadLocalSpeech = !!this.shrimpUtteranceHadLocalSpeech;
+    this.shrimpUtteranceHadLocalSpeech = false;
+    if (assistantActive && !hadLocalSpeech) {
+      this.shrimpSetStatus("Ignorerade sannolikt högtalareko.");
+      return;
+    }
+    if (this.state.shrimpGameBusy) return;
+    this.setState({ shrimpGamePartial: "" });
+    void this.shrimpHandleAnswer(text, "voice");
+  }
+
+  // Per-frame local VAD plus resample→16kHz PCM16→base64→WebSocket. RMS drives an adaptive noise
+  // floor and speech onset/offset; onset fires barge-in and marks the utterance as genuinely local
+  // so the echo guard in shrimpHandleScribeCommit can trust it.
+  shrimpProcessAudioFrame(input, sampleRate) {
+    if (!input || !input.length) return;
+    let sum = 0;
+    let peak = 0;
+    for (let i = 0; i < input.length; i += 1) {
+      const value = input[i];
+      sum += value * value;
+      const absValue = value < 0 ? -value : value;
+      if (absValue > peak) peak = absValue;
+    }
+    const rms = Math.sqrt(sum / input.length);
+    this.shrimpRecorderRms = rms;
+
+    const floor = Number.isFinite(this.shrimpVadNoiseFloor) ? this.shrimpVadNoiseFloor : 0.012;
+    const threshold = Math.max(0.007, floor * 2.25);
+    const speechLike = rms > threshold || peak > Math.max(0.06, threshold * 4);
+
+    if (!this.shrimpVadLocalSpeech && !speechLike) {
+      this.shrimpVadNoiseFloor = floor * 0.985 + rms * 0.015;
+    }
+
+    if (speechLike) {
+      this.shrimpVadAbove += 1;
+      this.shrimpVadQuiet = 0;
+    } else {
+      this.shrimpVadAbove = 0;
+      this.shrimpVadQuiet += 1;
+    }
+
+    if (!this.shrimpVadLocalSpeech && this.shrimpVadAbove >= 2) {
+      this.shrimpVadLocalSpeech = true;
+      this.shrimpUtteranceHadLocalSpeech = true;
+      if (this.state.shrimpGameBusy || this.shrimpVoiceAudio || this.shrimpSpeechBusy) {
+        this.shrimpInterruptSpeech();
+      }
+    }
+    if (this.shrimpVadLocalSpeech && this.shrimpVadQuiet >= 5 && !this.shrimpVoiceAudio && !this.state.shrimpGameBusy) {
+      this.shrimpVadLocalSpeech = false;
+    }
+
+    if (this.shrimpScribe && typeof this.shrimpScribe.send === "function") {
+      const resampled = this.shrimpResample(input, sampleRate, 16000);
+      const pcm16 = this.shrimpFloatTo16(resampled);
+      this.shrimpScribe.send(this.shrimpBytesToBase64(pcm16), this.shrimpRecentContext());
+    }
+  }
+
+  shrimpRecentContext() {
+    const messages = this.state?.shrimpGameMessages || [];
+    return messages.slice(-2).map((message) => message.text || "").join(" ").slice(-50);
+  }
+
+  shrimpFloatTo16(float32) {
+    const buffer = new ArrayBuffer(float32.length * 2);
+    const view = new DataView(buffer);
+    for (let i = 0; i < float32.length; i += 1) {
+      const sample = float32[i] < -1 ? -1 : float32[i] > 1 ? 1 : float32[i];
+      view.setInt16(i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+    }
+    return new Uint8Array(buffer);
+  }
+
+  shrimpResample(buffer, inputRate, outputRate) {
+    if (!buffer || !buffer.length) return new Float32Array(0);
+    if (inputRate === outputRate) return new Float32Array(buffer);
+    const outputLength = Math.max(1, Math.round((buffer.length * outputRate) / inputRate));
+    const result = new Float32Array(outputLength);
+    const ratio = inputRate / outputRate;
+    for (let i = 0; i < outputLength; i += 1) {
+      const position = i * ratio;
+      const left = Math.floor(position);
+      const right = Math.min(left + 1, buffer.length - 1);
+      const fraction = position - left;
+      result[i] = buffer[left] * (1 - fraction) + buffer[right] * fraction;
+    }
+    return result;
+  }
+
+  shrimpBytesToBase64(bytes) {
+    let binary = "";
+    const block = 0x8000;
+    for (let i = 0; i < bytes.length; i += block) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + block));
+    }
+    return typeof btoa === "function" ? btoa(binary) : "";
   }
 
   async shrimpBlobToBase64(blob) {
@@ -8359,6 +8629,7 @@ class Component extends DCLogic {
       progressLabel: this.helpedCount(S) + "/" + this.helpedTotal + " HJÄLPTA",
       progressBarStyle: `height:100%;border-radius:999px;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));width:${Math.round((this.helpedCount(S) / this.helpedTotal) * 100)}%;transition:width 0.4s ease`,
       inventoryOpen: S.inventoryOpen,
+      inventoryStripOpen: S.inventoryOpen && !S.invDrag,
       inventoryCount: S.inventory.length,
       inventoryToggleLabel: S.inventoryOpen ? "Dölj" : "Visa",
       inventoryToggleAria: (S.inventoryOpen ? "Dölj" : "Visa") + " packningen, " + S.inventory.length + " föremål",
@@ -8433,6 +8704,7 @@ class Component extends DCLogic {
       subEnter: () => this.subEnter(),
       subWrapStyle: `position:absolute;left:${32 + this.posFor("sub").ox}%;top:${40 + this.posFor("sub").oy}%;width:${40.5 * this.posFor("sub").scale}%;z-index:13;cursor:pointer;transform:translate(-50%,-50%)`,
       chestSrc: "assets/chest-" + (S.chestOpen ? "open" : "closed") + ".png",
+      chestOpen: S.chestOpen,
       setChestRef: (el) => { if (el) this.chestNode = el; },
       setMapRef: (el) => {
         if (el && this.mapShouldFall) {
@@ -8542,8 +8814,11 @@ class Component extends DCLogic {
       shrimpGameVoiceState: S.shrimpGameSolved
         ? "Räkan har redan öppnat porten."
         : S.shrimpGameActive
-          ? (S.shrimpGameListening ? "Lyssnar efter din röst." : S.shrimpGameBusy ? "Räkan svarar." : "Samtalet är igång.")
+          ? (S.shrimpGameListening
+              ? (S.shrimpGamePartial ? `„${S.shrimpGamePartial}”` : "Lyssnar efter din röst.")
+              : S.shrimpGameBusy ? "Räkan svarar." : "Samtalet är igång.")
           : "Klicka Starta samtal när du är redo.",
+      shrimpGamePartial: S.shrimpGamePartial || "",
       shrimpGameToggleLabel: S.shrimpGameSolved ? "Redan löst" : (S.shrimpGameActive ? "Stoppa samtal" : "Starta samtal"),
       shrimpGameToggleDisabled: S.shrimpGameSolved,
       shrimpGameMessages: (S.shrimpGameMessages || []).map((m) => ({

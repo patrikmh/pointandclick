@@ -1270,14 +1270,22 @@ export function createAdventureServer({
 
         let streamedText = "";
         const sentenceAudioJobs = [];
+        // Each sentence is announced immediately for subtitles, then its TTS is synthesized
+        // concurrently and emitted inline as soon as it resolves. Interleaving audio with the
+        // ongoing stream keeps time-to-first-audio low; the job list is awaited below so the
+        // terminal `done` event always lands after every audio/tts_error line.
         const emitSentence = (text) => {
           const sentence = String(text ?? "").trim();
           if (!sentence) return;
           writeNdjsonLine(res, { type: "sentence", text: sentence });
           sentenceAudioJobs.push(
             requestElevenLabsSpeech(sentence, { env, fetchImpl, character: "shrimp" })
-              .then((audio) => ({ text: sentence, audio_base64: encodeAudioBase64(audio) }))
-              .catch((error) => ({ text: sentence, error: error?.code || error?.message || "tts_error" })),
+              .then((audio) => {
+                writeNdjsonLine(res, { type: "audio", text: sentence, audio_base64: encodeAudioBase64(audio) });
+              })
+              .catch((error) => {
+                writeNdjsonLine(res, { type: "tts_error", text: sentence, error: error?.code || error?.message || "tts_error" });
+              }),
           );
         };
         try {
@@ -1306,14 +1314,7 @@ export function createAdventureServer({
             if (fallbackParts.remainder.trim()) emitSentence(fallbackParts.remainder.trim());
           }
         }
-        const audioEvents = await Promise.all(sentenceAudioJobs);
-        for (const event of audioEvents) {
-          if (event.audio_base64) {
-            writeNdjsonLine(res, { type: "audio", text: event.text, audio_base64: event.audio_base64 });
-          } else {
-            writeNdjsonLine(res, { type: "tts_error", text: event.text, error: event.error || "tts_error" });
-          }
-        }
+        await Promise.allSettled(sentenceAudioJobs);
         writeNdjsonLine(res, { type: "done", result: outcome, text: streamedText.trim() });
         res.end();
         return;
