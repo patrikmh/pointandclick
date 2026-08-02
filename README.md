@@ -21,7 +21,22 @@ Open `http://127.0.0.1:3000`. The status endpoint at `/healthz` reports whether 
 - `OPENROUTER_VISION_MODEL` controls the vision-capable model that judges paintings.
 - Both default to OpenRouter's `~google/gemini-flash-latest` alias and can be changed independently in `.env`.
 
-Every visible character has a distinct agent persona. Use the **Samtal** button or right-click a character and choose **Prata**. Clicking the shrimp opens a Swedish voice riddle game with text fallback, optional microphone transcription, and ElevenLabs TTS/STT handled by the server. Painting images are submitted only when the player presses **Klar!**; they are not stored by this project.
+Every visible character has a distinct agent persona. Use the **Samtal** button or right-click a character and choose **Prata**. Clicking the shrimp (Vallgravsräkan) opens a **voice-only** Swedish riddle game. The server stays the source of truth for the three-riddle gate (answers *piano*, *hål*, *fel*) and the secret instant-win if you name a young Swedish climate activist.
+
+### Shrimp voice chat
+
+The shrimp game is built like a realtime voice-chat assistant:
+
+- **Continuous STT** — while *Starta samtal* is active the microphone streams to ElevenLabs realtime Scribe over WebSocket, with local VAD that auto-commits a turn on silence. (Push-to-talk is not used; the mic stays open, so this bills ElevenLabs credits per second of open audio.) If realtime Scribe is unavailable the client falls back to the batch *record → transcribe* path.
+- **Streaming TTS** — each streamed reply sentence is synthesized server-side with ElevenLabs (`eleven_flash_v2_5`) and delivered inline as base64 audio events, so first audio arrives while the model is still generating. A `tts_error` per sentence falls back to client speech synthesis.
+- **Barge-in** — speaking while the shrimp talks interrupts playback.
+- **Echo guard** — committed transcripts with no local speech while the shrimp is talking are treated as speaker leakage and ignored.
+- **Richer character agent** — the shrimp persona adapts its tone across the riddles and escalates hints after wrong attempts.
+- **UI** — a shrimp avatar stage reflects *idle / listening / thinking / solved* states with a live transcript row and latency chips (*Slut-STT*, *Första token*, *Första ljud*).
+
+Both features require an `ELEVENLABS_API_KEY` in `.env`; without it the voice features are inert but the rest of the game works. Set `ELEVENLABS_VOICE_SHRIMP` (or the shared `ELEVENLABS_VOICE_ID`) to pick the shrimp voice.
+
+Painting images are submitted only when the player presses **Klar!**; they are not stored by this project.
 
 ## Validate
 

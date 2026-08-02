@@ -313,3 +313,118 @@ test("shrimp audio helpers resample, encode PCM16, and base64 without external A
   const base64 = shrimpBytesToBase64.call(null, new Uint8Array([0, 1, 2, 3]));
   assert.equal(base64, btoa(String.fromCharCode(0, 1, 2, 3)));
 });
+
+test("shrimp avatar stage and timing chips reflect conversation state", () => {
+  const shrimpAvatarState = loadMethod("  shrimpAvatarState() {", "\n  shrimpAvatarStateLabel() {");
+  const shrimpAvatarStateLabel = loadMethod("  shrimpAvatarStateLabel() {", "\n  shrimpAvatarStyle() {");
+  const shrimpAvatarStyle = loadMethod("  shrimpAvatarStyle() {", "\n  shrimpAvatarTranscript() {");
+  const shrimpAvatarTranscript = loadMethod("  shrimpAvatarTranscript() {", "\n  shrimpGameTimingChips() {");
+  const shrimpGameTimingChips = loadMethod("  shrimpGameTimingChips() {", "\n  shrimpCurrentRiddle() {");
+
+  const game = {
+    state: { shrimpGameOpen: true, shrimpGameActive: false, shrimpGameSolved: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null, shrimpGameA11yStatus: "", shrimpGameMsg: "" },
+    shrimpAvatarState,
+    shrimpAvatarStateLabel,
+    shrimpAvatarStyle,
+    shrimpAvatarTranscript,
+    shrimpGameTimingChips,
+  };
+
+  // Idle, not started yet.
+  assert.equal(shrimpAvatarState.call(game), "idle");
+  assert.equal(shrimpAvatarStateLabel.call(game), "Väntar");
+  assert.match(shrimpAvatarStyle.call(game), /shrimpIdleSway/);
+
+  // Listening with a live partial transcript.
+  game.state.shrimpGameActive = true;
+  game.state.shrimpGameListening = true;
+  game.state.shrimpGamePartial = "piano";
+  assert.equal(shrimpAvatarState.call(game), "listening");
+  assert.equal(shrimpAvatarStateLabel.call(game), "Lyssnar");
+  assert.match(shrimpAvatarTranscript.call(game), /„piano”/);
+
+  // Thinking while the assistant replies.
+  game.state.shrimpGameListening = false;
+  game.state.shrimpGameBusy = true;
+  assert.equal(shrimpAvatarState.call(game), "thinking");
+  assert.equal(shrimpAvatarStateLabel.call(game), "Räkan tänker");
+  assert.match(shrimpAvatarStyle.call(game), /shrimpThinkPulse/);
+
+  // Speaking while the assistant's audio plays.
+  game.shrimpVoiceAudio = {};
+  assert.equal(shrimpAvatarState.call(game), "speaking");
+  assert.equal(shrimpAvatarStateLabel.call(game), "Räkan talar");
+  assert.match(shrimpAvatarStyle.call(game), /shrimpSpeakBob/);
+  game.shrimpVoiceAudio = null;
+
+  // Solved -> glow + solved transcript.
+  game.state.shrimpGameBusy = false;
+  game.state.shrimpGameSolved = true;
+  assert.equal(shrimpAvatarState.call(game), "solved");
+  assert.match(shrimpAvatarStyle.call(game), /shrimpSolvedGlow/);
+  assert.match(shrimpAvatarTranscript.call(game), /öppnat porten/);
+
+  // Timing chips render realtime + measured latencies.
+  game.state.shrimpGameRealtime = true;
+  game.state.shrimpGameTimingStt = 650;
+  game.state.shrimpGameTimingFirstToken = 430;
+  game.state.shrimpGameTimingFirstAudio = 1200;
+  const chips = shrimpGameTimingChips.call(game);
+  assert.ok(chips.includes("STT: realtime"));
+  assert.ok(chips.some((c) => /^Slut-STT 650 ms$/.test(c)));
+  assert.ok(chips.some((c) => /^Första token 430 ms$/.test(c)));
+  assert.ok(chips.some((c) => /^Första ljud 1\.20 s$/.test(c)));
+
+  // No measurements -> no latency chips, just the realtime indicator.
+  game.state.shrimpGameTimingStt = null;
+  game.state.shrimpGameTimingFirstToken = null;
+  game.state.shrimpGameTimingFirstAudio = null;
+  const empty = shrimpGameTimingChips.call(game);
+  assert.equal(empty.length, 1);
+  assert.equal(empty[0], "STT: realtime");
+});
+
+test("unexpected realtime disconnect releases media and starts the batch fallback once", () => {
+  const handleDisconnect = loadMethod(
+    "  shrimpHandleScribeDisconnect(session) {",
+    "\n  shrimpHandleScribeCommit(committedText) {",
+  );
+  let stopped = 0;
+  let disconnected = 0;
+  let closed = 0;
+  let aborted = 0;
+  let fallbackStarts = 0;
+  const game = {
+    shrimpGameSession: 7,
+    shrimpScribeAbort: { abort() { aborted += 1; } },
+    shrimpScribe: { close() {} },
+    shrimpRealtimeStream: { getTracks: () => [{ stop() { stopped += 1; } }] },
+    shrimpRealtimeProcessor: { disconnect() { disconnected += 1; }, onaudioprocess() {} },
+    shrimpRealtimeSource: { disconnect() { disconnected += 1; } },
+    shrimpRealtimeMute: { disconnect() { disconnected += 1; } },
+    shrimpRealtimeCtx: { close() { closed += 1; } },
+    shrimpVadLocalSpeech: true,
+    shrimpVadAbove: 2,
+    shrimpVadQuiet: 3,
+    shrimpUtteranceHadLocalSpeech: true,
+    state: { shrimpGameOpen: true, shrimpGameActive: true, shrimpGameSolved: false, shrimpGameRealtime: true, shrimpGameListening: true },
+    setState(update) { Object.assign(this.state, update); },
+    shrimpStartRecording() { fallbackStarts += 1; },
+  };
+
+  handleDisconnect.call(game, 7);
+
+  assert.equal(aborted, 1);
+  assert.equal(stopped, 1);
+  assert.equal(disconnected, 3);
+  assert.equal(closed, 1);
+  assert.equal(fallbackStarts, 1);
+  assert.equal(game.state.shrimpGameRealtime, false);
+  assert.equal(game.state.shrimpGameListening, false);
+  assert.equal(game.state.shrimpGameBusy, false);
+  assert.equal(game.shrimpRealtimeStream, null);
+  assert.equal(game.shrimpRealtimeProcessor, null);
+
+  handleDisconnect.call(game, 6);
+  assert.equal(fallbackStarts, 1, "a stale session must not restart recording");
+});

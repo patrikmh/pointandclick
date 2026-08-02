@@ -59,6 +59,11 @@
   @keyframes fireFlicker3 { 0% { opacity: 0; } 62% { opacity: 0; } 68% { opacity: 0.75; transform: scale(1.025) translateY(-0.8%) rotate(0.4deg); } 74% { opacity: 1; } 84% { opacity: 0.9; transform: scale(1.0) translateY(0) rotate(-0.2deg); } 92% { opacity: 1; } 100% { opacity: 0.2; } }
   @keyframes fireGlow { 0% { filter: brightness(1); } 22% { filter: brightness(1.06); } 40% { filter: brightness(0.96); } 58% { filter: brightness(1.08); } 76% { filter: brightness(0.98); } 100% { filter: brightness(1); } }
   @keyframes shrimpMarch { 0% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(10px) rotate(0.6deg); } 50% { transform: translateX(0) rotate(0deg); } 75% { transform: translateX(-10px) rotate(-0.6deg); } 100% { transform: translateX(0) rotate(0deg); } }
+  @keyframes shrimpIdleSway { 0% { transform: rotate(-1.4deg) translateY(0); } 50% { transform: rotate(1.4deg) translateY(-2px); } 100% { transform: rotate(-1.4deg) translateY(0); } }
+  @keyframes shrimpListenRing { 0% { transform: scale(0.92); opacity: 0.0; } 30% { opacity: 0.75; } 100% { transform: scale(1.18); opacity: 0; } }
+  @keyframes shrimpSpeakBob { 0% { transform: translateY(0) scale(1); } 25% { transform: translateY(-3px) scale(1.03); } 50% { transform: translateY(0) scale(1); } 75% { transform: translateY(-2px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
+  @keyframes shrimpThinkPulse { 0%, 100% { filter: brightness(1) drop-shadow(0 0 0 oklch(0.7 0.1 82 / 0)); } 50% { filter: brightness(1.15) drop-shadow(0 0 10px oklch(0.7 0.1 82 / 0.45)); } }
+  @keyframes shrimpSolvedGlow { 0%, 100% { filter: drop-shadow(0 0 4px oklch(0.7 0.12 145 / 0.5)); } 50% { filter: drop-shadow(0 0 14px oklch(0.7 0.12 145 / 0.8)); } }
   @keyframes codBob { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-9px) rotate(-1.4deg); } 100% { transform: translateY(0) rotate(0deg); } }
   @keyframes fireGlowScene { 0% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } 22% { opacity: 0.95; transform: translate(-50%,-50%) scale(1.03); } 40% { opacity: 0.7; transform: translate(-50%,-50%) scale(0.97); } 58% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 76% { opacity: 0.8; transform: translate(-50%,-50%) scale(0.99); } 100% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } }
   @keyframes moonGlowPulse { 0% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } 50% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 100% { opacity: 0.85; transform: translate(-50%,-50%) scale(1); } }
@@ -109,10 +114,10 @@
 
   <sc-if value="{{ settingsOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:92;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(360px,calc(100vw - 32px));background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+      <div data-modal="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" style="width:min(360px,calc(100vw - 32px));background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:20px 22px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;align-items:center;gap:10px">
-          <div style="flex:1;font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">INSTÄLLNINGAR</div>
-          <button onClick="{{ settingsClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <div id="settings-title" style="flex:1;font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">INSTÄLLNINGAR</div>
+          <button type="button" aria-label="Stäng inställningarna" onClick="{{ settingsClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Musik &amp; ambiens</span><span>{{ musicVolPct }}%</span></div>
@@ -461,21 +466,21 @@
 
   <sc-if value="{{ gullGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div data-modal="gull-game" role="dialog" aria-modal="true" aria-labelledby="gull-game-title" aria-describedby="gull-game-help gull-game-status" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BOMBANFALL ÖVER VIKEN</div>
-            <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter styr, MELLANSLAG släpper — Träffar: {{ gullGameHits }}/{{ gullGameWinHits }} &nbsp;·&nbsp; Bomber kvar: {{ gullGameBombs }}</div>
+            <div id="gull-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BOMBANFALL ÖVER VIKEN</div>
+            <div id="gull-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter styr, MELLANSLAG släpper — Träffar: {{ gullGameHits }}/{{ gullGameWinHits }} &nbsp;·&nbsp; Bomber kvar: {{ gullGameBombs }}</div>
           </div>
-          <button onClick="{{ gullGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button type="button" aria-label="Stäng måsens bombuppdrag" onClick="{{ gullGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
-        <div ref="{{ setGullGameStage }}" tabindex="-1" style="position:relative;width:min(840px,calc(100vw - 64px));height:auto;aspect-ratio:840/520;border-radius:10px;overflow:hidden;background:#0a3245;box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
+        <div ref="{{ setGullGameStage }}" role="application" aria-label="Styr måsen över polisbåten" aria-describedby="gull-game-help gull-game-status" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space Escape" tabindex="0" style="position:relative;width:min(840px,calc(100vw - 64px));height:auto;aspect-ratio:840/520;border-radius:10px;overflow:hidden;background:#0a3245;box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
           <canvas ref="{{ setGullWaterCanvas }}" width="840" height="520" style="position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"></canvas>
           <img ref="{{ setGullBoatRef }}" src="{{ gullGameBoatSrc }}" alt="Polisbåten" draggable="false" style="position:absolute;left:0;top:0;width:250px;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
           <img ref="{{ setGullPlaneRef }}" src="assets/bomber-gull.png" alt="Måsen på bombuppdrag" draggable="false" style="position:absolute;left:0;top:0;width:150px;pointer-events:none;filter:drop-shadow(0 12px 16px rgba(0,0,0,0.55))">
         </div>
         <sc-if value="{{ gullGameMsg }}" hint-placeholder-val="">
-          <div style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ gullGameMsg }}</div>
+          <div id="gull-game-status" role="status" aria-live="polite" style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ gullGameMsg }}</div>
         </sc-if>
       </div>
     </div>
@@ -670,6 +675,18 @@
           <div style="font-family:'Work Sans',sans-serif;font-size:12px;color:oklch(0.8 0.02 80);background:oklch(0.2 0.02 60 / 0.55);border:1px solid oklch(0.45 0.03 70 / 0.4);border-radius:999px;padding:5px 12px">{{ shrimpGameVoiceState }}</div>
           <button type="button" onClick="{{ shrimpGameToggle }}" disabled="{{ shrimpGameToggleDisabled }}" aria-disabled="{{ shrimpGameToggleDisabled }}" aria-pressed="{{ shrimpGameActive }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:{{ shrimpGameActive ? 'oklch(0.34 0.08 150 / 0.45)' : 'oklch(0.22 0.025 65 / 0.7)' }};color:oklch(0.9 0.04 82);cursor:pointer;opacity:{{ shrimpGameToggleDisabled ? 0.55 : 1 }}">{{ shrimpGameToggleLabel }}</button>
         </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 0 2px">
+          <div style="position:relative;width:118px;height:118px;flex:0 0 118px;display:flex;align-items:center;justify-content:center">
+            <sc-if value="{{ shrimpAvatarListening }}" hint-placeholder-val="">
+              <span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;border:2px solid oklch(0.7 0.1 82 / 0.6);animation:shrimpListenRing 1.5s ease-out infinite"></span>
+            </sc-if>
+            <img src="assets/shrimp-protest.png?v=2" alt="Vallgravsräkan" draggable="false" style="{{ shrimpAvatarStyle }}">
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px;min-width:0">
+            <div style="font-family:'Cinzel',serif;font-size:12.5px;letter-spacing:0.04em;color:oklch(0.78 0.07 82);text-transform:uppercase">{{ shrimpAvatarStateLabel }}</div>
+            <div aria-live="polite" style="font-family:'Work Sans',sans-serif;font-size:14px;line-height:1.4;color:oklch(0.92 0.03 82);min-height:1.4em;word-break:break-word">{{ shrimpAvatarTranscript }}</div>
+          </div>
+        </div>
         <div id="shrimp-game-prompt" style="font-family:'Work Sans',sans-serif;font-size:15px;line-height:1.5;color:oklch(0.95 0.05 82);padding:12px 14px;border-radius:12px;border:1px solid oklch(0.5 0.02 60 / 0.5);background:oklch(0.2 0.02 60 / 0.55)">{{ shrimpGamePrompt }}</div>
         <div style="font-family:'Work Sans',sans-serif;font-size:12.5px;color:oklch(0.82 0.05 82);padding:0 2px">Ledtråd: {{ shrimpGameHint }}</div>
         <div id="shrimp-game-history" ref="{{ setShrimpConversationRef }}" role="log" aria-live="polite" aria-relevant="additions text" aria-atomic="false" style="max-height:240px;overflow:auto;padding:4px 2px 2px;display:flex;flex-direction:column;gap:10px">
@@ -678,6 +695,11 @@
               <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:oklch(0.76 0.04 80);margin-bottom:4px">{{ msg.label }}</div>
               <div style="font-size:14px;line-height:1.45">{{ msg.text }}<sc-if value="{{ msg.pending }}" hint-placeholder-val=""><span style="display:inline-block;width:10px;animation:blink 1s step-end infinite">▍</span></sc-if></div>
             </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:2px 2px 0">
+          <sc-for list="{{ shrimpGameTimingChips }}" as="tchip" hint-placeholder-count="3">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.74 0.03 80);background:oklch(0.2 0.02 60 / 0.55);border:1px solid oklch(0.42 0.03 70 / 0.4);border-radius:999px;padding:3px 9px">{{ tchip }}</span>
           </sc-for>
         </div>
         <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.84 0.05 82)">{{ shrimpGameMsg }}</div>
@@ -934,6 +956,9 @@ class Component extends DCLogic {
     shrimpGameMessages: [],
     shrimpGamePartial: "",
     shrimpGameRealtime: false,
+    shrimpGameTimingStt: null,
+    shrimpGameTimingFirstToken: null,
+    shrimpGameTimingFirstAudio: null,
     shrimpHelped: false,
     shrimpGameSolved: false,
     sheepGameOpen: false,
@@ -2168,6 +2193,62 @@ class Component extends DCLogic {
     });
   }
 
+  // Phase 4: shrimp avatar stage + live transcript + timing chips. These read existing state so
+  // they stay in sync with the voice-chat lifecycle without touching server-authoritative logic.
+  shrimpAvatarState() {
+    const s = this.state || {};
+    if (s.shrimpGameSolved) return "solved";
+    if (!s.shrimpGameActive) return "idle";
+    // While the assistant's audio is playing we're "speaking"; otherwise busy => generating.
+    if (this.shrimpVoiceAudio || this.shrimpSpeechBusy) return "speaking";
+    if (s.shrimpGameBusy) return "thinking";
+    if (s.shrimpGameListening) return "listening";
+    return "idle";
+  }
+
+  shrimpAvatarStateLabel() {
+    const s = this.state || {};
+    switch (this.shrimpAvatarState()) {
+      case "solved": return "Porten är öppen";
+      case "speaking": return "Räkan talar";
+      case "listening": return "Lyssnar";
+      case "thinking": return "Räkan tänker";
+      default: return s.shrimpGameActive ? "Redo" : "Väntar";
+    }
+  }
+
+  shrimpAvatarStyle() {
+    const state = this.shrimpAvatarState();
+    const base = "width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.45));pointer-events:none;";
+    if (state === "speaking") return base + "animation:shrimpSpeakBob 0.7s ease-in-out infinite;";
+    if (state === "listening") return base + "animation:shrimpIdleSway 2.8s ease-in-out infinite;";
+    if (state === "thinking") return base + "animation:shrimpThinkPulse 1.1s ease-in-out infinite;";
+    if (state === "solved") return base + "animation:shrimpSolvedGlow 2.2s ease-in-out infinite;";
+    return base + "animation:shrimpIdleSway 4.2s ease-in-out infinite;";
+  }
+
+  shrimpAvatarTranscript() {
+    const s = this.state || {};
+    if (s.shrimpGameSolved) return "Räkan har öppnat porten och dragit sig tillbaka i mörkret.";
+    if (s.shrimpGameActive && s.shrimpGameListening && s.shrimpGamePartial) return `„${s.shrimpGamePartial}”`;
+    return s.shrimpGameA11yStatus || s.shrimpGameMsg || (s.shrimpGameActive ? "Säg något till räkan." : "Tryck Starta samtal när du är redo.");
+  }
+
+  shrimpGameTimingChips() {
+    const s = this.state || {};
+    const chips = [];
+    if (s.shrimpGameRealtime) chips.push("STT: realtime");
+    else if (s.shrimpGameActive) chips.push("STT: väntar");
+    const fmt = (ms) => (ms == null ? null : (ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(2)} s`));
+    const stt = fmt(s.shrimpGameTimingStt);
+    const token = fmt(s.shrimpGameTimingFirstToken);
+    const audio = fmt(s.shrimpGameTimingFirstAudio);
+    if (stt) chips.push(`Slut-STT ${stt}`);
+    if (token) chips.push(`Första token ${token}`);
+    if (audio) chips.push(`Första ljud ${audio}`);
+    return chips;
+  }
+
   shrimpCurrentRiddle() {
     const step = Number.isInteger(this.state?.shrimpGameStep) ? this.state.shrimpGameStep : 0;
     return this.shrimpGameRiddles[Math.min(step, this.shrimpGameRiddles.length - 1)];
@@ -2380,6 +2461,9 @@ class Component extends DCLogic {
       shrimpGameAttempts: 0,
       shrimpGamePartial: "",
       shrimpGameRealtime: false,
+      shrimpGameTimingStt: null,
+      shrimpGameTimingFirstToken: null,
+      shrimpGameTimingFirstAudio: null,
       shrimpGameMessages: [{ role: "assistant", text: intro, pending: false }],
       shrimpGameMsg: intro,
       shrimpGameA11yStatus: intro,
@@ -2390,10 +2474,14 @@ class Component extends DCLogic {
 
   shrimpStartConversation() {
     if (!this.state.shrimpGameOpen || this.state.shrimpGameSolved || this.state.shrimpGameActive) return;
+    this.shrimpListenStartTs = typeof performance !== "undefined" ? performance.now() : Date.now();
     this.setState({
       shrimpGameActive: true,
       shrimpGameMsg: "Startar samtal…",
       shrimpGameA11yStatus: "Startar samtal.",
+      shrimpGameTimingStt: null,
+      shrimpGameTimingFirstToken: null,
+      shrimpGameTimingFirstAudio: null,
     }, () => {
       void this.shrimpStartRealtimeSession();
     });
@@ -2421,7 +2509,7 @@ class Component extends DCLogic {
 
   closeShrimpGame() {
     this.teardownShrimpGame();
-    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false });
+    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null });
   }
 
   teardownShrimpGame() {
@@ -2663,10 +2751,17 @@ class Component extends DCLogic {
 
     this.shrimpInterruptSpeech();
     this.shrimpConversationAbort = abortController;
+    const turnStart = typeof performance !== "undefined" ? performance.now() : Date.now();
+    const sttDuration = this.shrimpListenStartTs ? turnStart - this.shrimpListenStartTs : null;
+    this.__shrimpFirstTokenAt = null;
+    this.__shrimpFirstAudioAt = null;
     this.setState({
       shrimpGameMessages: [...messages, placeholder],
       shrimpGameListening: false,
       shrimpGameBusy: true,
+      shrimpGameTimingStt: sttDuration,
+      shrimpGameTimingFirstToken: null,
+      shrimpGameTimingFirstAudio: null,
     }, () => this.shrimpScrollConversation());
 
     let result = outcomeFallback;
@@ -2691,12 +2786,24 @@ class Component extends DCLogic {
               if (Number.isInteger(event.attempts)) serverAttempts = event.attempts;
             } else if (event?.type === "delta" && typeof event.text === "string") {
               assistantText += event.text;
+              if (!this.__shrimpFirstTokenAt) {
+                this.__shrimpFirstTokenAt = (typeof performance !== "undefined" ? performance.now() : Date.now()) - turnStart;
+                this.setState({ shrimpGameTimingFirstToken: this.__shrimpFirstTokenAt });
+              }
               this.shrimpUpdateConversationMessage(assistantIndex, { text: assistantText, pending: true });
             } else if (event?.type === "sentence" && typeof event.text === "string") {
+              if (!this.__shrimpFirstTokenAt) {
+                this.__shrimpFirstTokenAt = (typeof performance !== "undefined" ? performance.now() : Date.now()) - turnStart;
+                this.setState({ shrimpGameTimingFirstToken: this.__shrimpFirstTokenAt });
+              }
               // Buffer the sentence; the matching audio event (or tts_error) drives playback so we
               // never synthesize the same line twice. If neither arrives we flush at done.
               pendingSentences.push(event.text);
             } else if (event?.type === "audio" && typeof event.text === "string" && typeof event.audio_base64 === "string") {
+              if (!this.__shrimpFirstAudioAt) {
+                this.__shrimpFirstAudioAt = (typeof performance !== "undefined" ? performance.now() : Date.now()) - turnStart;
+                this.setState({ shrimpGameTimingFirstAudio: this.__shrimpFirstAudioAt });
+              }
               spokeAny = true;
               this.shrimpConsumePending(pendingSentences, event.text);
               void this.shrimpPlayAudioEvent(event.text, event.audio_base64);
@@ -2839,6 +2946,10 @@ class Component extends DCLogic {
           if ((this.shrimpGameSession || 0) !== session) return;
           this.shrimpSetStatus(message || "STT-fel.");
         },
+        onClose: (intentional) => {
+          if (intentional) return;
+          this.shrimpHandleScribeDisconnect(session);
+        },
       });
       if ((this.shrimpGameSession || 0) !== session) { await this.shrimpStopRealtimeSession(); return; }
       this.setState({
@@ -2866,6 +2977,12 @@ class Component extends DCLogic {
       try { this.shrimpScribe.close(); } catch (err) { /* ignored */ }
       this.shrimpScribe = null;
     }
+    // Stop mic tracks and disconnect audio nodes synchronously before the async
+    // AudioContext.close so nothing survives an unmount even if close() never resolves.
+    if (this.shrimpRealtimeStream) {
+      try { this.shrimpRealtimeStream.getTracks().forEach((track) => track.stop()); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeStream = null;
+    }
     if (this.shrimpRealtimeProcessor) {
       try { this.shrimpRealtimeProcessor.disconnect(); } catch (err) { /* ignored */ }
       try { this.shrimpRealtimeProcessor.onaudioprocess = null; } catch (err) { /* ignored */ }
@@ -2883,14 +3000,60 @@ class Component extends DCLogic {
       try { await this.shrimpRealtimeCtx.close(); } catch (err) { /* ignored */ }
       this.shrimpRealtimeCtx = null;
     }
+    this.shrimpVadLocalSpeech = false;
+    this.shrimpVadAbove = 0;
+    this.shrimpVadQuiet = 0;
+    this.shrimpUtteranceHadLocalSpeech = false;
+  }
+
+  // Called when the Scribe WebSocket closes unexpectedly (not from an intentional
+  // shutdown). Clears realtime resources synchronously, reports a Swedish fallback
+  // status, and starts the batch recorder only if the same shrimp session is still
+  // open, active, and unsolved. Avoids calling shrimpStopRealtimeSession to prevent
+  // recursive cleanup races — the socket is already closed by the time we arrive.
+  shrimpHandleScribeDisconnect(session) {
+    if ((this.shrimpGameSession || 0) !== session) return;
+    if (this.shrimpScribeAbort) {
+      try { this.shrimpScribeAbort.abort(); } catch (err) { /* ignored */ }
+      this.shrimpScribeAbort = null;
+    }
+    this.shrimpScribe = null;
     if (this.shrimpRealtimeStream) {
       try { this.shrimpRealtimeStream.getTracks().forEach((track) => track.stop()); } catch (err) { /* ignored */ }
       this.shrimpRealtimeStream = null;
+    }
+    if (this.shrimpRealtimeProcessor) {
+      try { this.shrimpRealtimeProcessor.disconnect(); } catch (err) { /* ignored */ }
+      try { this.shrimpRealtimeProcessor.onaudioprocess = null; } catch (err) { /* ignored */ }
+      this.shrimpRealtimeProcessor = null;
+    }
+    if (this.shrimpRealtimeSource) {
+      try { this.shrimpRealtimeSource.disconnect(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeSource = null;
+    }
+    if (this.shrimpRealtimeMute) {
+      try { this.shrimpRealtimeMute.disconnect(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeMute = null;
+    }
+    if (this.shrimpRealtimeCtx) {
+      try { this.shrimpRealtimeCtx.close(); } catch (err) { /* ignored */ }
+      this.shrimpRealtimeCtx = null;
     }
     this.shrimpVadLocalSpeech = false;
     this.shrimpVadAbove = 0;
     this.shrimpVadQuiet = 0;
     this.shrimpUtteranceHadLocalSpeech = false;
+    this.setState({
+      shrimpGameRealtime: false,
+      shrimpGameListening: false,
+      shrimpGameBusy: false,
+      shrimpGamePartial: "",
+      shrimpGameMsg: "Realtime-röst bröts – byter till inspelning.",
+      shrimpGameA11yStatus: "Realtime-röst bröts – byter till inspelning.",
+    });
+    if (this.state.shrimpGameOpen && this.state.shrimpGameActive && !this.state.shrimpGameSolved) {
+      void this.shrimpStartRecording();
+    }
   }
 
   // Called when Scribe commits a turn. We guard against speaker leakage: if the assistant was
@@ -7270,6 +7433,7 @@ class Component extends DCLogic {
 
   openGullGame() {
     if (this.state.gullFreed) return;
+    this.gullReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
     this.gullGameHitsCount = 0;
     this.gullGameLastThrow = 0;
     this.setState({
@@ -7281,14 +7445,18 @@ class Component extends DCLogic {
   }
 
   closeGullGame() {
+    const returnFocus = this.gullReturnFocus;
+    this.gullReturnFocus = null;
     this.teardownGullGame();
-    this.setState({ gullGameOpen: false });
+    this.setState({ gullGameOpen: false }, () => returnFocus?.focus?.());
   }
 
   initGullStage(el) {
     if (!el || el === this.gullGameStageEl) return;
     this.gullGameStageEl = el;
     this.startGullGame();
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => el.focus?.());
+    else el.focus?.();
   }
 
   startGullGame() {
@@ -7418,6 +7586,15 @@ class Component extends DCLogic {
   handleGullKeyDown(e) {
     if (!this.state.gullGameOpen) return;
     const k = e.key;
+    if (k === "Tab") {
+      this.trapModalFocus(e, '[data-modal="gull-game"]');
+      return;
+    }
+    if (k === "Escape") {
+      e.preventDefault();
+      this.closeGullGame();
+      return;
+    }
     if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === " " || k === "Spacebar") {
       e.preventDefault();
     }
@@ -8306,7 +8483,56 @@ class Component extends DCLogic {
     this.say(def.name, def.desc || def.line, null);
   }
 
+  trapModalFocus(event, selector) {
+    if (event.key !== "Tab" || typeof document === "undefined") return false;
+    const dialog = document.querySelector(selector);
+    if (!dialog) return false;
+    const focusable = Array.from(dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'))
+      .filter((element) => element.getClientRects().length > 0);
+    if (!focusable.length) { event.preventDefault(); dialog.focus?.(); return true; }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const current = document.activeElement;
+    if (event.shiftKey && (current === first || !dialog.contains(current))) {
+      event.preventDefault();
+      last.focus();
+      return true;
+    }
+    if (!event.shiftKey && (current === last || !dialog.contains(current))) {
+      event.preventDefault();
+      first.focus();
+      return true;
+    }
+    return false;
+  }
+
+  toggleSettings() {
+    if (this.state.settingsOpen) { this.closeSettings(); return; }
+    this.settingsReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this._settingsKeyDown = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); this.closeSettings(); return; }
+      this.trapModalFocus(event, '[data-modal="settings"]');
+    };
+    if (typeof window !== "undefined") window.addEventListener("keydown", this._settingsKeyDown);
+    this.setState({ settingsOpen: true }, () => {
+      if (typeof document !== "undefined") document.querySelector('[aria-label="Stäng inställningarna"]')?.focus();
+    });
+  }
+
+  teardownSettingsModal() {
+    if (this._settingsKeyDown && typeof window !== "undefined") window.removeEventListener("keydown", this._settingsKeyDown);
+    this._settingsKeyDown = null;
+  }
+
+  closeSettings() {
+    const returnFocus = this.settingsReturnFocus;
+    this.settingsReturnFocus = null;
+    this.teardownSettingsModal();
+    this.setState({ settingsOpen: false }, () => returnFocus?.focus?.());
+  }
+
   reset() {
+    this.teardownSettingsModal();
     clearInterval(this.typer);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
@@ -8492,6 +8718,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    this.teardownSettingsModal();
     clearInterval(this.typer);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
@@ -8620,8 +8847,8 @@ class Component extends DCLogic {
       dialogAction: S.dialogAction,
       reset: () => this.reset(),
       settingsOpen: S.settingsOpen,
-      settingsToggle: () => this.setState((s) => ({ settingsOpen: !s.settingsOpen })),
-      settingsClose: () => this.setState({ settingsOpen: false }),
+      settingsToggle: () => this.toggleSettings(),
+      settingsClose: () => this.closeSettings(),
       musicVolPct: Math.round((window.__audioMix ? window.__audioMix.music : 0.6) * 100),
       sfxVolPct: Math.round((window.__audioMix ? window.__audioMix.sfx : 1) * 100),
       musicVolChange: (e) => this.setMusicVol(Number(e.target.value) / 100),
@@ -8831,6 +9058,12 @@ class Component extends DCLogic {
       })),
       shrimpGameRiddleNumber: Math.min((S.shrimpGameStep || 0) + 1, this.shrimpGameRiddles.length),
       shrimpGameToggle: () => this.shrimpToggleConversation(),
+      shrimpAvatarState: this.shrimpAvatarState(),
+      shrimpAvatarStateLabel: this.shrimpAvatarStateLabel(),
+      shrimpAvatarListening: this.shrimpAvatarState() === "listening",
+      shrimpAvatarStyle: this.shrimpAvatarStyle(),
+      shrimpAvatarTranscript: this.shrimpAvatarTranscript(),
+      shrimpGameTimingChips: this.shrimpGameTimingChips(),
       shrimpGameClose: () => this.closeShrimpGame(),
       shrimpClick: (e) => this.shrimpClick(e),
       shrimpKeyDown: (e) => this.shrimpKeyDown(e),

@@ -45,6 +45,41 @@ test("the game exposes an agent for every visible character", async () => {
   assert.match(source, /Tonen ska vara absurd och komisk, men karaktären tar sin egen situation på fullaste allvar/);
 });
 
+test("settings expose an accessible modal and labelled close control", async () => {
+  const source = await readFile(gamePath, "utf8");
+  const start = source.indexOf('<sc-if value="{{ settingsOpen }}"');
+  const end = source.indexOf('<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">', start);
+  const settingsMarkup = source.slice(start, end);
+
+  assert.notEqual(start, -1, "missing settings markup");
+  assert.notEqual(end, -1, "missing settings boundary");
+  assert.match(settingsMarkup, /data-modal="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title"/);
+  assert.match(settingsMarkup, /id="settings-title"/);
+  assert.match(settingsMarkup, /aria-label="Stäng inställningarna"/);
+  assert.match(source, /toggleSettings\(\)[\s\S]*this\.settingsReturnFocus = [\s\S]*Stäng inställningarna[\s\S]*closeSettings\(\)/);
+  assert.match(source, /closeSettings\(\)[\s\S]*teardownSettingsModal\(\)[\s\S]*returnFocus\?\.focus\?\.\(\)/);
+  assert.match(source, /_settingsKeyDown = \(event\) =>[\s\S]*event\.key === "Escape"[\s\S]*trapModalFocus\(event, '\[data-modal="settings"\]'\)/);
+  assert.match(source, /trapModalFocus\(event, selector\)[\s\S]*event\.key !== "Tab"[\s\S]*dialog\.contains\(current\)/);
+});
+
+test("the gull minigame exposes accessible modal and keyboard semantics", async () => {
+  const source = await readFile(gamePath, "utf8");
+  const start = source.indexOf('<sc-if value="{{ gullGameOpen }}"');
+  const end = source.indexOf('<sc-if value="{{ sealGameOpen }}"', start);
+  const gullMarkup = source.slice(start, end);
+
+  assert.notEqual(start, -1, "missing gull minigame markup");
+  assert.notEqual(end, -1, "missing gull minigame boundary");
+  assert.match(gullMarkup, /data-modal="gull-game" role="dialog" aria-modal="true" aria-labelledby="gull-game-title"/);
+  assert.match(gullMarkup, /aria-label="Stäng måsens bombuppdrag"/);
+  assert.match(gullMarkup, /role="application" aria-label="Styr måsen över polisbåten"/);
+  assert.match(gullMarkup, /aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space Escape"/);
+  assert.match(gullMarkup, /id="gull-game-status" role="status" aria-live="polite"/);
+  assert.match(source, /handleGullKeyDown\(e\)[\s\S]*k === "Tab"[\s\S]*trapModalFocus\(e, '\[data-modal="gull-game"\]'\)[\s\S]*k === "Escape"[\s\S]*this\.closeGullGame\(\)/);
+  assert.match(source, /initGullStage\(el\)[\s\S]*requestAnimationFrame\(\(\) => el\.focus\?\.\(\)\)/);
+  assert.match(source, /openGullGame\(\)[\s\S]*this\.gullReturnFocus = [\s\S]*closeGullGame\(\)[\s\S]*returnFocus\?\.focus\?\.\(\)/);
+});
+
 test("painting review and replay state use the production behavior", async () => {
   const source = await readFile(gamePath, "utf8");
 
@@ -267,6 +302,40 @@ test("the browser bridge posts sanitized requests and unwraps content", async ()
     messages: [{ role: "user", content: "Hej" }],
     max_tokens: 400,
   });
+});
+
+test("realtime Scribe abort closes a socket that was still connecting", async () => {
+  const source = await readFile(bridgePath, "utf8");
+  const sockets = [];
+  class FakeWebSocket {
+    constructor() { this.readyState = 0; sockets.push(this); }
+    close() {
+      if (this.readyState === 0) throw new Error("still connecting");
+      this.readyState = 3;
+      this.closed = true;
+    }
+  }
+  const context = {
+    window: {},
+    WebSocket: FakeWebSocket,
+    URL,
+    AbortController,
+    DOMException,
+    setTimeout,
+    clearTimeout,
+    fetch: async () => ({ ok: true, json: async () => ({ token: "single-use" }) }),
+  };
+  vm.runInNewContext(source, context);
+  const abort = new AbortController();
+  const pending = context.window.claude.shrimpRealtimeScribe({ signal: abort.signal });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(sockets.length, 1);
+
+  abort.abort();
+  await assert.rejects(pending, /aborted/i);
+  sockets[0].readyState = 1;
+  sockets[0].onopen();
+  assert.equal(sockets[0].closed, true, "a late open after abort must be closed immediately");
 });
 
 test("the browser bridge surfaces safe API errors", async () => {

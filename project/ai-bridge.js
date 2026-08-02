@@ -166,6 +166,153 @@
     return await readNdjsonResponse(response, options);
   }
 
+  // Realtime Scribe STT over WebSocket. Fetches a single-use token from the server, opens the
+  // ElevenLabs realtime speech-to-text socket, and exposes a tiny controller for sending PCM16
+  // chunks and closing cleanly. Mirrors the reference voice-chat client.
+  async function shrimpRealtimeScribe({ onOpen, onPartial, onCommit, onError, onClose, signal, languageCode = "swe", keyterms = [] } = {}) {
+    const tokenResponse = await fetch("/api/shrimp/scribe-token", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!tokenResponse.ok) {
+      const message = await tokenResponse.text().catch(() => "Kunde inte hämta scribe-token.");
+      throw new Error(message || "Kunde inte hämta scribe-token.");
+    }
+    const { token } = await tokenResponse.json();
+    if (!token) throw new Error("Servern returnerade ingen scribe-token.");
+
+    const wsUrl = new URL("wss://api.elevenlabs.io/v1/speech-to-text/realtime");
+    wsUrl.searchParams.set("model_id", "scribe_v2_realtime");
+    wsUrl.searchParams.set("audio_format", "pcm_16000");
+    wsUrl.searchParams.set("language_code", languageCode);
+    wsUrl.searchParams.set("commit_strategy", "vad");
+    wsUrl.searchParams.set("vad_silence_threshold_secs", "0.7");
+    wsUrl.searchParams.set("vad_threshold", "0.5");
+    wsUrl.searchParams.set("min_speech_duration_ms", "180");
+    wsUrl.searchParams.set("min_silence_duration_ms", "120");
+    wsUrl.searchParams.set("no_verbatim", "true");
+    wsUrl.searchParams.set("token", token);
+    for (const term of keyterms) {
+      const value = String(term || "").trim().slice(0, 20);
+      if (value) wsUrl.searchParams.append("keyterms", value);
+    }
+
+    let intentionallyClosed = false;
+    let steadyAbort = null;
+    const socket = new WebSocket(wsUrl.toString());
+    let firstChunk = true;
+    let previousText = "";
+
+    // Force-close the socket whenever it is still CONNECTING or OPEN. Safe to call
+    // at any readyState: the browser ignores close() on an already-closed socket.
+    const destroySocket = () => {
+      try { if (socket.readyState === 0 || socket.readyState === 1) socket.close(); } catch { /* ignored */ }
+    };
+
+    const send = (pcmBase64, contextText) => {
+      if (socket.readyState !== 1) return; // OPEN
+      const payload = { message_type: "input_audio_chunk", audio_base_64: pcmBase64 };
+      if (firstChunk && contextText) payload.previous_text = contextText.slice(-50);
+      firstChunk = false;
+      try { socket.send(JSON.stringify(payload)); } catch { /* ignored */ }
+    };
+
+    const close = () => {
+      intentionallyClosed = true;
+      if (signal && steadyAbort) {
+        signal.removeEventListener("abort", steadyAbort);
+        steadyAbort = null;
+      }
+      destroySocket();
+    };
+
+    const handleMessage = (event) => {
+      let data;
+      try { data = JSON.parse(event.data); } catch { return; }
+      const type = data.message_type;
+      if (type === "partial_transcript" || type === "final_transcript") {
+        if (data.text) previousText = String(data.text).trim();
+        if (typeof onPartial === "function") onPartial(previousText);
+      } else if (type === "committed_transcript") {
+        const text = String(data.text || "").trim();
+        if (text && typeof onCommit === "function") onCommit(text);
+        previousText = "";
+      } else if (type === "error" || type === "rate_limited" || type === "auth_error" || type === "quota_exceeded" || type === "transcriber_error" || type === "input_error" || type === "queue_overflow" || type === "resource_exhausted" || type === "session_time_limit_exceeded") {
+        if (typeof onError === "function") onError(data.error || data.message || "STT-fel");
+      }
+    };
+    socket.onmessage = handleMessage;
+
+    // The open promise settles exactly once. Every path — timeout, AbortSignal while
+    // CONNECTING or OPEN, socket error, or early close — clears the timer, removes the
+    // abort listener, destroys the socket on failure, and never leaves it alive.
+    await new Promise((resolve, reject) => {
+      let settled = false;
+      let timer = null;
+      let onAbort = null;
+
+      const teardown = () => {
+        if (timer) { clearTimeout(timer); timer = null; }
+        if (signal && onAbort) { signal.removeEventListener("abort", onAbort); onAbort = null; }
+      };
+
+      const settleFail = (error) => {
+        if (settled) return;
+        settled = true;
+        teardown();
+        destroySocket();
+        reject(error);
+      };
+
+      timer = setTimeout(() => settleFail(new Error("STT-anslutningen tog för lång tid.")), 10000);
+
+      if (signal) {
+        onAbort = () => settleFail(new DOMException("The operation was aborted.", "AbortError"));
+        if (signal.aborted) { onAbort(); return; }
+        signal.addEventListener("abort", onAbort, { once: true });
+      }
+
+      socket.onopen = () => {
+        if (settled) { destroySocket(); return; }
+        settled = true;
+        teardown();
+        if (typeof onOpen === "function") onOpen();
+        resolve();
+      };
+
+      socket.onerror = () => {
+        if (typeof onError === "function") onError("Kunde inte ansluta till ElevenLabs realtime STT.");
+        settleFail(new Error("Kunde inte ansluta till ElevenLabs realtime STT."));
+      };
+
+      socket.onclose = () => {
+        settleFail(new Error("STT-anslutningen stängdes för tidigt."));
+      };
+    });
+
+    // Steady-state: the socket is now OPEN. Replace the connecting-phase handlers.
+    socket.onerror = () => {
+      if (typeof onError === "function") onError("Kunde inte ansluta till ElevenLabs realtime STT.");
+      destroySocket();
+    };
+    socket.onclose = () => {
+      if (signal && steadyAbort) {
+        signal.removeEventListener("abort", steadyAbort);
+        steadyAbort = null;
+      }
+      if (typeof onClose === "function") onClose(!!intentionallyClosed);
+    };
+
+    if (signal) {
+      steadyAbort = close;
+      if (signal.aborted) close();
+      else signal.addEventListener("abort", steadyAbort, { once: true });
+    }
+
+    return { socket, send, close, get readyState() { return socket.readyState; } };
+  }
+
   async function complete(input) {
     const response = await fetch("/api/complete", {
       method: "POST",
@@ -187,5 +334,5 @@
     return content;
   }
 
-  window.claude = Object.assign({}, window.claude, { complete, shrimpConverse, readNdjsonResponse });
+  window.claude = Object.assign({}, window.claude, { complete, shrimpConverse, shrimpRealtimeScribe, readNdjsonResponse });
 })();
