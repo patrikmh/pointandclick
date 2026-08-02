@@ -164,7 +164,7 @@ test("the map on the submarine is the way in", () => {
   const start = source.indexOf('if (defId === "map" && target === "sub")');
   assert.notEqual(start, -1, "missing map-on-sub branch");
   const branch = source.slice(start, source.indexOf('if (target === "chest")', start));
-  assert.match(branch, /label: "Ta rodret", onClick: \(\) => this\.openSonarGame\(\)/);
+  assert.match(branch, /label: "Ta rodret", onClick: \(\) => this\._guideOrOpen\("sonar", \(\) => this\.openSonarGame\(\)\)/);
   assert.match(branch, /this\.state\.subHelped/, "a finished chart must not reopen the drill");
 });
 

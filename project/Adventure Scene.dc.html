@@ -325,6 +325,20 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ guideOpen }}" hint-placeholder-val="">
+    <div role="dialog" aria-modal="true" aria-labelledby="guide-title" style="position:fixed;inset:0;z-index:96;background:rgba(2,5,9,.84);display:flex;align-items:center;justify-content:center;padding:16px">
+      <div style="width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:#18272a;border:1px solid #5c9b98;border-radius:16px;padding:22px;color:#e7eee6;font-family:'Work Sans',sans-serif">
+        <button type="button" onClick="{{ guideClose }}" aria-label="Stäng guiden" style="float:right">✕</button>
+        <h2 id="guide-title" style="font-family:'Cinzel',serif">{{ guideTitle }}</h2>
+        <p><b>MÅL</b><br>{{ guideGoal }}</p>
+        <p><b>STYRNING</b><br>{{ guideControls }}</p>
+        <p><b>MEKANIK</b><br>{{ guideMechanics }}</p>
+        <label><input type="checkbox" checked="{{ guideDismissChecked }}" onChange="{{ guideToggleDismiss }}" /> Visa inte igen för detta spel</label>
+        <button type="button" onClick="{{ guideStart }}" style="display:block;margin-top:16px;padding:10px 18px">BÖRJA SPELA ▸</button>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ paintOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
       <div style="width:min(880px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
@@ -1561,12 +1575,12 @@ class Component extends DCLogic {
       this.say(
         "Uttern",
         "Åh! Du lossade den? Så milt hanterat — men den sitter kvar tills jag har något värdigt att ersätta den med. Tre uppdrag, tre plagg: materialet är havets, smaken är min.",
-        { label: "Öppna ateljén", onClick: () => this.openOtterAtelier() }
+        { label: "Öppna ateljén", onClick: () => this._guideOrOpen("atelier", () => this.openOtterAtelier()) }
       );
       return;
     }
     if (defId === "bottle" && target === "shrimp") {
-      this.openShrimpGame();
+      this._guideOrOpen("shrimp", () => this.openShrimpGame());
       return;
     }
     if ((defId === "driftwood" || defId === "fishline") && target === "octo") {
@@ -1580,22 +1594,22 @@ class Component extends DCLogic {
     if (defId === "flashlight-loaded" && target === "cave") {
       if (this.state.sheepRevealed) { this.say("", "Fåret står redan här och myser i ljuset.", null, "narr-faret-star-redan-har-och"); return; }
       if (this.caveSound) this.caveSound.pause();
-      this.openSheepGame();
+      this._guideOrOpen("sheep", () => this.openSheepGame());
       return;
     }
     if (defId === "briefcase" && target === "badger") {
       if (this.state.badgerHappy) { this.say("", "Grävlingen har redan sin portfölj.", null, "narr-gravlingen-har-redan-sin-portfolj"); return; }
-      this.openBadgerGame();
+      this._guideOrOpen("badger", () => this.openBadgerGame());
       return;
     }
     if (defId === "camera" && target === "seal") {
       if (this.state.sealHappy) { this.say("", "Sälen poserar redan för fullt.", null, "narr-salen-poserar-redan-for-fullt"); return; }
-      this.openSealGame();
+      this._guideOrOpen("seal", () => this.openSealGame());
       return;
     }
     if (defId === "shard" && target === "gull") {
       if (this.state.gullFreed) { this.say("", "Måsen är redan fri från linan.", null, "narr-masen-ar-redan-fri-fran"); return; }
-      this.openGullGame();
+      this._guideOrOpen("gull", () => this.openGullGame());
       return;
     }
     if (target === "snorkel") {
@@ -1613,7 +1627,7 @@ class Component extends DCLogic {
       this.say(
         "Kaptenen",
         "Mjau. Tre vrak, ingen skala, ingen kompassros. Turligt nog har jag ett ekolod och du har ingenting bättre för dig. Det ger avstånd — aldrig riktning.",
-        { label: "Ta rodret", onClick: () => this.openSonarGame() }
+        { label: "Ta rodret", onClick: () => this._guideOrOpen("sonar", () => this.openSonarGame()) }
       );
       return;
     }
@@ -1641,7 +1655,7 @@ class Component extends DCLogic {
       this.say("Bläckfisken", hint, null);
       return;
     }
-    this.openOctoGame();
+    this._guideOrOpen("octo", () => this.openOctoGame());
   }
 
   octoGameConfig = {
@@ -1656,6 +1670,28 @@ class Component extends DCLogic {
     tensionDecayPerSec: 95,
     tensionHoldNeeded: 1.6,
   };
+
+  gameGuides = {
+    shrimp: { title: "VALLGRAVSRÄKAN", goal: "Svara rätt på tre gåtor.", controls: "Starta samtal och svara med rösten.", mechanics: "Fel svar kostar inget; lyssna på ledtråden." },
+    sheep: { title: "BÄÄRNTS SKUGGTEATER", goal: "Matcha tre skuggor.", controls: "Klicka, dra och använd piltangenterna för att vrida.", mechanics: "Det är skuggan på väggen som ska passa silhuetten." },
+    seal: { title: "SÄLENS FOTOSESSION", goal: "Ta tre bra bilder.", controls: "Sikta med mus/pilar och klicka eller tryck mellanslag.", mechanics: "Siktesglaset blir grönt när kompositionen stämmer." },
+    octo: { title: "TENTAKELTRIAGE", goal: "Klara bläckfiskens fyra reparationsfaser.", controls: "Dra material och följ instruktionerna.", mechanics: "Faserna kräver splints, förankring, rep och förband." },
+    gull: { title: "BOMBANFALL ÖVER VIKEN", goal: "Träffa målen innan bomberna tar slut.", controls: "Styr med piltangenterna; mellanslag släpper bomb.", mechanics: "Timing och position avgör träffarna." },
+    sonar: { title: "EKOLODET", goal: "Hitta tre vrak.", controls: "Pinga rutor med klick eller piltangenter + Enter.", mechanics: "Ringarna visar avstånd, aldrig riktning." },
+    badger: { title: "GRÄVLINGENS KODLÅS", goal: "Knäck den tresiffriga koden.", controls: "Ställ dreghjulen och pröva koden.", mechanics: "Feedback visar om siffrorna ska vara högre eller lägre." },
+    atelier: { title: "STRANDATELJÉN", goal: "Klara tre konstbriefs.", controls: "Välj material och placera dem på figuren.", mechanics: "Checklistan visar vilka krav som är uppfyllda." },
+    paint: { title: "TORSKENS MÅLARSKOLA", goal: "Måla motiven med konstnärligt djup.", controls: "Dra på duken och välj färg/penselstorlek.", mechanics: "Varje motiv bedöms innan du går vidare." },
+    scrub: { title: "SKRUBBA BORT SJÖGRÄSET", goal: "Rensa krabban utan att överbelasta känsligheten.", controls: "Dra penseln över sjögräset.", mechanics: "Skrubba lugnt och pausa när känslighetsmätaren stiger." },
+  };
+  _guideKey(key) { return "guideDismissed:" + key; }
+  _guideDismissed(key) { if (typeof localStorage === "undefined") return false; try { return localStorage.getItem(this._guideKey(key)) === "1"; } catch (_) { return false; } }
+  _guideGate(key, proceed) { if (!this.gameGuides[key] || this._guideDismissed(key)) return false; this._guideProceed = proceed; this.setState({ guideOpen: true, guideGame: key, guideDismissChecked: false }); return true; }
+  _guideOrOpen(key, proceed) { if (!this._guideGate(key, proceed)) proceed(); }
+  guideToggleDismiss() { this.setState({ guideDismissChecked: !this.state.guideDismissChecked }); }
+  guideStart() { const key = this.state.guideGame; if (this.state.guideDismissChecked && typeof localStorage !== "undefined") { try { localStorage.setItem(this._guideKey(key), "1"); } catch (_) {} } const proceed = this._guideProceed; this._guideProceed = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); if (proceed) proceed(); }
+  guideClose() { this._guideProceed = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); }
+  guideResetDismissals() { if (typeof localStorage === "undefined") return; Object.keys(this.gameGuides).forEach((key) => { try { localStorage.removeItem(this._guideKey(key)); } catch (_) {} }); }
+
 
   octoGameMsgs() {
     return [
@@ -6224,7 +6260,7 @@ class Component extends DCLogic {
     this.say(
       "Torsken",
       "God dag! Jag är havets mest exklusiva målare. Vill du bli min elev? Måla fem motiv och visa konstnärligt djup. Bara de bästa antas. Visst?",
-      { label: "Börja måla", onClick: () => this.setState({ paintOpen: true, paintVerdict: "", paintIdx: this.state.paintIdx || 0 }) }
+      { label: "Börja måla", onClick: () => this._guideOrOpen("paint", () => this.setState({ paintOpen: true, paintVerdict: "", paintIdx: this.state.paintIdx || 0 })) }
     );
   }
 
@@ -6694,7 +6730,7 @@ class Component extends DCLogic {
     this.say(
       "Uttern",
       "Ateljén står redo. Kvar att lösa: " + brief.label + ".",
-      { label: "Öppna ateljén", onClick: () => this.openOtterAtelier() }
+      { label: "Öppna ateljén", onClick: () => this._guideOrOpen("atelier", () => this.openOtterAtelier()) }
     );
   }
 
@@ -7936,7 +7972,7 @@ class Component extends DCLogic {
       return;
     }
     if (this.state.crabWatered) {
-      this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 });
+      this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 }));
       this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null, "narr-sjograset-ar-fortfarande-mjukt-av");
       return;
     }
@@ -7954,7 +7990,7 @@ class Component extends DCLogic {
 
   throwWater() {
     if (this.state.crabWatered) {
-      this.setState({ scrubOpen: true, scrubPct: 0 });
+      this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0 }));
       return;
     }
     const splash = new Audio("assets/water-splash.mp3");
@@ -7967,7 +8003,7 @@ class Component extends DCLogic {
     // the scrub game early shouldn't cost the player their water.
     this.setState({ crabWatered: true });
     // water loosens the seaweed — now scrub it off
-    this.scheduleGameAction(() => this.setState({ scrubOpen: true, scrubPct: 0 }), 600);
+    this.scheduleGameAction(() => this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0 })), 600);
     this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null, "narr-vattnet-mjukar-upp-sjograset-nu");
   }
 
@@ -8529,6 +8565,7 @@ class Component extends DCLogic {
     this.settingsReturnFocus = null;
     this.teardownSettingsModal();
     this.setState({ settingsOpen: false }, () => returnFocus?.focus?.());
+    this.guideResetDismissals();
   }
 
   reset() {
@@ -8847,6 +8884,15 @@ class Component extends DCLogic {
       dialogAction: S.dialogAction,
       reset: () => this.reset(),
       settingsOpen: S.settingsOpen,
+      guideOpen: S.guideOpen,
+      guideTitle: (this.gameGuides[S.guideGame] || {}).title || "",
+      guideGoal: (this.gameGuides[S.guideGame] || {}).goal || "",
+      guideControls: (this.gameGuides[S.guideGame] || {}).controls || "",
+      guideMechanics: (this.gameGuides[S.guideGame] || {}).mechanics || "",
+      guideDismissChecked: !!S.guideDismissChecked,
+      guideStart: () => this.guideStart(),
+      guideClose: () => this.guideClose(),
+      guideToggleDismiss: () => this.guideToggleDismiss(),
       settingsToggle: () => this.toggleSettings(),
       settingsClose: () => this.closeSettings(),
       musicVolPct: Math.round((window.__audioMix ? window.__audioMix.music : 0.6) * 100),

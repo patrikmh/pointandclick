@@ -333,7 +333,7 @@ test("cutting the bottle loose with the shard is what opens the atelier", () => 
   const shardBlock = source.slice(shardStart, source.indexOf('if ((defId === "driftwood"', shardStart));
 
   assert.match(shardBlock, /cutting\.mp3/, "the cut should still be audible");
-  assert.match(shardBlock, /label: "Öppna ateljén", onClick: \(\) => this\.openOtterAtelier\(\)/);
+  assert.match(shardBlock, /label: "Öppna ateljén", onClick: \(\) => this\._guideOrOpen\("atelier", \(\) => this\.openOtterAtelier\(\)\)/);
   assert.match(shardBlock, /otterCoutureDone\)/, "a finished collection must not reopen the fitting");
 
   // the old bottle-as-item entry point is gone with the item itself

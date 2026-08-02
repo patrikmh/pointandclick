@@ -33,6 +33,7 @@ test("repairOctopus opens the mini-game when both driftwood and fishline are ava
       inventory: [{ iid: "w1", defId: "driftwood" }, { iid: "f1", defId: "fishline" }],
     },
     say: (speaker, text) => { said = { speaker, text }; },
+    _guideOrOpen: (key, proceed) => proceed(),
     openOctoGame: () => { opens += 1; },
   };
 
