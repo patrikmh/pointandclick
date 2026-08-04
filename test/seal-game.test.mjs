@@ -50,6 +50,13 @@ test("camera artwork has a clean silhouette over a separate full-stage vignette 
   assert.match(source, /sealGuideAction/);
 });
 
+test("photo challenge exposes a visible stabilization affordance and safe action movement", () => {
+  assert.match(source, /onClick="\{\{ sealGameStabilize \}\}"/);
+  assert.match(source, /aria-label="Pausa eller återuppta sälens rörelse"/);
+  assert.match(source, /if \(!this\.sealGameStabilized\)/);
+  assert.match(source, /driftSpeedMin: 130/);
+});
+
 test("photo challenge config preserves balance and defines three distinct Swedish compositions", () => {
   assert.match(source, /goodShotThreshold: 70/);
   assert.match(source, /shotsToWin: 3/);
@@ -263,6 +270,43 @@ test("composition checks cover centered, rule-of-thirds, and directional action 
   assert.equal(isCompositionMet.call(game), true, "leftward action leaves room on the left");
   game.sealGameSeal.vx = -80;
   assert.equal(isCompositionMet.call(game), false, "final action must be fast enough");
+});
+
+test("stabilization assist snaps and completes every challenge while unstabilized wrong shots miss", () => {
+  const stabilize = loadMethod("  sealGameStabilize() {", "\n  sealGamePrefersReducedMotion() {");
+  const snap = loadMethod("  sealGameSnapToComposition() {", "\n  sealGameStabilize() {");
+  const isCompositionMet = loadMethod("  sealGameIsCompositionMet() {", "\n  sealGameKeyDown(e) {");
+  const shoot = loadMethod("  shootSealPhoto() {", "\n  finishSealPhotoshoot() {", { Audio: class { play() { return Promise.resolve(); } } });
+  const game = {
+    state: { sealGameOpen: true, sealGameShots: 0, sealGameFilm: 8 },
+    sealGameConfig: { stageW: 760, stageH: 500, goodShotThreshold: 70, filmPerBatch: 8, shotsToWin: 3, speedBoostPerShot: 1, compositions: [
+      { key: "centered", centerX: 0.5, centerY: 0.5, toleranceX: 0.14, toleranceY: 0.2 },
+      { key: "thirds", points: [[1 / 3, 1 / 3]], radius: 0.18 },
+      { key: "action", leftMax: 0.5, minY: 0.12, maxY: 0.88, minSpeed: 120 },
+    ] },
+    sealGameSeal: { x: 10, y: 10, vx: 130, vy: 0 },
+    sealGameView: { x: 10, y: 10 },
+    sealGameCurrentComposition() { return this.sealGameConfig.compositions[this.state.sealGameShots]; },
+    sealGameApplyViewTransform() {},
+    sealGameFocusValue: 0,
+    sealGameStabilized: false,
+    sealGameIsCompositionMet: isCompositionMet,
+    sealGameSnapToComposition: snap,
+    sfx() {},
+    setState(update) { this.state = { ...this.state, ...(typeof update === "function" ? update(this.state) : update) }; },
+    finishSealPhotoshoot() {},
+    teardownSealGame() {},
+  };
+
+  shoot.call(game);
+  assert.equal(game.state.sealGameShots, 0, "an incorrect unstabilized shot must miss");
+  for (let challenge = 0; challenge < 3; challenge += 1) {
+    if (!game.sealGameStabilized) stabilize.call(game);
+    game.sealGameFocusValue = 100;
+    assert.equal(isCompositionMet.call(game), true, `assist should make challenge ${challenge + 1} valid`);
+    shoot.call(game);
+  }
+  assert.equal(game.state.sealGameShots, 3);
 });
 
 test("only focused, correctly composed shots progress and exactly the third success wins", () => {

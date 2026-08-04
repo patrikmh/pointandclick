@@ -194,14 +194,19 @@ test("the inventory is collapsible and camp navigation appears on hover", async 
   assert.match(source, /class="camp-nav"/);
   assert.match(source, /@media \(max-width: 760px\) and \(hover: none\), \(max-width: 760px\) and \(pointer: coarse\)/);
   assert.match(source, /\.camp-nav \{ left: auto !important; right: 10px !important/);
-  assert.match(source, /bottomNavStyle: `[^`]*z-index:19/);
+  assert.match(source, /bottomNavStyle: `[^`]*z-index:31/);
   assert.match(source, /p\.defId === "shard" \? 21 : hov \? 16 : 12/);
   assert.match(source, /stagePointerMove: \(e\) =>/);
   assert.match(source, /stagePointerDown: \(e\) =>/);
   assert.match(source, /if \(!touchNav\) return/);
-  assert.match(source, /bottomNavStyle: `[^`]*pointer-events:none/);
-  assert.match(source, /pointer-events:\$\{S\.edgeB \? "auto" : "none"\}/);
+  assert.match(source, /bottomNavStyle: `[^`]*pointer-events:auto/);
+  assert.match(source, /bottomNavButtonStyle: `[^`]*pointer-events:auto/);
+  assert.match(source, /class="camp-nav" onMouseEnter="\{\{ enterB \}\}" onMouseLeave="\{\{ leaveB \}\}"/);
   assert.doesNotMatch(source, /opacity:\$\{S\.edgeB \|\| touchNav/);
+  assert.match(source, /optionalAudioMissing = new Set\(\[[\s\S]*"cave-ambience"[\s\S]*"narr-det-hander-ingenting"[\s\S]*"narr-salen-ligger-och-slumrar-cigaretten"/);
+  assert.match(source, /audioAsset\("moon-snore", true\)[\s\S]*assets\/moon-snore\.mp3/);
+  assert.match(source, /const src = this\.audioAsset\(voiceId\);[\s\S]*if \(!src\) return;/);
+  assert.match(source, /const src = this\.audioAsset\("cave-ambience", false\);[\s\S]*if \(!src\) return;/);
   assert.match(source, /bottomNavStyle:/);
 });
 

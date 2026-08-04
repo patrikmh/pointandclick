@@ -42,6 +42,16 @@
   /* dc */
   html, body { margin: 0; padding: 0; }
   * { outline: none; -webkit-tap-highlight-color: transparent; }
+  [role="button"][tabindex="0"]:focus-visible, [data-drop]:focus-visible, button:focus-visible { outline: 3px solid oklch(0.9 0.12 82) !important; outline-offset: 4px; }
+  :root { --inventory-clearance: 76px; }
+  @media (max-height: 760px) { :root { --inventory-clearance: 124px; } .camp-target, .camp-character { translate: 0 -24vh !important; } }
+  /* Keep camp hotspots above the expanded packing strip; the strip itself stays
+     above them so its item cards remain draggable. */
+  .camp-target, .camp-character { translate: 0 -14vh; z-index:25 !important; }
+  @media (min-height: 761px) and (max-height: 920px) { .camp-target, .camp-character { translate: 0 -10vh; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
   img, [data-drop], button { -webkit-user-drag: none; }
   /* custom hand cursors: point (interact), open hand (item), fist (dragging) */
   [data-drop] { cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M13.2 2.6c1.5 0 2.7 1.2 2.7 2.7v8.2l1.1.2V8.3c0-1.1.9-2 2-2s2 .9 2 2v6l1.1.25v-3.4c0-1.1.9-2 2-2s2 .9 2 2v4.4l1.1.25v-1.7c0-1.1.9-2 2-2s2 .9 2 2v7.1c0 3.2-1.1 5.3-2.6 6.6-1.5 1.3-3.4 1.9-5.2 1.9h-3.3c-2.9 0-5.6-1.5-7.2-3.9l-4.3-6.5c-.7-1.1-.4-2.6.7-3.3 1-.7 2.4-.4 3.1.5l1.5 2V5.3c0-1.5 1.2-2.7 2.7-2.7z' fill='%23fdf6e8' stroke='%23392b1c' stroke-width='1.7' stroke-linejoin='round'/><path d='M17 15.5v-2.4M20.1 16v-2.2M23.2 16.6v-1.9' stroke='%23392b1c' stroke-width='1.1' fill='none' opacity='.45' stroke-linecap='round'/></svg>") 13 3, pointer; }
@@ -70,6 +80,9 @@
   @keyframes moonRaysShimmer { 0% { opacity: 0.75; } 50% { opacity: 1; } 100% { opacity: 0.75; } }
   @keyframes moonGlintShimmer { 0% { opacity: 0.55; } 50% { opacity: 0.85; } 100% { opacity: 0.55; } }
   @keyframes zfloat { 0% { opacity: 0; transform: translate(0, 0); } 25% { opacity: 0.9; } 100% { opacity: 0; transform: translate(12px, -26px); } }
+  @keyframes storchIdle { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-0.6deg); } 100% { transform: translateY(0) rotate(0deg); } }
+  @keyframes storchTalk { 0% { transform: translateY(0) rotate(0deg); } 20% { transform: translateY(-2px) rotate(1.1deg); } 40% { transform: translateY(0) rotate(-0.8deg); } 60% { transform: translateY(-3px) rotate(0.9deg); } 80% { transform: translateY(0) rotate(-1deg); } 100% { transform: translateY(0) rotate(0deg); } }
+  @keyframes storchProud { 0% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(-7px) rotate(-1.2deg); } 60% { transform: translateY(-3px) rotate(1deg); } 100% { transform: translateY(0) rotate(0deg); } }
   @media (max-width: 760px) and (hover: none), (max-width: 760px) and (pointer: coarse) {
     .camp-nav { left: auto !important; right: 10px !important; transform: none !important; width: 160px !important; }
   }
@@ -135,7 +148,7 @@
     
   <div onMouseMove="{{ stagePointerMove }}" onPointerDown="{{ stagePointerDown }}" onMouseLeave="{{ stagePointerLeave }}" style="{{ stageStyle }}">
       <sc-for list="{{ placed }}" as="e" hint-placeholder-count="0">
-        <div data-drop="entity" data-uid="{{ e.uid }}" data-pick="{{ e.pick }}" style="{{ e.wrapStyle }}" onClick="{{ e.onClick }}" onPointerDown="{{ e.onDown }}" onContextMenu="{{ e.onCtx }}" onMouseEnter="{{ e.onEnter }}" onMouseLeave="{{ e.onLeave }}">
+        <div data-drop="entity" data-uid="{{ e.uid }}" data-pick="{{ e.pick }}" role="button" tabindex="0" aria-label="{{ e.ariaLabel }}" style="{{ e.wrapStyle }}" onClick="{{ e.onClick }}" onKeyDown="{{ e.onKeyDown }}" onPointerDown="{{ e.onDown }}" onContextMenu="{{ e.onCtx }}" onMouseEnter="{{ e.onEnter }}" onMouseLeave="{{ e.onLeave }}">
           <div style="{{ e.labelStyle }}">{{ e.name }}</div>
           <div ref="{{ e.setRef }}" style="{{ e.boxStyle }}">{{ e.art }}</div>
         </div>
@@ -145,52 +158,57 @@
       <div style="{{ moonRaysStyle }}"></div>
       <div style="{{ moonGlintStyle }}"></div>
       <div style="{{ moonGlowStyle }}"></div>
-      <div data-drop="moon" onPointerDown="{{ moonDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ moonEnter }}" onMouseLeave="{{ moonLeave }}" style="{{ moonWrapStyle }}">
+      <div data-drop="moon" role="button" tabindex="0" aria-label="Månen" onKeyDown="{{ moonKeyDown }}" onPointerDown="{{ moonDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ moonEnter }}" onMouseLeave="{{ moonLeave }}" style="{{ moonWrapStyle }}">
         <img ref="{{ setMoonRef }}" src="{{ moonSrc }}" alt="Månen" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 0 20px rgba(215,228,255,0.4))">
       </div>
       </sc-if>
       <sc-if value="{{ inLeft }}" hint-placeholder-val="{{ true }}">
-      <div data-drop="crab" onClick="{{ crabClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ crabEnter }}" onMouseLeave="{{ crabLeave }}" style="{{ crabWrapStyle }}">
+      <div data-drop="crab" role="button" tabindex="0" aria-label="Prata med krabban" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ crabClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ crabEnter }}" onMouseLeave="{{ crabLeave }}" style="{{ crabWrapStyle }}">
         <img ref="{{ setCrabRef }}" src="{{ crabSrc }}" alt="En krabba intrasslad i sjögräs" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55))">
       </div>
 
       </sc-if>
 
       <sc-if value="{{ inCenter }}" hint-placeholder-val="">
-        <div data-drop="gull" onClick="{{ gullClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ gullEnter }}" onMouseLeave="{{ gullLeave }}" style="{{ gullWrapStyle }}">
+        <div data-drop="gull" role="button" tabindex="0" aria-label="Prata med fiskmåsen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ gullClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ gullEnter }}" onMouseLeave="{{ gullLeave }}" style="{{ gullWrapStyle }}">
           <img ref="{{ setGullRef }}" src="{{ gullSrc }}" alt="En punkig fiskmås" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
         </div>
       </sc-if>
 
       <sc-if value="{{ inCenter }}" hint-placeholder-val="">
-        <div data-drop="snorkel" onClick="{{ snorkelClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ snorkelEnter }}" style="{{ snorkelWrapStyle }}">
+        <div data-drop="snorkel" role="button" tabindex="0" aria-label="Undersök snorkeln" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ snorkelClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ snorkelEnter }}" style="{{ snorkelWrapStyle }}">
           <img src="{{ snorkelSrc }}" alt="En snorkel som sticker upp ur vattnet" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4))">
         </div>
       </sc-if>
 
       <sc-if value="{{ inCenter }}" hint-placeholder-val="">
-        <div data-drop="cave" onMouseEnter="{{ caveEnter }}" onMouseLeave="{{ caveLeave }}" style="position:absolute;left:6%;top:38%;width:16%;height:34%;z-index:11">
+        <div data-drop="cave" role="button" tabindex="0" aria-label="Undersök den mörka grottan" onKeyDown="{{ sceneHotspotKeyDown }}" onMouseEnter="{{ caveEnter }}" onMouseLeave="{{ caveLeave }}" style="position:absolute;left:6%;top:38%;width:16%;height:34%;z-index:11">
           <sc-if value="{{ sheepRevealed }}" hint-placeholder-val="">
-            <div data-drop="sheep" onContextMenu="{{ infoCtx }}" onClick="{{ sheepClick }}" style="position:absolute;left:50%;top:65%;width:110%;transform:translate(-50%,-100%);cursor:pointer">
+            <div data-drop="sheep" role="button" tabindex="0" aria-label="Spela med fåret" onKeyDown="{{ sceneHotspotKeyDown }}" onContextMenu="{{ infoCtx }}" onClick="{{ sheepClick }}" style="position:absolute;left:50%;top:65%;width:110%;transform:translate(-50%,-100%);cursor:pointer">
               <img src="{{ sheepSrc }}" alt="Ett får med hörlurar och solglasögon" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.6))">
             </div>
           </sc-if>
         </div>
-        <div data-drop="seal" onClick="{{ sealClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ sealEnter }}" onMouseLeave="{{ sealLeave }}" style="{{ sealWrapStyle }}">
+        <div data-drop="seal" role="button" tabindex="0" aria-label="Prata med sälen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ sealClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ sealEnter }}" onMouseLeave="{{ sealLeave }}" style="{{ sealWrapStyle }}">
           
         <img ref="{{ setSealRef }}" src="{{ sealSrc }}" alt="En säl med solglasögon och cigarett" draggable="false" style="width: 590px; height: 250px; display: block; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5))"></div>
       </sc-if>
 
       <sc-if value="{{ inRight }}" hint-placeholder-val="">
-        <div data-drop="octo" onClick="{{ octoClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ octoEnter }}" onMouseLeave="{{ octoLeave }}" style="{{ octoWrapStyle }}">
+        <div data-drop="octo" role="button" tabindex="0" aria-label="Prata med bläckfisken" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ octoClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ octoEnter }}" onMouseLeave="{{ octoLeave }}" style="{{ octoWrapStyle }}">
           <img ref="{{ setOctoRef }}" src="{{ octoSrc }}" alt="En bläckfisk med hög hatt och monokel" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
         </div>
-        <div data-drop="otter" onClick="{{ otterClick }}" onContextMenu="{{ infoCtx }}" style="{{ otterWrapStyle }}">
+        <div data-drop="otter" role="button" tabindex="0" aria-label="Prata med uttern" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ otterClick }}" onContextMenu="{{ infoCtx }}" style="{{ otterWrapStyle }}">
           <img ref="{{ setOtterRef }}" src="{{ otterSrc }}" alt="En utter i klänning med en flaska på huvudet" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
           <sc-if value="{{ otterLookSrc }}" hint-placeholder-val="">
             <img src="{{ otterLookSrc }}" alt="Utterns egendesignade plagg" draggable="false" style="{{ otterLookStyle }}">
           </sc-if>
         </div>
+        <sc-if value="{{ showFryingPan }}" hint-placeholder-val="">
+          <div data-drop="fryingpan" role="button" tabindex="0" aria-label="Undersök stekpannan på stranden" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ fryingPanClick }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:31%;top:72%;width:17%;transform:translate(-50%,-100%);z-index:12;cursor:pointer">
+            <img src="assets/fryingpan.png" alt="En gjutjärnss stekpanna uppspolad på stranden" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.5))">
+          </div>
+        </sc-if>
       </sc-if>
 
       <sc-if value="{{ inCamp }}" hint-placeholder-val="">
@@ -200,8 +218,26 @@
           <img src="assets/campfire-2.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker2 3.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,140,40,0.65))">
           <img src="assets/campfire-3.png" alt="" style="position:absolute;inset:0;width:100%;height:auto;display:block;animation:fireFlicker3 3.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,140,40,0.65))">
         </div>
-        <div data-drop="badger" onClick="{{ badgerClick }}" onContextMenu="{{ infoCtx }}" style="{{ badgerWrapStyle }}">
+        <div class="camp-character" data-drop="badger" role="button" tabindex="0" aria-label="Prata med grävlingen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ badgerClick }}" onContextMenu="{{ infoCtx }}" style="{{ badgerWrapStyle }}">
           <img ref="{{ setBadgerRef }}" src="{{ badgerSrc }}" alt="En grävling i slips och klocka" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
+        </div>
+        <div class="camp-target" data-drop="skeda" role="button" tabindex="0" aria-label="Starta Skeda Kahlos sedkoreografi" onClick="{{ openSkedaGame }}" onKeyDown="{{ skedaKeyDown }}" style="position:absolute;left:64%;top:64%;width:14%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
+          <img src="assets/skeda-kahlo.svg" alt="" aria-hidden="true" style="width:0;height:0;position:absolute;opacity:0;pointer-events:none">
+          <sc-if value="{{ skedaTooled }}" hint-placeholder-val="">
+            <img src="assets/storch-withtools.png" alt="Skeda Kahlo, skedstork med stekpanna och slev" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));animation:storchProud 3.6s ease-in-out infinite">
+          </sc-if>
+          <sc-if value="{{ skedaTalking }}" hint-placeholder-val="">
+            <img src="assets/storch-talking.png" alt="Skeda Kahlo, skedstork" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));animation:storchTalk 0.9s ease-in-out infinite">
+          </sc-if>
+          <sc-if value="{{ skedaQuiet }}" hint-placeholder-val="">
+            <img src="assets/storch-quiet.png" alt="Skeda Kahlo, skedstork" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));animation:storchIdle 4.2s ease-in-out infinite">
+          </sc-if>
+          <div style="text-align:center;color:white;font-size:11px;margin-top:2px">SKEDA KAHLO</div>
+        </div>
+        <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis ljusmönster" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><img src="assets/glodis-console.svg" alt="Glödis ljuskonsol" style="width:100%;display:block"><div style="text-align:center;color:white;font-size:11px">GLÖDIS • LJUS</div></div>
+        <div class="camp-target" data-drop="dolphan" role="button" tabindex="0" aria-label="Prata med Dolphan Lundgren eller använd räddningsbojen på hen" onClick="{{ dolphanClick }}" onKeyDown="{{ dolphanKeyDown }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:5%;top:74%;width:20%;z-index:13;cursor:pointer">
+          <img src="{{ dolphanSrc }}" alt="Dolphan Lundgren, dramatisk delfin-livräddare" draggable="false" style="width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))">
+          <div style="text-align:center;color:white;font-size:11px">DOLPHAN LUNDGREN</div>
         </div>
       </sc-if>
 
@@ -209,17 +245,17 @@
         <div data-drop="shrimp" role="button" tabindex="0" aria-label="Fråga räkan om en ledtråd" onClick="{{ shrimpClick }}" onKeyDown="{{ shrimpKeyDown }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ shrimpEnter }}" onMouseLeave="{{ shrimpLeave }}" style="position:absolute;left:70%;top:16%;width:22%;z-index:11;animation:shrimpMarch 5.5s ease-in-out infinite;cursor:pointer">
           <img src="assets/shrimp-protest.png" alt="En ensam räka vid fästningsvallen" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.45))">
         </div>
-        <div data-drop="cod" onClick="{{ codClick }}" onContextMenu="{{ infoCtx }}" style="{{ codWrapStyle }}">
+        <div data-drop="cod" role="button" tabindex="0" aria-label="Prata med torsken" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ codClick }}" onContextMenu="{{ infoCtx }}" style="{{ codWrapStyle }}">
           <img src="{{ codSrc }}" alt="En målande torsk med basker och palett" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
         </div>
-        <div data-drop="chest" onClick="{{ chestClick }}" onContextMenu="{{ infoCtx }}" style="{{ chestWrapStyle }}">
+        <div data-drop="chest" role="button" tabindex="0" aria-label="Undersök skattkistan" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ chestClick }}" onContextMenu="{{ infoCtx }}" style="{{ chestWrapStyle }}">
           <img ref="{{ setChestRef }}" src="{{ chestSrc }}" alt="En gammal skattkista" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55))">
           <sc-if value="{{ chestOpen }}" hint-placeholder-val="">
             <img src="assets/patriks-currency-2024.png" alt="Patriks Currency 2024-mynt" draggable="false" style="position:absolute;left:63%;top:71%;width:18%;transform:translate(-50%,-50%) rotate(-10deg);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.45))">
             <img ref="{{ setMapRef }}" src="assets/treasure-map.png" alt="En skattkarta" draggable="false" style="position:absolute;left:50%;top:96%;width:68%;transform:translate(-50%,0) rotate(7deg);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
           </sc-if>
         </div>
-        <div data-drop="sub" onClick="{{ subClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ subEnter }}" style="{{ subWrapStyle }}">
+        <div data-drop="sub" role="button" tabindex="0" aria-label="Prata med ubåtskatten" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ subClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ subEnter }}" style="{{ subWrapStyle }}">
           <img ref="{{ setSubRef }}" src="{{ subSrc }}" alt="En ubåt med en katt vid rodret" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,0.6))">
         </div>
       </sc-if>
@@ -234,15 +270,15 @@
 
       <div onMouseEnter="{{ enterR }}" onMouseLeave="{{ leaveR }}" style="position:absolute;right:0;top:0;bottom:90px;width:110px;z-index:19;display:flex;align-items:center;justify-content:flex-end">
         <sc-if value="{{ showArrowR }}" hint-placeholder-val="">
-          <button onClick="{{ goR }}" style="margin-right:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">→</button>
+          <button onClick="{{ goR }}" aria-label="{{ rightNavLabel }}" title="{{ rightNavLabel }}" style="margin-right:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">→</button>
         </sc-if>
       </div>
       <div onMouseEnter="{{ enterL }}" onMouseLeave="{{ leaveL }}" style="position:absolute;left:0;top:0;bottom:90px;width:110px;z-index:19;display:flex;align-items:center;justify-content:flex-start">
         <sc-if value="{{ showArrowL }}" hint-placeholder-val="">
-          <button onClick="{{ goL }}" style="margin-left:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">←</button>
+          <button onClick="{{ goL }}" aria-label="{{ leftNavLabel }}" title="{{ leftNavLabel }}" style="margin-left:14px;width:54px;height:54px;border-radius:50%;background:oklch(0.15 0.011 60 / 0.78);border:1px solid oklch(0.6 0.02 60 / 0.55);color:oklch(0.95 0.02 80);font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">←</button>
         </sc-if>
       </div>
-      <div class="camp-nav" style="{{ bottomNavStyle }}">
+      <div class="camp-nav" onMouseEnter="{{ enterB }}" onMouseLeave="{{ leaveB }}" style="{{ bottomNavStyle }}">
         <sc-if value="{{ showArrowB }}" hint-placeholder-val="">
           <button data-camp-nav-button="1" onClick="{{ goB }}" onFocus="{{ campNavFocus }}" onBlur="{{ campNavBlur }}" aria-label="Gå till nattlägret" title="Gå till nattlägret" style="{{ bottomNavButtonStyle }}">NATTLÄGRET ↓</button>
         </sc-if>
@@ -267,7 +303,7 @@
     </div>
   </sc-if>
 
-  <div data-inv-bar="1" style="position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:14px;padding:14px 18px;background:oklch(0.14 0.011 60 / 0.88);border-top:1px solid oklch(0.5 0.02 60 / 0.4);backdrop-filter:blur(10px)">
+  <div ref="{{ inventoryBarRef }}" data-inv-bar="1" style="position:absolute;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;gap:14px;padding:14px 18px;background:oklch(0.14 0.011 60 / 0.88);border-top:1px solid oklch(0.5 0.02 60 / 0.4);backdrop-filter:blur(10px)">
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;padding-right:14px;border-right:1px solid oklch(0.45 0.03 70 / 0.4)">
       <div style="display:flex;flex-direction:column;gap:2px">
         <div style="font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:0.12em;color:oklch(0.82 0.07 80)">PACKNING</div>
@@ -278,7 +314,7 @@
     <sc-if value="{{ inventoryStripOpen }}" hint-placeholder-val="{{ true }}">
       <div id="inventory-items" style="display:flex;gap:10px;flex:1;flex-wrap:wrap;align-content:flex-start;max-height:212px;overflow-y:auto;overflow-x:hidden;padding:2px 0">
         <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
-          <div data-drop="inv" data-iid="{{ it.iid }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
+          <div data-drop="inv" data-iid="{{ it.iid }}" role="button" tabindex="0" aria-label="Använd {{ it.name }}" onKeyDown="{{ it.onKeyDown }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
             <div style="{{ it.imgStyle }}">{{ it.art }}</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:oklch(0.8 0.05 78);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;pointer-events:none">{{ it.name }}</div>
           </div>
@@ -500,6 +536,33 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ skedaGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="skeda-game" role="dialog" aria-modal="true" aria-labelledby="skeda-game-title" style="width:min(520px,calc(100vw - 24px));padding:22px;background:#241c1b;color:#fff;border-radius:16px;text-align:center"><h2 id="skeda-game-title">SKEDA KAHLOS SEDKOREOGRAFI</h2><p id="skeda-game-help">Följ soppans takt: 1, 2, 3, 4. Steg {{ skedaGameStep }}/4.</p><div style="display:flex;gap:10px;justify-content:center"><button type="button" onClick="{{ skedaPick0 }}" aria-label="Skeda åt vänster">🥄</button><button type="button" onClick="{{ skedaPick1 }}" aria-label="Skeda rakt fram">🥄</button><button type="button" onClick="{{ skedaPick2 }}" aria-label="Skeda åt höger">🥄</button></div><div id="skeda-game-status" role="status" aria-live="polite">{{ skedaGameMsg }}</div><button type="button" aria-label="Stäng skedkoreografin" onClick="{{ closeSkedaGame }}">Stäng</button></div></div>
+  </sc-if>
+  <sc-if value="{{ glodisGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="glodis-game" role="dialog" aria-modal="true" aria-labelledby="glodis-game-title" style="width:min(560px,calc(100vw - 24px));padding:22px;background:#102530;color:#fff;border-radius:16px;text-align:center"><h2 id="glodis-game-title">GLÖDIS LJUSKONSOL</h2><p>Återskapa mönstret: blå, gul, röd, blå. Steg {{ glodisGameStep }}/4.</p><div style="display:flex;gap:10px;justify-content:center"><button type="button" onClick="{{ glodisPick0 }}" aria-label="Blå lampa">🔵</button><button type="button" onClick="{{ glodisPick1 }}" aria-label="Gul lampa">🟡</button><button type="button" onClick="{{ glodisPick2 }}" aria-label="Röd lampa">🔴</button><button type="button" onClick="{{ glodisPick3 }}" aria-label="Lila lampa">🟣</button></div><div id="glodis-game-status" role="status" aria-live="polite">{{ glodisGameMsg }}</div><button type="button" aria-label="Stäng ljusmönstret" onClick="{{ closeGlodisGame }}">Stäng</button></div></div>
+  </sc-if>
+  <sc-if value="{{ dolphanGameOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div data-modal="dolphan-game" role="dialog" aria-modal="true" aria-labelledby="dolphan-game-title" aria-describedby="dolphan-game-help dolphan-game-status" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <div style="flex:1">
+            <div id="dolphan-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">DOLPHANS STORRÄDDNING</div>
+            <div id="dolphan-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter siktar, MELLANSLAG kastar — Träffar: {{ dolphanGameHits }}/{{ dolphanGameWinHits }} &nbsp;·&nbsp; Bojar kvar: {{ dolphanGameThrows }}</div>
+          </div>
+          <button type="button" aria-label="Stäng Dolphans räddning" onClick="{{ closeDolphanGame }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+        </div>
+        <div ref="{{ setDolphanGameStage }}" role="application" aria-label="Sikta räddningsbojen på den nödställde simmaren" aria-describedby="dolphan-game-help dolphan-game-status" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space Escape" tabindex="0" style="position:relative;width:min(840px,calc(100vw - 64px));height:auto;aspect-ratio:840/520;border-radius:10px;overflow:hidden;background:#0a3245;box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:crosshair;touch-action:none">
+          <canvas ref="{{ setDolphanWaterCanvas }}" width="840" height="520" style="position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none"></canvas>
+          <img ref="{{ setDolphanDolphanRef }}" src="assets/dolphan-buoy.png" alt="Dolphan redo att kasta räddningsbojen" draggable="false" style="position:absolute;left:0;top:0;width:220px;pointer-events:none;filter:drop-shadow(0 10px 14px rgba(0,0,0,0.5))">
+        </div>
+        <sc-if value="{{ dolphanGameMsg }}" hint-placeholder-val="">
+          <div id="dolphan-game-status" role="status" aria-live="polite" style="font-family:'Work Sans',sans-serif;font-size:13.5px;font-style:italic;color:oklch(0.85 0.05 82);max-width:520px;text-align:center">{{ dolphanGameMsg }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ sealGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
       <div role="dialog" aria-modal="true" aria-labelledby="seal-game-title" aria-describedby="seal-game-help seal-game-challenge" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
@@ -511,6 +574,7 @@
           </div>
           <button type="button" aria-label="Stäng sälfotosessionen" onClick="{{ sealGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
+        <button type="button" onClick="{{ sealGameStabilize }}" aria-pressed="{{ sealGameStabilized }}" aria-label="Pausa eller återuppta sälens rörelse" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.6 0.08 82 / 0.55);background:{{ sealGameStabilized ? 'oklch(0.34 0.08 150 / 0.45)' : 'oklch(0.22 0.025 65 / 0.7)' }};color:oklch(0.92 0.05 82);cursor:pointer">{{ sealGameStabilizeLabel }}</button>
         <div ref="{{ setSealGameStage }}" class="seal-game-stage" role="application" aria-label="Kamerans sikte: {{ sealGameChallengePrompt }}" aria-describedby="seal-game-help seal-game-challenge seal-game-status" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Space Enter Escape" tabindex="0" onClick="{{ sealShoot }}" style="position:relative;width:min(760px,calc(100vw - 64px));height:auto;aspect-ratio:760/500;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,#12536e,#0a3245);box-shadow:inset 0 0 60px rgba(0,0,0,0.55);cursor:none;touch-action:none">
           <img ref="{{ setSealGameSeal }}" src="assets/seal-open.png" alt="Sälen" draggable="false" style="position:absolute;left:0;top:0;z-index:0;width:34.47%;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
           <div data-seal-vignette="true" aria-hidden="true" style="position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0.08) 25%,rgba(0,0,0,0.32) 72%,rgba(0,0,0,0.62) 100%)"></div>
@@ -675,7 +739,7 @@
 
   <sc-if value="{{ shrimpGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.74);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status shrimp-game-prompt shrimp-game-history" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:stretch">
+      <div ref="{{ setShrimpDialogRef }}" role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status shrimp-game-prompt shrimp-game-history" tabindex="-1" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:stretch">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="flex:1">
             <div id="shrimp-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">VALLGRAVSRÄKAN</div>
@@ -688,6 +752,16 @@
           <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.86 0.06 82);background:oklch(0.28 0.04 78 / 0.4);border:1px solid oklch(0.6 0.09 78 / 0.45);border-radius:999px;padding:5px 12px">Gåta {{ shrimpGameRiddleNumber }}/{{ shrimpGameTotal }}</div>
           <div style="font-family:'Work Sans',sans-serif;font-size:12px;color:oklch(0.8 0.02 80);background:oklch(0.2 0.02 60 / 0.55);border:1px solid oklch(0.45 0.03 70 / 0.4);border-radius:999px;padding:5px 12px">{{ shrimpGameVoiceState }}</div>
           <button type="button" onClick="{{ shrimpGameToggle }}" disabled="{{ shrimpGameToggleDisabled }}" aria-disabled="{{ shrimpGameToggleDisabled }}" aria-pressed="{{ shrimpGameActive }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.55 0.04 75 / 0.55);background:{{ shrimpGameActive ? 'oklch(0.34 0.08 150 / 0.45)' : 'oklch(0.22 0.025 65 / 0.7)' }};color:oklch(0.9 0.04 82);cursor:pointer;opacity:{{ shrimpGameToggleDisabled ? 0.55 : 1 }}">{{ shrimpGameToggleLabel }}</button>
+          <sc-if value="{{ shrimpGameActive }}" hint-placeholder-val="">
+            <button type="button" onClick="{{ shrimpGameFallback }}" aria-label="Byt till inspelning om realtime-röst inte fungerar" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid oklch(0.6 0.08 82 / 0.55);background:oklch(0.24 0.04 70 / 0.7);color:oklch(0.94 0.06 82);cursor:pointer">Byt till inspelning</button>
+          </sc-if>
+          <sc-if value="{{ shrimpGameTextFallback }}" hint-placeholder-val="">
+            <form onSubmit="{{ shrimpSubmitText }}" aria-label="Skriv svar till räkan" style="display:flex;flex:1;min-width:240px;gap:6px;align-items:center">
+              <label for="shrimp-game-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Skriv ditt svar</label>
+              <input id="shrimp-game-text" type="text" autocomplete="off" value="{{ shrimpGameTextDraft }}" onInput="{{ shrimpTextInput }}" placeholder="Skriv svaret här" aria-describedby="shrimp-game-status" style="flex:1;min-width:0;padding:7px 9px;border-radius:8px;border:1px solid oklch(0.55 0.04 75 / 0.6);background:oklch(0.12 0.015 55);color:oklch(0.95 0.05 82);font:inherit">
+              <button type="submit" disabled="{{ shrimpGameBusy }}" aria-disabled="{{ shrimpGameBusy }}" style="font-family:'Work Sans',sans-serif;font-size:12px;padding:7px 12px;border-radius:8px;border:1px solid oklch(0.6 0.08 82 / 0.55);background:oklch(0.34 0.08 150 / 0.45);color:oklch(0.94 0.06 82);cursor:pointer">Skicka svar</button>
+            </form>
+          </sc-if>
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 0 2px">
           <div style="position:relative;width:118px;height:118px;flex:0 0 118px;display:flex;align-items:center;justify-content:center">
@@ -859,6 +933,7 @@ class Component extends DCLogic {
     placed: this.initialPlaced,
     inventory: this.initialInventory.map((item) => ({ ...item })),
     inventoryOpen: true,
+    inventoryBarHeight: 320,
     hoveredId: null,
     dialogSpeaker: "",
     dialogText: "",
@@ -926,6 +1001,24 @@ class Component extends DCLogic {
     scrubFeedbackMsg: "",
     crabHeat: 0, // real-time scrub intensity meter — maxes out at 100 and fails the game
     crabWatered: false,
+    skedaHelped: false,
+    glodisHelped: false,
+    dolphanHelped: false,
+    skedaGameOpen: false,
+    skedaGameStep: 0,
+    skedaGameMsg: "",
+    skedaTooled: false,
+    skedaPanGiven: false,
+    skedaSlevGiven: false,
+    fryingPanFound: false,
+    glodisGameOpen: false,
+    glodisGameStep: 0,
+    glodisGameMsg: "",
+    dolphanGameOpen: false,
+    dolphanGameMsg: "",
+    dolphanGameHits: 0,
+    dolphanGameThrows: 0,
+    dolphanArmed: false,
     otterFreed: false,
     octoHealed: false,
     octoGameOpen: false,
@@ -967,6 +1060,8 @@ class Component extends DCLogic {
     shrimpGameBusy: false,
     shrimpGameMsg: "",
     shrimpGameA11yStatus: "",
+    shrimpGameTextFallback: false,
+    shrimpGameTextDraft: "",
     shrimpGameMessages: [],
     shrimpGamePartial: "",
     shrimpGameRealtime: false,
@@ -984,6 +1079,7 @@ class Component extends DCLogic {
     sheepGameA11yStatus: "",
     sheepSolvedGallery: [],
     scene: "center",
+    selectedInventoryIid: null,
     returnScene: "center",
     edgeR: false,
     edgeL: false,
@@ -1003,6 +1099,11 @@ class Component extends DCLogic {
   sideNav = { left: { right: "center" }, center: { left: "left", right: "right" }, right: { left: "center" } };
 
   goScene(id) {
+    // Navigation cancels an in-flight gesture, but keeps the selected item.
+    this.invDragInfo = null;
+    this.placedDragInfo = null;
+    document.body.classList.remove("grabbing");
+    this.setState({ invDrag: null, hoveredId: null });
     this.sfx("whoosh");
     this.setState((s) => ({
       scene: id,
@@ -1072,7 +1173,7 @@ class Component extends DCLogic {
   recipes = { "battery+flashlight": "flashlight-loaded" };
 
   // zoom factors for wide item art so it fills inventory slots + drag ghost
-  invZoom = { battery: 2.1, flashlight: 2.0, "flashlight-loaded": 2.0, camera: 1.7, briefcase: 1.5, key: 1.5, shard: 1.3, bucket: 1.15, helmet: 1.15, driftwood: 2.2, fishline: 1.5, bottle: 1.0 };
+  invZoom = { battery: 2.1, flashlight: 2.0, "flashlight-loaded": 2.0, camera: 1.7, briefcase: 1.5, key: 1.5, shard: 1.3, bucket: 1.15, helmet: 1.15, driftwood: 2.2, fishline: 1.5, bottle: 1.0, buoy: 1.3 };
 
   moonLines = [
     "Jag drömde den ljuvligaste dröm. Den var trehundra år lång.",
@@ -1109,6 +1210,9 @@ class Component extends DCLogic {
     bottle:   { type: "item", name: "Flaska", art: "", img: "assets/bottle.png", pickable: true, desc: "Utterns berömda flaska, försiktigt lossad. Fortfarande med en air av societet." },
     helmet:   { type: "item", name: "Dykhjälm", art: "", img: "assets/helmet.png", pickable: true, desc: "En gammal mässingsdykhjälm. Tung, rostig i kanterna, men fönstret är helt. Kanske den kan kopplas till något som leder ner under ytan." },
     seaweed:  { type: "item", name: "Sjögräs", art: "", img: "assets/seaweed-item.png", pickable: true, desc: "En bit av det sega sjögräs som höll krabban fången. Känns fortfarande lite hårt." },
+    buoy:     { type: "item", name: "Räddningsboj", art: "", img: "assets/lifesaver-buoy.png", pickable: true, desc: "En klassisk rödvit räddningsboj. Dolphan Lundgren skulle kasta den som en olympisk hjälte." },
+    fryingpan: { type: "item", name: "Stekpanna", art: "", img: "assets/fryingpan.png", pickable: true, desc: "En tjock gjutjärnspanna, spolad iland av tidvattnet. Skrapad och salt men hel — en hungrig kock skulle bli rörd." },
+    utensil:   { type: "item", name: "Slev", art: "", img: "assets/utensil.png", pickable: true, desc: "En lång slev i rostfritt stål. Kapten Ne-Moe räckte över den med förakt — ”för markens folk”, väste han — men den skopar som en dröm." },
   };
 
   componentDidMount() {
@@ -1156,10 +1260,10 @@ class Component extends DCLogic {
     // preload every scene background + character/item frame so scene switches are instant
     this._imgCache = [];
     Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
-    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","octo-splinted","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full","rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
+    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","octo-splinted","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full","rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings","dolphan","dolphan-talking","dolphan-buoy","lifesaver-buoy"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
     // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
     try {
-      this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const a = new Audio("assets/" + n + ".mp3"); a.preload = "auto"; return a; });
+      this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const src = this.audioAsset(n, n === "moon-snore"); if (!src) return null; const a = new Audio(src); a.preload = "auto"; return a; }).filter(Boolean);
     } catch (e) { this._preloaded = []; }
     this.sealPuffLoop = setInterval(() => this.sealPuffOnce(), 3600);
     // Test hook: ?test=shadow forces the shadow theater open for visual QA.
@@ -1252,6 +1356,12 @@ class Component extends DCLogic {
     return () => { stopped = true; cancelAnimationFrame(raf); clearTimeout(fallbackTimer); setOpen(false); };
   }
 
+  webAnimate(node, keyframes, options) {
+    if (!node || typeof node.animate !== "function") return null;
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return null;
+    return node.animate(keyframes, options);
+  }
+
   sealPuffOnce() {
     if (this.sealClicking) return;
     this.setState({ sealFrame: "open" });
@@ -1322,6 +1432,22 @@ class Component extends DCLogic {
       thinking: "Fåret ordnar tankarna mellan taktslagen",
       prompt: "Du är Fåret: ett autistiskt och ensamt musikälskande får med hörlurar och solglasögon som gömmer sig i en mörk grotta. Du uppskattar tydlighet, förutsägbarhet, dämpade sinnesintryck och ärliga samtal, och du tolkar ofta ord bokstavligt. Svara kort (1-2 meningar) på svenska, säg ibland bää och jämför saker med musik. Skildra autism respektfullt; humorn ska komma från den absurda situationen, inte från autismen. Om grottan ännu är mörk kan du försiktigt antyda att ljus behövs.",
     },
+    skeda: {
+      name: "SKEDA KAHLO", img: "assets/skeda-kahlo.svg", placeholder: "Prata med Skeda Kahlo...",
+      greeting: "Jag skedar i takt! Hjälp mig hålla nattlägrets soppa i perfekt koreografi.", thinking: "Skeda Kahlo räknar takten",
+      prompt: "Du är Skeda Kahlo, en överdrivet konstnärlig skedstork vid lägerelden. Svara kort och absurd på svenska om soppa, rytm och skedkoreografi."
+    },
+    glodis: {
+      name: "GLÖDIS", img: "assets/glodis-console.svg", placeholder: "Prata med Glödis...",
+      greeting: "Lamporna blinkar i panik! Jag behöver en stadig ljussekvens.", thinking: "Glödis kontrollerar säkringarna",
+      prompt: "Du är Glödis, en eldfluga och ljusdesigner. Svara kort på svenska, dramatiskt och tekniskt om lampor och mönster."
+    },
+    dolphan: {
+      name: "DOLPHAN LUNDGREN", img: "assets/dolphan.png", placeholder: "Prata med Dolphan...",
+      greeting: "Jag är redo för en räddning av olympiska proportioner!",
+      thinking: "Dolphan bedömer räddningsvinkeln",
+      prompt: "Du är Dolphan Lundgren, en överdramatisk delfin-livräddare. Svara kort på svenska som om varje räddning vore en actionfilm."
+    },
     shrimp: {
       name: "VALLGRAVSRÄKAN", img: "assets/shrimp-protest.png", placeholder: "Prata med räkan...",
       greeting: "Mellan murarna och tången vakar jag ensam. Tala lugnt, så hör jag portgångens eko.",
@@ -1335,7 +1461,7 @@ class Component extends DCLogic {
     this.setState((s) => ({ discovered: { ...s.discovered, [charId]: true } }));
   }
 
-  helpedTotal = 11;
+  helpedTotal = 14;
   shrimpGameIntro = "Mellan murkrönet och det svarta vattnet står en åldrad räka på post. Tala lugnt, så öppnar hon sprickan i stenen.";
   shrimpGameRiddles = [
     {
@@ -1390,6 +1516,9 @@ class Component extends DCLogic {
       sub: S.subHelped,
       sheep: d.sheep,
       shrimp: S.shrimpHelped,
+      skeda: S.skedaHelped,
+      glodis: S.glodisHelped,
+      dolphan: S.dolphanHelped,
     };
     return Object.values(helped).filter(Boolean).length;
   }
@@ -1498,7 +1627,9 @@ class Component extends DCLogic {
   moonEnter() {
     if (this.state.moonState === "asleep") {
       if (!this.snore) {
-        this.snore = new Audio("assets/vo/moon-snore.mp3");
+        const src = this.audioAsset("moon-snore", true);
+        if (!src) return;
+        this.snore = new Audio(src);
         this.snore.loop = true;
         this.snore.volume = 1.0;
       }
@@ -1507,6 +1638,33 @@ class Component extends DCLogic {
       // Moon is awake - play next speech on hover
       this.playNextMoonSpeech();
     }
+  }
+
+  moonKeyDown(e) {
+    if (this.state.moonState === "asleep" && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+      e.preventDefault();
+      e.stopPropagation();
+      const direction = e.key === "ArrowRight" ? 1 : -1;
+      const drag = this.moonKeyDrag || { lastDir: 0, rev: 0 };
+      if (drag.lastDir && direction !== drag.lastDir) drag.rev += 1;
+      drag.lastDir = direction;
+      this.moonKeyDrag = drag;
+      if (drag.rev >= 3) {
+        this.moonKeyDrag = null;
+        this.wake();
+      } else {
+        this.setState({ moonDragging: true });
+      }
+      return;
+    }
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.state.moonState === "asleep") {
+      this.say("", "Månen sover. Skaka den med vänster och höger pil tre gånger.", null, "narr-det-hander-ingenting");
+      return;
+    }
+    this.playNextMoonSpeech();
   }
 
   moonLeave() {
@@ -1520,8 +1678,10 @@ class Component extends DCLogic {
       // Moon is awake - play next speech on click
       this.playNextMoonSpeech();
     } else {
-      // Moon is asleep - start dragging to shake it awake
+      // Moon is asleep - start dragging to shake it awake.
       this.moonDrag = { lastX: e.clientX, lastDir: 0, rev: 0, sx: e.clientX, sy: e.clientY, moved: false };
+      this.moonKeyDrag = null;
+      try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch (_) {}
       this.setState({ moonDragging: true });
     }
   }
@@ -1537,6 +1697,26 @@ class Component extends DCLogic {
     }
     this.invDragInfo = { iid, defId, sx: e.clientX, sy: e.clientY, moved: false };
     document.body.classList.add("grabbing");
+  }
+
+  tryUseSelectedItem(target, e) {
+    const iid = this.state.selectedInventoryIid;
+    if (iid == null) return false;
+    const item = this.state.inventory.find((entry) => String(entry.iid) === String(iid));
+    if (!item) {
+      this.setState({ selectedInventoryIid: null });
+      return false;
+    }
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    this.useItemOn(item.defId, target);
+    if ((item.defId === "shard" && target === "otter")
+      || (item.defId === "helmet" && target === "snorkel")
+      || (item.defId === "bottle" && target === "shrimp")
+      || ((item.defId === "fryingpan" || item.defId === "utensil") && target === "skeda")) {
+      this.setState({ selectedInventoryIid: null });
+    }
+    return true;
   }
 
   useItemOn(defId, target, targetUid) {
@@ -1561,7 +1741,7 @@ class Component extends DCLogic {
       // refuses to be seen bare-headed, so the shard only buys her a fitting.
       this.setState({ otterAtelierUnlocked: true });
       if (this.otterNode) {
-        this.otterNode.animate(
+        this.webAnimate(this.otterNode,
           [
             { transform: "translateY(0) rotate(0deg)" },
             { transform: "translateY(-18px) rotate(-4deg)" },
@@ -1581,6 +1761,20 @@ class Component extends DCLogic {
     }
     if (defId === "bottle" && target === "shrimp") {
       this._guideOrOpen("shrimp", () => this.openShrimpGame());
+      return;
+    }
+    if (defId === "buoy" && target === "dolphan") {
+      if (this.state.dolphanHelped) { this.say("", "Dolphan har redan genomfört räddningen.", null, "narr-det-hander-ingenting"); return; }
+      // Dolphan receives the lifesaver buoy: spend the item, arm the dolphin
+      // (it now holds the buoy) and launch the throw-the-lifesaver game.
+      let removedBuoy = false;
+      this.setState((s) => ({
+        selectedInventoryIid: null,
+        dolphanArmed: true,
+        inventory: s.inventory.filter((it) => { if (!removedBuoy && it.defId === "buoy") { removedBuoy = true; return false; } return true; }),
+      }));
+      this.sfx("drop");
+      this._guideOrOpen("dolphan", () => this.openDolphanGame());
       return;
     }
     if ((defId === "driftwood" || defId === "fishline") && target === "octo") {
@@ -1639,6 +1833,11 @@ class Component extends DCLogic {
       this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting");
       return;
     }
+    if (target === "skeda" && (defId === "fryingpan" || defId === "utensil")) {
+      if (this.state.moonState === "asleep") { this.say("", "Skedstorken står orörlig vid elden — allt väntar på att månen vaknar.", null, "narr-det-hander-ingenting"); return; }
+      this.giveSkedaTool(defId);
+      return;
+    }
     this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting");
   }
 
@@ -1682,6 +1881,7 @@ class Component extends DCLogic {
     atelier: { title: "STRANDATELJÉN", goal: "Klara tre konstbriefs.", controls: "Välj material och placera dem på figuren.", mechanics: "Checklistan visar vilka krav som är uppfyllda." },
     paint: { title: "TORSKENS MÅLARSKOLA", goal: "Måla motiven med konstnärligt djup.", controls: "Dra på duken och välj färg/penselstorlek.", mechanics: "Varje motiv bedöms innan du går vidare." },
     scrub: { title: "SKRUBBA BORT SJÖGRÄSET", goal: "Rensa krabban utan att överbelasta känsligheten.", controls: "Dra penseln över sjögräset.", mechanics: "Skrubba lugnt och pausa när känslighetsmätaren stiger." },
+    dolphan: { title: "DOLPHANS STORRÄDDNING", goal: "Träffa den nödställde simmaren med räddningsbojen.", controls: "Piltangenter siktar, MELLANSLAG kastar bojen.", mechanics: "Simmaren rör sig snabbare efter varje träff — sikta i förväg." },
   };
   _guideKey(key) { return "guideDismissed:" + key; }
   _guideDismissed(key) { if (typeof localStorage === "undefined") return false; try { return localStorage.getItem(this._guideKey(key)) === "1"; } catch (_) { return false; } }
@@ -1844,9 +2044,12 @@ class Component extends DCLogic {
     if (this.state.octoGamePhase !== 1 || this.state.octoGameDone) return;
     const splints = this.state.octoGameSplints.map((s, j) => {
       if (j !== i) return s;
-      const rot = Math.max(-90, Math.min(90, s.rot + delta));
-      const aligned = Math.abs(rot - this.octoGameConfig.splintTargets[j]) <= this.octoGameConfig.splintTolerance;
-      return { rot, aligned };
+      const target = this.octoGameConfig.splintTargets[j];
+      const next = Math.max(-90, Math.min(90, s.rot + delta));
+      const aligned = Math.abs(next - target) <= this.octoGameConfig.splintTolerance;
+      // A control press that enters the tolerance band settles on the visible
+      // target instead of leaving the player one pixel/step short.
+      return { rot: aligned ? target : next, aligned };
     });
     if (splints.every((s) => s.aligned)) {
       this.setState({ octoGameSplints: splints });
@@ -2480,8 +2683,40 @@ class Component extends DCLogic {
     if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel();
   }
 
+  setShrimpDialogRef(element) {
+    this.shrimpDialogNode = element || null;
+  }
+
+  setupShrimpModal() {
+    this.teardownShrimpModal();
+    const dialog = this.shrimpDialogNode;
+    if (!dialog || typeof document === "undefined") return;
+    const focusable = () => [...dialog.querySelectorAll("button, input, textarea, select, [tabindex]:not([tabindex=\"-1\"])")].filter((node) => !node.disabled && node.offsetParent !== null);
+    const first = focusable()[0] || dialog;
+    try { first.focus({ preventScroll: true }); } catch (_) { first.focus(); }
+    this._shrimpKeyDown = (event) => {
+      if (!this.state.shrimpGameOpen) return;
+      if (event.key === "Escape") { event.preventDefault(); this.closeShrimpGame(); return; }
+      if (event.key !== "Tab") return;
+      const nodes = focusable();
+      if (!nodes.length) { event.preventDefault(); dialog.focus(); return; }
+      const index = nodes.indexOf(document.activeElement);
+      if (index === -1 || (event.shiftKey && index === 0) || (!event.shiftKey && index === nodes.length - 1)) {
+        event.preventDefault();
+        nodes[event.shiftKey ? (index <= 0 ? nodes.length - 1 : index - 1) : (index + 1) % nodes.length].focus();
+      }
+    };
+    document.addEventListener("keydown", this._shrimpKeyDown);
+  }
+
+  teardownShrimpModal() {
+    if (this._shrimpKeyDown && typeof document !== "undefined") document.removeEventListener("keydown", this._shrimpKeyDown);
+    this._shrimpKeyDown = null;
+  }
+
   openShrimpGame() {
     this.teardownShrimpGame();
+    this.shrimpReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
     this.shrimpGameSession = (this.shrimpGameSession || 0) + 1;
     const alreadyHelped = !!this.state.shrimpHelped;
     const intro = alreadyHelped
@@ -2503,13 +2738,16 @@ class Component extends DCLogic {
       shrimpGameMessages: [{ role: "assistant", text: intro, pending: false }],
       shrimpGameMsg: intro,
       shrimpGameA11yStatus: intro,
-    });
+      shrimpGameTextFallback: false,
+      shrimpGameTextDraft: "",
+    }, () => this.setupShrimpModal());
     void this.shrimpSpeak(intro);
     if (this.shrimpSound) this.shrimpSound.pause();
   }
 
   shrimpStartConversation() {
     if (!this.state.shrimpGameOpen || this.state.shrimpGameSolved || this.state.shrimpGameActive) return;
+    this.shrimpForceBatchRecording = false;
     this.shrimpListenStartTs = typeof performance !== "undefined" ? performance.now() : Date.now();
     this.setState({
       shrimpGameActive: true,
@@ -2525,10 +2763,36 @@ class Component extends DCLogic {
 
   shrimpToggleConversation() {
     if (this.state.shrimpGameActive) {
+      // In batch mode the visible Stop control commits the captured turn.
+      if (this.state.shrimpGameListening && this.shrimpRecorder) {
+        this.shrimpStopRecording();
+        return;
+      }
       this.shrimpStopConversation();
       return;
     }
     this.shrimpStartConversation();
+  }
+
+  shrimpFallback() {
+    if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameSolved) return;
+    this.shrimpForceBatchRecording = true;
+    void this.shrimpStopRealtimeSession();
+    this.setState({ shrimpGameRealtime: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGameTextFallback: true, shrimpGameMsg: "Rösttjänsten är inte tillgänglig — skriv ditt svar här.", shrimpGameA11yStatus: "Rösttjänsten är inte tillgänglig. Skriv ditt svar här." });
+  }
+
+  shrimpTextInput(e) {
+    this.shrimpGameTextDraft = e?.target?.value ?? "";
+    this.setState({ shrimpGameTextDraft: this.shrimpGameTextDraft });
+  }
+
+  async shrimpSubmitText(e) {
+    e?.preventDefault?.();
+    const text = String(this.state.shrimpGameTextDraft ?? this.shrimpGameTextDraft ?? "").trim();
+    if (!text || this.state.shrimpGameBusy) return;
+    this.shrimpGameTextDraft = "";
+    this.setState({ shrimpGameTextDraft: "" });
+    await this.shrimpHandleAnswer(text, "text");
   }
 
   shrimpStopConversation() {
@@ -2544,8 +2808,11 @@ class Component extends DCLogic {
   }
 
   closeShrimpGame() {
+    const returnFocus = this.shrimpReturnFocus;
+    this.shrimpReturnFocus = null;
+    this.teardownShrimpModal();
     this.teardownShrimpGame();
-    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null });
+    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null }, () => returnFocus?.focus?.());
   }
 
   teardownShrimpGame() {
@@ -2844,9 +3111,9 @@ class Component extends DCLogic {
               this.shrimpConsumePending(pendingSentences, event.text);
               void this.shrimpPlayAudioEvent(event.text, event.audio_base64);
             } else if (event?.type === "tts_error" && typeof event.text === "string") {
-              spokeAny = true;
+              // TTS is an enhancement; transcript and game state must continue even on 503.
               this.shrimpConsumePending(pendingSentences, event.text);
-              void this.shrimpSpeak(event.text, { interrupt: false });
+              void this.shrimpSpeak(event.text, { interrupt: false }).catch(() => {});
             } else if (event?.type === "done") {
               if (typeof event.text === "string" && event.text.trim()) assistantText = event.text;
               if (event.result) result = event.result;
@@ -2883,13 +3150,15 @@ class Component extends DCLogic {
     while (pendingSentences.length) {
       const pending = pendingSentences.shift();
       spokeAny = true;
-      await this.shrimpSpeak(pending, { interrupt: false });
+      void this.shrimpSpeak(pending, { interrupt: false }).catch(() => {});
     }
-    if (!spokeAny && assistantText) await this.shrimpSpeak(assistantText, { interrupt: false });
+    if (!spokeAny && assistantText) void this.shrimpSpeak(assistantText, { interrupt: false }).catch(() => {});
+    // Never await TTS: riddle progression and the next STT turn are independent of audio.
     this.shrimpFinalizeConversationTurn(result, assistantText, text, source, serverAttempts);
   }
 
   shrimpClick(e) {
+    if (this.tryUseSelectedItem("shrimp", e)) return;
     e.preventDefault();
     e.stopPropagation();
     this.say("", "En flaska först, sedan talar jag i murarnas skugga.", null);
@@ -2899,6 +3168,7 @@ class Component extends DCLogic {
     if (e.key !== "Enter" && e.key !== " ") return;
     e.preventDefault();
     e.stopPropagation();
+    if (typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem("shrimp", e)) return;
     this.shrimpClick(e);
   }
 
@@ -2927,7 +3197,8 @@ class Component extends DCLogic {
     if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameSolved) return;
     const bridge = typeof window !== "undefined" ? window.claude?.shrimpRealtimeScribe : undefined;
     if (typeof bridge !== "function") {
-      void this.shrimpStartRecording();
+      this.shrimpForceBatchRecording = true;
+      this.setState({ shrimpGameTextFallback: true, shrimpGameA11yStatus: "Realtime-röst är inte tillgänglig. Skriv ditt svar här." });
       return;
     }
     const session = this.shrimpGameSession || 0;
@@ -2999,8 +3270,9 @@ class Component extends DCLogic {
     } catch (error) {
       await this.shrimpStopRealtimeSession();
       if ((this.shrimpGameSession || 0) !== session) return;
-      this.shrimpSetStatus("Realtime-röst gick inte att starta – använder inspelning.");
-      void this.shrimpStartRecording();
+      this.shrimpForceBatchRecording = true;
+      this.setState({ shrimpGameTextFallback: true });
+      this.shrimpSetStatus("Realtime-röst gick inte att starta – skriv ditt svar här eller använd inspelning.");
     }
   }
 
@@ -3085,9 +3357,11 @@ class Component extends DCLogic {
       shrimpGameBusy: false,
       shrimpGamePartial: "",
       shrimpGameMsg: "Realtime-röst bröts – byter till inspelning.",
-      shrimpGameA11yStatus: "Realtime-röst bröts – byter till inspelning.",
+      shrimpGameA11yStatus: "Realtime-röst bröts – skriv ditt svar här eller använd inspelning.",
+      shrimpGameTextFallback: true,
     });
     if (this.state.shrimpGameOpen && this.state.shrimpGameActive && !this.state.shrimpGameSolved) {
+      this.shrimpForceBatchRecording = true;
       void this.shrimpStartRecording();
     }
   }
@@ -3230,7 +3504,8 @@ class Component extends DCLogic {
     if (!this.state.shrimpGameOpen || !this.state.shrimpGameActive || this.state.shrimpGameBusy || this.state.shrimpGameListening || this.state.shrimpGameSolved) return;
     if (this.shrimpSpeechBusy || this.shrimpVoiceAudio) return;
     this.shrimpInterruptSpeech();
-    const SpeechRecognitionCtor = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    const SpeechRecognitionCtor = !this.shrimpForceBatchRecording
+      && typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
     if (SpeechRecognitionCtor) {
       try {
         const recognition = new SpeechRecognitionCtor();
@@ -3264,12 +3539,12 @@ class Component extends DCLogic {
           if ((this.shrimpGameSession || 0) !== session) return;
           this.setState({ shrimpGameListening: false, shrimpGameBusy: false });
           if (event?.error === "not-allowed" || event?.error === "service-not-allowed") {
-            this.setState({ shrimpGameActive: false });
-            this.shrimpSetStatus("Mikrofonåtkomst saknas.");
+            this.setState({ shrimpGameTextFallback: true });
+            this.shrimpSetStatus("Mikrofonåtkomst saknas — skriv ditt svar här.");
             return;
           }
-          this.shrimpSetStatus("Röstsamtalet tappade kontakten.");
-          this.shrimpMaybeResumeListening(400);
+          this.setState({ shrimpGameTextFallback: true });
+          this.shrimpSetStatus("Röstsamtalet tappade kontakten — skriv ditt svar här.");
         };
         recognition.onend = async () => {
           if ((this.shrimpGameSession || 0) !== session) return;
@@ -3291,8 +3566,8 @@ class Component extends DCLogic {
       }
     }
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameActive: false });
-      this.shrimpSetStatus("Röstsamtal stöds inte i den här webbläsaren.");
+      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameTextFallback: true });
+      this.shrimpSetStatus("Röstsamtal stöds inte i den här webbläsaren — skriv ditt svar här.");
       return;
     }
     try {
@@ -3394,15 +3669,14 @@ class Component extends DCLogic {
           await this.shrimpTranscribeAudio(blob, session);
         } catch (error) {
           if ((this.shrimpGameSession || 0) !== session) return;
-          this.setState({ shrimpGameBusy: false });
-          this.shrimpSetStatus("Röstsamtalet kunde inte tolkas.");
-          this.shrimpMaybeResumeListening(400);
+          this.setState({ shrimpGameBusy: false, shrimpGameTextFallback: true });
+          this.shrimpSetStatus("Röstsamtalet kunde inte tolkas — skriv ditt svar här.");
         }
       };
       recorder.start();
     } catch (error) {
-      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameActive: false });
-      this.shrimpSetStatus("Mikrofonen kunde inte starta.");
+      this.setState({ shrimpGameListening: false, shrimpGameBusy: false, shrimpGameTextFallback: true });
+      this.shrimpSetStatus("Mikrofonen kunde inte starta — skriv ditt svar här.");
     }
   }
 
@@ -3429,10 +3703,6 @@ class Component extends DCLogic {
     this.setState({ shrimpGameBusy: false });
     await this.shrimpHandleAnswer(text, "voice");
     return text;
-  }
-
-  async shrimpSubmitText() {
-    return;
   }
 
   /* SHEEP_CONTRACT_START */
@@ -5074,6 +5344,7 @@ class Component extends DCLogic {
   }
 
   otterClick(e) {
+    if (this.tryUseSelectedItem("otter", e)) return;
     e.stopPropagation();
     if (this.state.moonState === "asleep") {
       this.say("", "En utter i klänning, fast med en flaska på huvudet, vilar stilla.", null, "narr-en-utter-i-klanning-fast");
@@ -5295,12 +5566,15 @@ class Component extends DCLogic {
 
     if (nextRound >= this.sonarContract.rounds.length) {
       this.teardownSonarGame();
-      this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true });
-      this.subTalk();
+      // The captain pays up: a slev (ladle), hurled overboard with disdain.
+      const grant = !this.state.inventory.some((it) => it.defId === "utensil");
+      this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true, inventory: grant ? [...this.state.inventory, { iid: ++this.uid, defId: "utensil" }] : this.state.inventory });
+
       this.say(
         "Kaptenen",
-        "Tre vrak på en vakt. Du är fortfarande en styrman, men du är min styrman. Behöver du skjuts upp till ytan så säg till — jag ligger ändå bara här och rostar.",
-        null
+        "Tre vrak på en vakt. Du är fortfarande en styrman, men du är min styrman. Här — en slev jag fiske från galjonen. För markens folk, sa de. Jag vet inte vad den är till för, men du gör bättre ifrån dig än jag. Behöver du skjuts upp till ytan så säg till — jag ligger ändå bara här och rostar.",
+        null,
+        "sub-reward"
       );
       return;
     }
@@ -5482,6 +5756,7 @@ class Component extends DCLogic {
   }
 
   snorkelClick(e) {
+    if (this.tryUseSelectedItem("snorkel", e)) return;
     e.stopPropagation();
     if (this.state.underwaterUnlocked) {
       this.say("", "Du sjunker ner mot vraket igen...", null, "narr-du-sjunker-ner-mot-vraket");
@@ -5524,7 +5799,7 @@ class Component extends DCLogic {
     clearTimeout(this.sealPuffEnd);
     this.setState({ sealFrame: "open" });
     if (this.sealNode) {
-      this.sealNode.animate(
+      this.webAnimate(this.sealNode,
         [
           { transform: "rotate(0deg) translateY(0)" },
           { transform: "rotate(-6deg) translateY(-6px)" },
@@ -5537,7 +5812,7 @@ class Component extends DCLogic {
     }
     if (this.sealVoice) this.sealVoice.pause();
     if (this.sealMouthLoop) this.sealMouthLoop();
-    const clips = ["assets/vo/seal-chat-1.mp3", "assets/vo/seal-chat-2.mp3", "assets/vo/seal-chat-3.mp3"];
+    const clips = ["seal-voice-1", "seal-voice-2", "seal-voice-3"].map((name) => this.audioAsset(name));
     const lines = [
       "SKRÅVEL-bimbo-yaaa, lyssna här kompis, jag e' typ helt seriös, glimp-glimp-JA!",
       "Blipp-blorp majestätisk, jag e' faktiskt geniet här, hörru, flimflam-STARK!",
@@ -5572,14 +5847,14 @@ class Component extends DCLogic {
     // with a transparent window roughly centered in it — the player looks
     // at the seal through that hole.
     viewfinderW: 460, viewfinderH: 460 * (326 / 693),
-    focusRadius: 45,
-    focusGainPerSec: 80,
-    focusDecayPerSec: 100,
+    focusRadius: 86,
+    focusGainPerSec: 120,
+    focusDecayPerSec: 70,
     goodShotThreshold: 70,
     shotsToWin: 3,
     filmPerBatch: 8,
-    driftSpeedMin: 65, driftSpeedMax: 143,
-    speedBoostPerShot: 1.45,
+    driftSpeedMin: 130, driftSpeedMax: 143,
+    speedBoostPerShot: 1.2,
     compositions: [
       {
         key: "centered",
@@ -5590,12 +5865,12 @@ class Component extends DCLogic {
         key: "thirds",
         prompt: "Tredjedelsregeln — placera sälen vid ett av linjernas kryss.",
         points: [[1 / 3, 1 / 3], [2 / 3, 1 / 3], [1 / 3, 2 / 3], [2 / 3, 2 / 3]],
-        radius: 0.15,
+        radius: 0.18,
       },
       {
         key: "action",
         prompt: "Actionbild — fånga den snabbare sälen i sidofältet med luft framför nosen.",
-        leftMax: 0.45, rightMin: 0.55, minY: 0.16, maxY: 0.84, minSpeed: 120,
+        leftMax: 0.5, rightMin: 0.5, minY: 0.12, maxY: 0.88, minSpeed: 120,
       },
     ],
   };
@@ -5628,6 +5903,7 @@ class Component extends DCLogic {
     this.sealGameRunning = false;
     this.sealGameKeys = {};
     this.sealGameShotRepeat = false;
+    this.sealGameStabilized = false;
     this.sealGameInFocus = null;
     this.sealGameCompositionReady = null;
     this.sealGameFocusValue = 0;
@@ -5784,7 +6060,7 @@ class Component extends DCLogic {
 
     this.sealGameUpdateScale();
 
-    const aimSpeed = 300;
+    const aimSpeed = 360;
     if (keys.left) this.sealGameView.x -= aimSpeed * dt;
     if (keys.right) this.sealGameView.x += aimSpeed * dt;
     if (keys.up) this.sealGameView.y -= aimSpeed * dt;
@@ -5792,8 +6068,10 @@ class Component extends DCLogic {
     this.sealGameClampView();
     this.sealGameApplyViewTransform();
 
-    seal.x += seal.vx * dt;
-    seal.y += seal.vy * dt;
+    if (!this.sealGameStabilized) {
+      seal.x += seal.vx * dt;
+      seal.y += seal.vy * dt;
+    }
     const mx = cfg.sealW * 0.46, my = cfg.sealH * 0.46;
     if (seal.x < mx) { seal.x = mx; seal.vx = Math.abs(seal.vx); }
     if (seal.x > cfg.stageW - mx) { seal.x = cfg.stageW - mx; seal.vx = -Math.abs(seal.vx); }
@@ -5836,6 +6114,40 @@ class Component extends DCLogic {
     }
 
     this.sealGameRAF = requestAnimationFrame((t2) => this.sealGameLoop(t2));
+  }
+
+  sealGameSnapToComposition() {
+    const challenge = this.sealGameCurrentComposition();
+    const seal = this.sealGameSeal;
+    if (!seal || !challenge) return;
+    const cfg = this.sealGameConfig;
+    if (challenge.key === "centered") {
+      seal.x = cfg.stageW * challenge.centerX;
+      seal.y = cfg.stageH * challenge.centerY;
+    } else if (challenge.key === "thirds") {
+      const [targetX, targetY] = challenge.points[0];
+      seal.x = cfg.stageW * targetX;
+      seal.y = cfg.stageH * targetY;
+    } else if (challenge.key === "action") {
+      seal.x = cfg.stageW * 0.3;
+      seal.y = cfg.stageH * 0.5;
+      seal.vx = challenge.minSpeed;
+      seal.vy = 0;
+    }
+    this.sealGameView = { x: seal.x, y: seal.y };
+    this.sealGameFocusValue = 100;
+    this.sealGameApplyViewTransform?.();
+  }
+
+  sealGameStabilize() {
+    this.sealGameStabilized = !this.sealGameStabilized;
+    if (this.sealGameStabilized) this.sealGameSnapToComposition();
+    this.setState({
+      sealGameFocusPct: this.sealGameStabilized ? 100 : this.state.sealGameFocusPct,
+      sealGameA11yStatus: this.sealGameStabilized
+        ? `Tillgänglighetsassist aktiverad för uppdrag ${this.state.sealGameShots + 1}: sälen, sikte och fokus är låsta i giltig komposition. Knäpp bilden.`
+        : "Tillgänglighetsassist avstängd. Sälen rör sig igen.",
+    });
   }
 
   sealGamePrefersReducedMotion() {
@@ -5913,6 +6225,7 @@ class Component extends DCLogic {
         sealGameMsg: "Perfekt bild! Nästa: " + nextChallenge.prompt,
         sealGameA11yStatus: `Bild ${shots} av ${cfg.shotsToWin} tagen. Nästa uppdrag: ${nextChallenge.prompt}`,
       });
+      if (this.sealGameStabilized) this.sealGameSnapToComposition();
       return;
     }
 
@@ -6046,7 +6359,7 @@ class Component extends DCLogic {
     const ox = Math.max(-18, Math.min(18, e.clientX - d.sx));
     const oy = Math.max(-10, Math.min(10, e.clientY - d.sy));
     this.setState({ moonOff: { x: ox, y: oy } });
-    if (d.rev >= 4 && this.state.moonState === "asleep") {
+    if (d.rev >= 3 && this.state.moonState === "asleep") {
       this.moonDrag = null;
       this.setState({ moonOff: { x: 0, y: 0 }, moonDragging: false });
       this.wake();
@@ -6072,7 +6385,7 @@ class Component extends DCLogic {
       document.body.classList.remove("grabbing");
       this.setState({ invDrag: null });
       if (!info.moved) {
-        this.invSay(info.defId);
+        this.invSay(info.defId, info.iid);
         return;
       }
       const el = e && document.elementFromPoint(e.clientX, e.clientY);
@@ -6081,7 +6394,7 @@ class Component extends DCLogic {
       const kind = t.dataset.drop;
       if (kind === "inv") {
         this.combine(info.iid, t.dataset.iid);
-      } else if (kind === "crab" || kind === "moon" || kind === "gull" || kind === "octo" || kind === "snorkel" || kind === "chest" || kind === "seal" || kind === "badger" || kind === "cod" || kind === "otter" || kind === "sub" || kind === "cave" || kind === "shrimp") {
+      } else if (kind === "crab" || kind === "moon" || kind === "gull" || kind === "octo" || kind === "snorkel" || kind === "chest" || kind === "seal" || kind === "badger" || kind === "cod" || kind === "otter" || kind === "sub" || kind === "cave" || kind === "shrimp" || kind === "skeda" || kind === "fryingpan") {
         this.useItemOn(info.defId, kind);
       } else if (kind === "entity") {
         this.useItemOn(info.defId, "entity", Number(t.dataset.uid));
@@ -6091,6 +6404,7 @@ class Component extends DCLogic {
     const d = this.moonDrag;
     if (!d) return;
     this.moonDrag = null;
+    this.moonKeyDrag = null;
     this.setState({ moonOff: { x: 0, y: 0 }, moonDragging: false });
     if (!d.moved) {
       if (this.state.moonState === "asleep") {
@@ -6107,7 +6421,7 @@ class Component extends DCLogic {
     this.setState({ moonState: "awake", moonFrame: "awake" });
     this.discoverChar("moon");
     if (this.moonNode) {
-      this.moonNode.animate(
+      this.webAnimate(this.moonNode,
         [
           { transform: "rotate(0deg)" },
           { transform: "rotate(-7deg)" },
@@ -6124,9 +6438,11 @@ class Component extends DCLogic {
 
   playMoonAudio(audioName) {
     try {
-      const audio = new Audio("assets/vo/" + audioName + ".mp3");
+      const src = this.audioAsset(audioName);
+      if (!src) return;
+      const audio = new Audio(src);
       audio.__channel = "sfx";
-      audio.play();
+      audio.play().catch(() => {});
       this.setState({ moonFrame: "talk" });
       audio.onended = () => {
         this.setState({ moonFrame: "awake" });
@@ -6169,7 +6485,9 @@ class Component extends DCLogic {
     if (withVoice) {
       if (this.moonLipStop) this.moonLipStop();
       if (this.voice) this.voice.pause();
-      this.voice = new Audio("assets/vo/moon-talk.mp3");
+      const voiceSrc = this.audioAsset("moon-talk");
+      if (!voiceSrc) { stopFlap(); return; }
+      this.voice = new Audio(voiceSrc);
       this.voice.volume = 0.95;
       this.voice.onended = () => { if (this.moonLipStop) this.moonLipStop(); stopFlap(); };
       this.voice.play().then(() => {
@@ -6417,11 +6735,14 @@ class Component extends DCLogic {
     this.discoverChar("sheep");
     this.sheepLineIdx = (this.sheepLineIdx == null) ? 0 : (this.sheepLineIdx + 1) % 3;
     if (this.sheepVoice) { try { this.sheepVoice.pause(); } catch (err) { /* redan stoppad */ } }
-    this.sheepVoice = new Audio("assets/vo/sheep-chat-" + (this.sheepLineIdx + 1) + ".mp3");
-    this.sheepVoice.volume = 0.9;
-    this.sheepVoice.play().catch(() => {});
+    const sheepSrc = this.audioAsset("sheep");
+    this.sheepVoice = sheepSrc ? new Audio(sheepSrc) : null;
+    if (this.sheepVoice) {
+      this.sheepVoice.volume = 0.9;
+      this.sheepVoice.play().catch(() => {});
+    }
     if (this.sheepFlapStop) this.sheepFlapStop();
-    this.sheepFlapStop = this.lipSyncFor(this.sheepVoice, (open) => this.setState({ sheepFrame: open ? "open" : "closed" }), 150);
+    this.sheepFlapStop = this.sheepVoice ? this.lipSyncFor(this.sheepVoice, (open) => this.setState({ sheepFrame: open ? "open" : "closed" }), 150) : null;
     const lines = [
       "BÄÄÄ! Ljuset! SÅ ljust! Jag har bott i mörker i åratal och du kommer hit med en hel SOL?!",
       "Vackert ljus... varmt ljus... nästan lika skönt som basgångarna i mina lurar. Bää.",
@@ -7379,7 +7700,7 @@ class Component extends DCLogic {
       otterLookBox: look.box,
     });
     if (this.otterNode) {
-      this.otterNode.animate(
+      this.webAnimate(this.otterNode,
         [
           { transform: "translateY(0) rotate(0deg)" },
           { transform: "translateY(-16px) rotate(-3deg)" },
@@ -7421,7 +7742,7 @@ class Component extends DCLogic {
     }
     this.discoverChar("gull");
     if (this.gullVoice) this.gullVoice.pause();
-    this.gullVoice = new Audio("assets/gull-voice.mp3");
+    this.gullVoice = new Audio("assets/seagull-short.mp3");
     this.gullVoice.volume = 0.95;
     this.gullVoice.play().catch(() => {});
     this.say(
@@ -7448,8 +7769,24 @@ class Component extends DCLogic {
     boatSpeedBase: 85,
     boatSpeedPerHit: 35,
     winHits: 5,
-    hitRx: 76, hitRy: 34,
-    throwCooldownMs: 480,
+    hitRx: 96, hitRy: 52,
+    throwCooldownMs: 300,
+  };
+
+  dolphanGameConfig = {
+    stageW: 840, stageH: 520,
+    dolphanW: 220,
+    dolphanThrowX: 120,          // roughly where Dolphan's flipper launches the ring
+    dolphanThrowY: 520 * 0.55,
+    reticleSpeed: 380,           // pixels/sec, no momentum — precise aiming
+    throwCount: 8,               // lifesaver rings per round
+    fallMs: 760,                 // travel time of a thrown ring
+    arcHeight: 130,              // peak of the parabolic throw arc
+    swimmerSpeedBase: 78,
+    swimmerSpeedPerHit: 30,
+    winHits: 4,
+    hitRx: 64, hitRy: 46,
+    throwCooldownMs: 320,
   };
 
   boatSpeedFor(hits) {
@@ -7527,7 +7864,7 @@ class Component extends DCLogic {
     this.gullGameLastTs = null;
     this.gullGameRunning = true;
     if (!this.gullEngineSnd) {
-      this.gullEngineSnd = new Audio("assets/boat-engine.mp3");
+      this.gullEngineSnd = new Audio("assets/underwater-default.mp3");
       this.gullEngineSnd.loop = true;
     }
     this.gullEngineSnd.volume = 0.22;
@@ -7631,14 +7968,14 @@ class Component extends DCLogic {
       this.closeGullGame();
       return;
     }
-    if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === " " || k === "Spacebar") {
+    if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === " " || k === "Space" || k === "Spacebar") {
       e.preventDefault();
     }
     if (k === "ArrowUp") this.gullKeys.up = true;
     else if (k === "ArrowDown") this.gullKeys.down = true;
     else if (k === "ArrowLeft") this.gullKeys.left = true;
     else if (k === "ArrowRight") this.gullKeys.right = true;
-    else if (k === " " || k === "Spacebar") {
+    else if (k === " " || k === "Space" || k === "Spacebar") {
       if (!e.repeat) this.dropGullBomb();
     }
   }
@@ -7649,6 +7986,7 @@ class Component extends DCLogic {
     else if (k === "ArrowDown") this.gullKeys.down = false;
     else if (k === "ArrowLeft") this.gullKeys.left = false;
     else if (k === "ArrowRight") this.gullKeys.right = false;
+    else if (k === " " || k === "Space" || k === "Spacebar") this.gullSpaceHeld = false;
   }
 
   gullGameLoop(ts) {
@@ -7754,7 +8092,7 @@ class Component extends DCLogic {
       }
       if (!b.evaded && p > 0.55) {
         const edx = boat.x - b.x, edy = boat.y - b.y;
-        const evadeR = Math.hypot(cfg.hitRx, cfg.hitRy) * 1.7;
+        const evadeR = Math.hypot(cfg.hitRx, cfg.hitRy) * 0.9;
         if (Math.hypot(edx, edy) < evadeR) {
           b.evaded = true;
           const away = Math.atan2(edy, edx) + Math.PI;
@@ -7786,7 +8124,7 @@ class Component extends DCLogic {
     this.gullBombDropSnd.currentTime = 0;
     this.gullBombDropSnd.volume = 0.85;
     this.gullBombDropSnd.play().catch(() => {});
-    if (!this.gullSquawkSnd) this.gullSquawkSnd = new Audio("assets/seagull-squawk.mp3");
+    if (!this.gullSquawkSnd) this.gullSquawkSnd = new Audio("assets/seagull-short.mp3");
     this.gullSquawkSnd.currentTime = 0;
     this.gullSquawkSnd.volume = 0.7;
     this.gullSquawkSnd.play().catch(() => {});
@@ -7852,7 +8190,7 @@ class Component extends DCLogic {
     this.spawnGullSplash(b.x, b.y, hit);
     if (hit) {
       this.sfx("splat");
-      if (!this.gullHornSnd) this.gullHornSnd = new Audio("assets/boat-horn.mp3");
+      if (!this.gullHornSnd) this.gullHornSnd = new Audio("assets/seagull-short.mp3");
       this.gullHornSnd.currentTime = 0;
       this.gullHornSnd.volume = 0.65;
       this.gullHornSnd.play().catch(() => {});
@@ -7896,7 +8234,7 @@ class Component extends DCLogic {
   }
 
   cutLine() {
-    const snip = new Audio("assets/cutting.mp3");
+    const snip = new Audio("assets/water-splash.mp3");
     snip.volume = 0.85;
     snip.play().catch(() => {});
     clearInterval(this.gullCycle);
@@ -7909,10 +8247,519 @@ class Component extends DCLogic {
     this.say("Fiskmåsen", "Skrii...! Linan är av! Måsen skakar om fjädrarna och ser genast gladare ut. Du rullar ihop fiskelinan — den kan nog komma till nytta.", null, "gull-freed", "gull");
   }
 
+  setupCharacterModal(name) {
+    this.teardownCharacterModal(name);
+    const focusProp = name + "ReturnFocus";
+    const keyProp = "_" + name + "KeyDown";
+    this[focusProp] = typeof document !== "undefined" ? document.activeElement : null;
+    this[keyProp] = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); this["close" + name[0].toUpperCase() + name.slice(1) + "Game"](); return; }
+      this.trapModalFocus(event, '[data-modal="' + name + '-game"]');
+    };
+    if (typeof window !== "undefined") window.addEventListener("keydown", this[keyProp]);
+  }
+
+  teardownCharacterModal(name) {
+    const keyProp = "_" + name + "KeyDown";
+    if (this[keyProp] && typeof window !== "undefined") window.removeEventListener("keydown", this[keyProp]);
+    this[keyProp] = null;
+  }
+
+  restoreCharacterModalFocus(name) {
+    const focusProp = name + "ReturnFocus";
+    const returnFocus = this[focusProp];
+    this[focusProp] = null;
+    this.teardownCharacterModal(name);
+    if (returnFocus?.focus) returnFocus.focus({ preventScroll: true });
+  }
+
+  fryingPanClick(e) {
+    if (this.tryUseSelectedItem && this.tryUseSelectedItem("fryingpan", e)) return;
+    e?.stopPropagation?.();
+    if (this.state.fryingPanFound) return;
+    this.setState({ fryingPanFound: true, inventory: [...this.state.inventory, { iid: "fryingpan-" + Date.now(), defId: "fryingpan" }] });
+    this.sfx("pickup");
+    this.say("", "Mellan stenarna vid tidvattnet ligger en tjock gjutjärnsspanna, halvt begravd i sand. Du grillar den loss och lägger den i packningen. En kock nere vid lägret skulle bli glad.", null, "narr-stekpannan-pa-stranden");
+  }
+
+  giveSkedaTool(defId) {
+    if (this.state.skedaTooled) { this.say("Skeda Kahlo", "Stekpannan och sleven är mina nu. Rör dem inte — de hänger med i koreografin!", null, null, "skeda"); return; }
+    const pan = defId === "fryingpan";
+    const slev = defId === "utensil";
+    if (!pan && !slev) { this.say("", "Det händer ingenting.", null, "narr-det-hander-ingenting"); return; }
+    const already = pan ? this.state.skedaPanGiven : this.state.skedaSlevGiven;
+    if (already) { this.say("Skeda Kahlo", pan ? "Stekpannan har jag redan. Sleven då?" : "Sleven är min. Var är stekpannan?", null, null, "skeda"); return; }
+    const panGiven = pan || this.state.skedaPanGiven;
+    const slevGiven = slev || this.state.skedaSlevGiven;
+    this.discoverChar("skeda");
+    if (panGiven && slevGiven) {
+      // both tools delivered → fully tooled
+      this.setState((s) => ({ skedaPanGiven: true, skedaSlevGiven: true, skedaTooled: true, inventory: s.inventory.filter((it) => it.defId !== defId) }));
+      this.sfx("confirm");
+      this.say("Skeda Kahlo", "Stekpanna OCH slev! Nu är jag en riktig kock igen, inte bara en rytm-konstnär. Hör hur sleven slår mot pannan — en ny takt! Tack, min vän.", null, "skeda-tooled", "skeda");
+      return;
+    }
+    this.setState((s) => ({ skedaPanGiven: panGiven, skedaSlevGiven: slevGiven, inventory: s.inventory.filter((it) => it.defId !== defId) }));
+    this.sfx("drop");
+    this.say("Skeda Kahlo", pan ? "Åh, en stekpanna! Tung, salt, underbar. Men en kock behöver också något att röra med..." : "En slev! Skopan är perfekt. Men var ska jag steka upp det jag rör om?", null, "skeda-tool", "skeda");
+  }
+
+  openSkedaGame() {
+    if (this.state.moonState === "asleep") { this.say("", "Månen sover fortfarande. Väcks först!", null, "narr-det-hander-ingenting"); return; }
+    if (typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem("skeda")) return;
+    this.setupCharacterModal?.("skeda");
+    this.discoverChar("skeda");
+    this.setState({ skedaGameOpen: true, skedaGameStep: 0, skedaGameMsg: "Skedarna upp! Följ takten." }, () => {
+      if (typeof document !== "undefined") document.querySelector('[data-modal="skeda-game"] button')?.focus();
+    });
+  }
+
+  closeSkedaGame() { this.restoreCharacterModalFocus?.("skeda"); this.setState({ skedaGameOpen: false }); }
+  pickSkeda(step) {
+    if (!this.state.skedaGameOpen) return;
+    const sequence = [1, 2, 0, 2];
+    if (step !== sequence[this.state.skedaGameStep]) {
+      this.setState({ skedaGameStep: 0, skedaGameMsg: "Fel takt! Soppan skvätter — börja om." });
+      return;
+    }
+    const next = this.state.skedaGameStep + 1;
+    if (next === sequence.length) { if (this.closeSkedaGame) this.closeSkedaGame(); else this.setState({ skedaGameOpen: false }); this.setState({ skedaGameStep: next, skedaHelped: true, skedaGameMsg: "Perfekt! Soppan dansar." });
+      // Skeda rewards the player with her old lifesaver buoy — exactly what
+      // Dolphan Lundgren needs for the great rescue out by the pier.
+      this.scheduleGameAction(() => {
+        if (this.state.inventory.some((it) => it.defId === "buoy")) return;
+        this.setState((s) => ({ inventory: [...s.inventory, { iid: "buoy-" + Date.now(), defId: "buoy" }] }));
+        this.sfx("drop");
+        this.say("Skeda Kahlo", "Perfekt takt! Som belöning får du min gamla räddningsboj. Dolphan nere vid bryggan väntar på den!", null, null, "skeda");
+      }, 650);
+    }
+    else this.setState({ skedaGameStep: next, skedaGameMsg: "Rätt! Nästa skedslag." });
+  }
+
+  openGlodisGame() {
+    if (this.state.moonState === "asleep") { this.say("", "Månen sover fortfarande. Väcks först!", null, "narr-det-hander-ingenting"); return; }
+    this.setupCharacterModal?.("glodis");
+    this.discoverChar("glodis");
+    this.setState({ glodisGameOpen: true, glodisGameStep: 0, glodisGameMsg: "Konsolen väntar på mönstret." }, () => {
+      if (typeof document !== "undefined") document.querySelector('[data-modal="glodis-game"] button')?.focus();
+    });
+  }
+  closeGlodisGame() { this.restoreCharacterModalFocus?.("glodis"); this.setState({ glodisGameOpen: false }); }
+  pickGlodis(step) {
+    if (!this.state.glodisGameOpen) return;
+    const sequence = [0, 1, 2, 0];
+    if (step !== sequence[this.state.glodisGameStep]) {
+      this.setState({ glodisGameStep: 0, glodisGameMsg: "Fel blinkning. Mönstret återställs." });
+      return;
+    }
+    const next = this.state.glodisGameStep + 1;
+    if (next === sequence.length) { if (this.closeGlodisGame) this.closeGlodisGame(); else this.setState({ glodisGameOpen: false }); this.setState({ glodisGameStep: next, glodisHelped: true, glodisGameMsg: "Lägret lyser tryggt!" }); }
+    else this.setState({ glodisGameStep: next, glodisGameMsg: "Rätt färg." });
+  }
+
+  dolphanClick(e) {
+    e?.stopPropagation?.();
+    if (this.state.moonState === "asleep") { this.say("", "Månen sover fortfarande. Väcks först!", null, "narr-det-hander-ingenting"); return; }
+    // If the player has an item selected, route it through the use-on-target
+    // path (the buoy triggers the great rescue there).
+    if (this.tryUseSelectedItem("dolphan", e)) return;
+    if (this.state.dolphanHelped) { this.say("Dolphan", "Räddningen var legendarisk! Bojen sitter som gjord för en stjärna.", null, "dolphan-thanks", "dolphan"); return; }
+    // If Dolphan is already armed with the lifesaver (the buoy was spent but
+    // the rescue wasn't finished), reopen the game instead of demanding a new buoy.
+    if (this.state.dolphanArmed) { this._guideOrOpen("dolphan", () => this.openDolphanGame()); return; }
+    this.discoverChar("dolphan");
+    const hasBuoy = this.state.inventory.some((it) => it.defId === "buoy");
+    if (hasBuoy) {
+      this.say("Dolphan", "ÄR DET MIN RÄDDNINGSBOJ?! Välj den i ryggsäcken och kasta den hit — dags för en räddning av olympiska proportioner!", null, null, "dolphan");
+    } else {
+      this.say("Dolphan", "Jag står redo — men jag saknar min räddningsboj. Skeda Kahlo vid lägerelden har kanske en att avvara.", null, null, "dolphan");
+    }
+  }
+  closeDolphanGame() { this.restoreCharacterModalFocus?.("dolphan"); this.teardownDolphanGame(); this.setState({ dolphanGameOpen: false }); }
+  pickDolphan(item) {
+    // Kept for backwards-compatibility with any saved binding; the great rescue
+    // is now driven by useItemOn(buoy -> dolphan) and the throw-the-lifesaver game.
+    if (item !== "buoy") { this.setState({ dolphanGameMsg: "Fel utrustning! Dolphan väntar på sin räddningsboj." }); return; }
+    this._guideOrOpen("dolphan", () => this.openDolphanGame());
+  }
+
+  activateSceneCharacter(e, activate) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    e.stopPropagation();
+    activate();
+  }
+
+  skedaKeyDown(e) {
+    this.activateSceneCharacter(e, () => this.openSkedaGame());
+  }
+
+  glodisKeyDown(e) {
+    this.activateSceneCharacter(e, () => this.openGlodisGame());
+  }
+
+  dolphanKeyDown(e) {
+    this.activateSceneCharacter(e, () => this.dolphanClick(e));
+  }
+
+  openDolphanGame() {
+    if (this.state.dolphanHelped) return;
+    this.dolphanReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this.dolphanGameHitsCount = 0;
+    this.dolphanGameLastThrow = 0;
+    this.setupCharacterModal?.("dolphan");
+    this.discoverChar("dolphan");
+    this.setState({
+      dolphanGameOpen: true,
+      dolphanGameHits: 0,
+      dolphanGameThrows: this.dolphanGameConfig.throwCount,
+      dolphanGameMsg: "Sikta med piltangenterna och tryck MELLANSLAG för att kasta räddningsbojen över simmaren.",
+    });
+  }
+
+  initDolphanStage(el) {
+    if (!el || el === this.dolphanGameStageEl) return;
+    this.dolphanGameStageEl = el;
+    this.startDolphanGame();
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => el.focus?.());
+    else el.focus?.();
+  }
+
+  startDolphanGame() {
+    this.teardownDolphanGame(false);
+    const cfg = this.dolphanGameConfig;
+    const speed = this.dolphanSwimmerSpeedFor(this.dolphanGameHitsCount || 0);
+    this.dolphanSwimmer = {
+      x: cfg.stageW * 0.62,
+      y: cfg.stageH * 0.5,
+      vx: (Math.random() < 0.5 ? -1 : 1) * speed,
+      vy: (Math.random() < 0.5 ? -1 : 1) * speed * 0.6,
+      turnT: 1.7,
+      bobSeed: Math.random() * Math.PI * 2,
+    };
+    this.dolphanReticle = { x: cfg.stageW * 0.6, y: cfg.stageH * 0.45 };
+    this.dolphanKeys = {};
+    this.dolphanBuoys = [];
+    this._dolphanKeyDown = (e) => this.handleDolphanKeyDown(e);
+    this._dolphanKeyUp = (e) => this.handleDolphanKeyUp(e);
+    window.addEventListener("keydown", this._dolphanKeyDown);
+    window.addEventListener("keyup", this._dolphanKeyUp);
+    this.dolphanGameLastTs = null;
+    this.dolphanGameRunning = true;
+    this.dolphanGameRAF = requestAnimationFrame((ts) => this.dolphanGameLoop(ts));
+  }
+
+  teardownDolphanGame(clearRefs) {
+    this.dolphanGameRunning = false;
+    if (this.dolphanGameRAF) { cancelAnimationFrame(this.dolphanGameRAF); this.dolphanGameRAF = null; }
+    if (this._dolphanKeyDown) {
+      window.removeEventListener("keydown", this._dolphanKeyDown);
+      window.removeEventListener("keyup", this._dolphanKeyUp);
+      this._dolphanKeyDown = null;
+      this._dolphanKeyUp = null;
+    }
+    if (this.dolphanBuoys) this.dolphanBuoys.forEach((b) => { if (b.ringEl) b.ringEl.remove(); if (b.shadowEl) b.shadowEl.remove(); });
+    this.dolphanBuoys = [];
+    if (clearRefs !== false) {
+      this.dolphanGameStageEl = null;
+      this.dolphanWaterCanvasEl = null;
+      this.dolphanWaterCtx = null;
+      this.dolphanDolphanEl = null;
+    }
+  }
+
+  initDolphanWaterCanvas(el) {
+    if (el === this.dolphanWaterCanvasEl) return;
+    this.dolphanWaterCanvasEl = el;
+    this.dolphanWaterCtx = el.getContext("2d");
+  }
+
+  dolphanSwimmerSpeedFor(hits) {
+    const cfg = this.dolphanGameConfig;
+    return cfg.swimmerSpeedBase + cfg.swimmerSpeedPerHit * (hits || 0);
+  }
+
+  rerollDolphanSwimmer() {
+    const cfg = this.dolphanGameConfig;
+    const speed = this.dolphanSwimmerSpeedFor(this.dolphanGameHitsCount || 0);
+    const angle = Math.random() * Math.PI * 2;
+    this.dolphanSwimmer.vx = Math.cos(angle) * speed;
+    this.dolphanSwimmer.vy = Math.sin(angle) * speed * 0.65;
+    this.dolphanSwimmer.turnT = 1.0 + Math.random() * 1.4;
+  }
+
+  drawDolphanWater(now) {
+    const ctx = this.dolphanWaterCtx;
+    if (!ctx) return;
+    const cfg = this.dolphanGameConfig;
+    const w = cfg.stageW, h = cfg.stageH;
+    const t = now / 1000;
+
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#12536e");
+    g.addColorStop(0.5, "#166f8f");
+    g.addColorStop(1, "#0a3245");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.lineWidth = 2;
+    for (let j = 0; j < 8; j++) {
+      const yBase = (j + 0.5) * (h / 8);
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 10) {
+        const y = yBase + Math.sin(x * 0.022 + t * 1.3 + j * 0.9) * 7 + Math.sin(x * 0.008 - t * 0.7 + j * 1.7) * 5;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(255,255,255,${(0.05 + (j % 3) * 0.02).toFixed(3)})`;
+      ctx.stroke();
+    }
+
+    // swimmer: bobbing head with a swim cap and ripples
+    const sw = this.dolphanSwimmer;
+    if (sw) {
+      const bob = Math.sin(t * 2.6 + sw.bobSeed) * 5;
+      const sx = sw.x, sy = sw.y + bob;
+      for (let r = 1; r <= 3; r++) {
+        ctx.beginPath();
+        ctx.ellipse(sx, sy + 14, 22 + r * 9 + Math.sin(t * 2 + r) * 2, (8 + r * 3) * 0.6, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,255,255,${(0.16 - r * 0.04).toFixed(2)})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      // head
+      ctx.beginPath();
+      ctx.arc(sx, sy, 15, 0, Math.PI * 2);
+      ctx.fillStyle = "#f1c27d";
+      ctx.fill();
+      // cap
+      ctx.beginPath();
+      ctx.arc(sx, sy - 2, 15, Math.PI * 1.04, Math.PI * 1.96);
+      ctx.lineTo(sx + 15, sy);
+      ctx.lineTo(sx - 15, sy);
+      ctx.closePath();
+      ctx.fillStyle = "#d6336c";
+      ctx.fill();
+      // splashing arms hint
+      ctx.strokeStyle = "rgba(255,255,255,0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx - 16, sy + 4);
+      ctx.lineTo(sx - 24, sy - 6 + Math.sin(t * 8) * 3);
+      ctx.moveTo(sx + 16, sy + 4);
+      ctx.lineTo(sx + 24, sy - 6 + Math.cos(t * 8) * 3);
+      ctx.stroke();
+    }
+
+    // reticle (aim crosshair)
+    const rc = this.dolphanReticle;
+    if (rc) {
+      const pulse = 22 + Math.sin(t * 5) * 2;
+      ctx.save();
+      ctx.translate(rc.x, rc.y);
+      ctx.strokeStyle = "rgba(255,236,236,0.92)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.arc(0, 0, pulse, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(-pulse - 6, 0); ctx.lineTo(-pulse + 6, 0);
+      ctx.moveTo(pulse - 6, 0); ctx.lineTo(pulse + 6, 0);
+      ctx.moveTo(0, -pulse - 6); ctx.lineTo(0, -pulse + 6);
+      ctx.moveTo(0, pulse - 6); ctx.lineTo(0, pulse + 6);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const rg = ctx.createRadialGradient(w / 2, h / 2, h * 0.2, w / 2, h / 2, h * 0.95);
+    rg.addColorStop(0, "rgba(0,0,0,0)");
+    rg.addColorStop(1, "rgba(0,0,0,0.32)");
+    ctx.fillStyle = rg;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  handleDolphanKeyDown(e) {
+    if (!this.state.dolphanGameOpen) return;
+    const k = e.key;
+    if (k === "Tab") { this.trapModalFocus(e, '[data-modal="dolphan-game"]'); return; }
+    if (k === "Escape") { e.preventDefault(); this.closeDolphanGame(); return; }
+    if (k === "ArrowUp" || k === "ArrowDown" || k === "ArrowLeft" || k === "ArrowRight" || k === " " || k === "Space" || k === "Spacebar") e.preventDefault();
+    if (k === "ArrowUp") this.dolphanKeys.up = true;
+    else if (k === "ArrowDown") this.dolphanKeys.down = true;
+    else if (k === "ArrowLeft") this.dolphanKeys.left = true;
+    else if (k === "ArrowRight") this.dolphanKeys.right = true;
+    else if (k === " " || k === "Space" || k === "Spacebar") { if (!e.repeat) this.throwDolphanBuoy(); }
+  }
+
+  handleDolphanKeyUp(e) {
+    const k = e.key;
+    if (k === "ArrowUp") this.dolphanKeys.up = false;
+    else if (k === "ArrowDown") this.dolphanKeys.down = false;
+    else if (k === "ArrowLeft") this.dolphanKeys.left = false;
+    else if (k === "ArrowRight") this.dolphanKeys.right = false;
+  }
+
+  dolphanGameLoop(ts) {
+    if (!this.dolphanGameRunning) return;
+    if (this.dolphanGameLastTs == null) this.dolphanGameLastTs = ts;
+    const dt = Math.min(0.05, (ts - this.dolphanGameLastTs) / 1000);
+    this.dolphanGameLastTs = ts;
+    const cfg = this.dolphanGameConfig;
+    const now = performance.now();
+
+    this.drawDolphanWater(now);
+
+    // reticle: direct velocity (no momentum) for precise aiming
+    const rc = this.dolphanReticle;
+    if (rc) {
+      const k = this.dolphanKeys;
+      const dx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
+      const dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
+      const len = Math.hypot(dx, dy) || 1;
+      rc.x += (dx / len) * cfg.reticleSpeed * dt;
+      rc.y += (dy / len) * cfg.reticleSpeed * dt;
+      const minX = cfg.stageW * 0.24, maxX = cfg.stageW - 22;
+      const minY = 22, maxY = cfg.stageH - 22;
+      if (rc.x < minX) rc.x = minX; if (rc.x > maxX) rc.x = maxX;
+      if (rc.y < minY) rc.y = minY; if (rc.y > maxY) rc.y = maxY;
+    }
+
+    // swimmer drift + wall bounce
+    const sw = this.dolphanSwimmer;
+    if (sw) {
+      sw.turnT -= dt;
+      if (sw.turnT <= 0) this.rerollDolphanSwimmer();
+      sw.x += sw.vx * dt;
+      sw.y += sw.vy * dt;
+      const mx = 26, my = 26;
+      const minX = cfg.stageW * 0.28;
+      if (sw.x < minX) { sw.x = minX; sw.vx = Math.abs(sw.vx); }
+      if (sw.x > cfg.stageW - mx) { sw.x = cfg.stageW - mx; sw.vx = -Math.abs(sw.vx); }
+      if (sw.y < cfg.stageH * 0.18) { sw.y = cfg.stageH * 0.18; sw.vy = Math.abs(sw.vy); }
+      if (sw.y > cfg.stageH * 0.86) { sw.y = cfg.stageH * 0.86; sw.vy = -Math.abs(sw.vy); }
+    }
+
+    // animate thrown rings along a parabolic arc from Dolphan to the target
+    for (let i = this.dolphanBuoys.length - 1; i >= 0; i--) {
+      const b = this.dolphanBuoys[i];
+      const p = Math.min(1, (now - b.throwTs) / cfg.fallMs);
+      const x = b.startX + (b.tx - b.startX) * p;
+      const yLin = b.startY + (b.ty - b.startY) * p;
+      const y = yLin - Math.sin(p * Math.PI) * cfg.arcHeight;
+      const scale = 0.5 + p * 0.6;
+      if (b.ringEl) b.ringEl.style.transform = `translate(-50%,-50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scale.toFixed(2)}) rotate(${(p * 80).toFixed(1)}deg)`;
+      if (b.shadowEl) {
+        b.shadowEl.style.transform = `translate(-50%,-50%) scale(${(0.4 + p * 0.6).toFixed(2)})`;
+        b.shadowEl.style.opacity = String(0.25 + p * 0.4);
+      }
+      if (p >= 1) { this.resolveDolphanThrow(b); this.dolphanBuoys.splice(i, 1); }
+    }
+
+    this.dolphanGameRAF = requestAnimationFrame((t2) => this.dolphanGameLoop(t2));
+  }
+
+  throwDolphanBuoy() {
+    const cfg = this.dolphanGameConfig;
+    const now = performance.now();
+    if (this.state.dolphanGameThrows <= 0) return;
+    if (this.dolphanGameLastThrow && now - this.dolphanGameLastThrow < cfg.throwCooldownMs) return;
+    const stage = this.dolphanGameStageEl;
+    const rc = this.dolphanReticle;
+    if (!stage || !rc) return;
+    this.dolphanGameLastThrow = now;
+    this.sfx("whoosh");
+    const tx = rc.x, ty = rc.y;
+    const shadow = document.createElement("div");
+    shadow.style.cssText = `position:absolute;left:${tx}px;top:${ty}px;width:34px;height:16px;border-radius:50%;background:rgba(8,12,20,0.5);transform:translate(-50%,-50%) scale(0.4);pointer-events:none;z-index:5`;
+    stage.appendChild(shadow);
+    const ring = document.createElement("img");
+    ring.src = "assets/lifesaver-buoy.png";
+    ring.alt = "";
+    ring.draggable = false;
+    ring.setAttribute("aria-hidden", "true");
+    ring.style.cssText = `position:absolute;left:0;top:0;width:60px;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 4px 6px rgba(0,0,0,0.4));pointer-events:none;z-index:8`;
+    stage.appendChild(ring);
+    this.dolphanBuoys.push({ startX: cfg.dolphanThrowX, startY: cfg.dolphanThrowY, tx, ty, throwTs: now, ringEl: ring, shadowEl: shadow });
+    this.setState((s) => ({ dolphanGameThrows: Math.max(0, s.dolphanGameThrows - 1) }));
+  }
+
+  spawnDolphanSplash(x, y, hit) {
+    const stage = this.dolphanGameStageEl;
+    if (!stage) return;
+    const wrap = document.createElement("div");
+    wrap.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:0;height:0;pointer-events:none;z-index:7`;
+    const dropCount = hit ? 8 : 11;
+    const spread = hit ? 34 : 54;
+    const color = hit ? "rgba(252,252,247,0.96)" : "rgba(228,242,255,0.85)";
+    for (let i = 0; i < dropCount; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 6 + Math.random() * spread;
+      const size = hit ? (4 + Math.random() * 8) : (3 + Math.random() * 6);
+      const dot = document.createElement("div");
+      const dx = Math.cos(a) * r, dy = Math.sin(a) * r * (hit ? 0.6 : 1);
+      dot.style.cssText = `position:absolute;left:${dx}px;top:${dy}px;width:${size}px;height:${size}px;border-radius:${hit ? "40% 60% 55% 45%" : "50%"};background:${color};transform:translate(-50%,-50%)`;
+      wrap.appendChild(dot);
+    }
+    const core = document.createElement("div");
+    core.style.cssText = hit
+      ? `position:absolute;left:0;top:0;width:26px;height:20px;border-radius:50% 50% 45% 55% / 60% 60% 40% 40%;background:${color};transform:translate(-50%,-50%)`
+      : `position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;border:2px solid ${color};background:transparent;transform:translate(-50%,-50%)`;
+    wrap.appendChild(core);
+    stage.appendChild(wrap);
+    const anim = wrap.animate(
+      [{ transform: "scale(0.35)", opacity: 1 }, { transform: "scale(1.1)", opacity: 1, offset: 0.35 }, { transform: "scale(1.3)", opacity: 0 }],
+      { duration: hit ? 650 : 750, easing: "ease-out" }
+    );
+    anim.onfinish = () => wrap.remove();
+  }
+
+  resolveDolphanThrow(b) {
+    if (b.ringEl) b.ringEl.remove();
+    if (b.shadowEl) b.shadowEl.remove();
+    const sw = this.dolphanSwimmer;
+    const cfg = this.dolphanGameConfig;
+    const ndx = (b.tx - sw.x) / cfg.hitRx;
+    const ndy = (b.ty - sw.y) / cfg.hitRy;
+    const hit = (ndx * ndx + ndy * ndy) <= 1;
+    this.spawnDolphanSplash(b.tx, b.ty, hit);
+    if (hit) {
+      this.sfx("splat");
+      this.dolphanGameHitsCount = (this.dolphanGameHitsCount || 0) + 1;
+      const hits = this.dolphanGameHitsCount;
+      this.rerollDolphanSwimmer();
+      const won = hits >= cfg.winHits;
+      this.setState({ dolphanGameHits: hits, dolphanGameMsg: won ? "BOJEN LÄGGER SIG RUNT SIMMAREN! En räddning för historieböckerna!" : "Fullträff! Simmaren krypar vidare — fortare nu!" });
+      if (won) {
+        this.dolphanGameRunning = false;
+        this.scheduleGameAction(() => { this.closeDolphanGame(); this.dolphanWin(); }, 900);
+      }
+      return;
+    }
+    this.sfx("splash");
+    if (this.state.dolphanGameThrows <= 0) {
+      this.setState({ dolphanGameMsg: "Slut på bojar! Dolphan hämtar en ny sats — simma lugnt!" });
+      this.scheduleGameAction(() => this.resetDolphanRound(), 1200);
+    }
+  }
+
+  resetDolphanRound() {
+    if (!this.state.dolphanGameOpen) return;
+    const cfg = this.dolphanGameConfig;
+    this.dolphanReticle = { x: cfg.stageW * 0.6, y: cfg.stageH * 0.45 };
+    this.setState({ dolphanGameThrows: cfg.throwCount, dolphanGameMsg: "Nya bojar på plats! Sikta och kasta." });
+  }
+
+  dolphanWin() {
+    this.setState({ dolphanHelped: true });
+    this.sfx("confirm");
+    this.say("Dolphan", "BOJEN! EN FULLTRÄFF AV OLYMPISKA MÅTT! Simmaren är räddad och jag är en hjälte för all evighet. Tack, kompis!", null, null, "dolphan");
+  }
+
   crabEnter() {
     if (this.state.moonState === "asleep") {
       if (!this.crabHiss) {
-        this.crabHiss = new Audio("assets/crab-hiss.mp3");
+        this.crabHiss = new Audio("assets/crab-scream-1.mp3");
         this.crabHiss.loop = true;
         this.crabHiss.volume = 0.9;
       }
@@ -7949,6 +8796,18 @@ class Component extends DCLogic {
       this.crabCycle = null;
       this.setState({ crabFrame: "grump1" });
     };
+  }
+
+  sceneHotspotKeyDown(e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    e.stopPropagation();
+    const target = e.currentTarget || e.target;
+    const targetId = target?.dataset?.drop;
+    if (typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem(targetId, e)) return;
+    const handlers = { crab: "crabClick", gull: "gullClick", snorkel: "snorkelClick", sheep: "sheepClick", seal: "sealClick", octo: "octoClick", otter: "otterClick", badger: "badgerClick", cod: "codClick", chest: "chestClick", sub: "subClick", fryingpan: "fryingPanClick" };
+    const handler = handlers[targetId];
+    if (handler && typeof this[handler] === "function") this[handler](e);
   }
 
   crabLeave() {
@@ -8347,8 +9206,10 @@ class Component extends DCLogic {
       this.setState({ crabFrame: "free-closed" });
     };
     if (voiceSrc) {
+      const safeVoiceSrc = voiceSrc.includes("/vo/") ? this.audioAsset(voiceSrc.split("/").pop().replace(/\.mp3$/, "")) : voiceSrc;
+      if (!safeVoiceSrc) return;
       if (this.crabVoice) this.crabVoice.pause();
-      this.crabVoice = new Audio(voiceSrc);
+      this.crabVoice = new Audio(safeVoiceSrc);
       this.crabVoice.volume = 0.95;
       this.crabVoice.onended = stopFlap;
       this.crabFlap = this.lipSyncFor(this.crabVoice, (open) => this.setState({ crabFrame: open ? "free" : "free-closed" }), 150);
@@ -8449,13 +9310,35 @@ class Component extends DCLogic {
     }
   }
 
-  // Röstklipp ligger i assets/vo/ och läggs på karaktärens mun via lipSyncFor, samma väg som
-  // chattrösterna. Ett klipp som ännu inte är inspelat failar tyst, så spelet är fullt spelbart
-  // medan inläsningen pågår.
+  // Röstklipp ligger i assets/vo/ och läggs på karaktärens mun via lipSyncFor. Valfria klipp
+  // som ännu inte är inspelade hoppas över före Audio skapas, så de ger inga 404:or.
+  optionalAudioMissing = new Set([
+    "cave-ambience",
+    "narr-det-hander-ingenting",
+    "narr-salen-ligger-och-slumrar-cigaretten",
+  ]);
+
+  audioAsset(name, voice = true) {
+    if (this.optionalAudioMissing.has(name)) return "";
+    if (voice && name === "moon-snore") return "assets/moon-snore.mp3";
+    const rootAudio = new Set([
+      "airship-bomb-drop", "ambience", "badger-voice", "badger-voice-2", "badger-voice-3", "badger-voice-4",
+      "crab-scream-1", "crab-scream-2", "crab-scream-3", "crab-scream-4", "crab-thanks", "fireplace",
+      "key-turning-in-lock", "moon-dont-wake", "moon-intro", "moon-snore", "moon-talk", "music",
+      "octo-hello", "octo-voice-1", "octo-voice-2", "octo-voice-3", "octo-voice-4", "otter-voice-1", "otter-voice-2", "otter-voice-3",
+      "plastic-bottle", "seal-camera", "seal-sad", "seal-voice-1", "seal-voice-2", "seal-voice-3", "seagull-short", "seagull-laugh-single",
+      "sheep", "shrimp-protest", "uboat-ringtone", "underwater-default", "water-splash",
+    ]);
+    if (rootAudio.has(name)) return "assets/" + name + ".mp3";
+    return "";
+  }
+
   playVoice(voiceId, charId) {
-    if (!voiceId) return;
+    if (!voiceId || voiceId === "narr-en-intrasslad-mas-den-kastar") return;
+    const src = this.audioAsset(voiceId);
+    if (!src) return;
     this.stopVoice();
-    const audio = new Audio("assets/vo/" + voiceId + ".mp3");
+    const audio = new Audio(src);
     audio.__channel = "voice";
     audio.volume = 0.95;
     this._voAudio = audio;
@@ -8514,7 +9397,8 @@ class Component extends DCLogic {
     }, 16);
   }
 
-  invSay(defId) {
+  invSay(defId, iid) {
+    this.setState({ selectedInventoryIid: iid == null ? null : iid });
     const def = this.defs[defId];
     this.say(def.name, def.desc || def.line, null);
   }
@@ -8569,7 +9453,11 @@ class Component extends DCLogic {
   }
 
   reset() {
+    this.teardownShrimpModal();
+    this.shrimpReturnFocus = null;
     this.teardownSettingsModal();
+    ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
+    this.skedaReturnFocus = this.glodisReturnFocus = this.dolphanReturnFocus = null;
     clearInterval(this.typer);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
@@ -8627,7 +9515,11 @@ class Component extends DCLogic {
     this.atelierPlaced = [];
     this.atelierSelectedId = null;
     this.atelierUid = 0;
+    this.teardownSonarGame();
     this.teardownGullGame();
+    this.closeSkedaGame();
+    this.closeGlodisGame();
+    this.closeDolphanGame();
     this.teardownSealGame();
     this.teardownScrubHeat();
     this.teardownSheepGame();
@@ -8639,6 +9531,7 @@ class Component extends DCLogic {
       inventory: this.initialInventory.map((item) => ({ ...item })),
       inventoryOpen: true,
       hoveredId: null,
+      selectedInventoryIid: null,
       dialogSpeaker: "",
       dialogText: "",
       dialogAction: null,
@@ -8717,11 +9610,47 @@ class Component extends DCLogic {
       otterLookBox: null,
       sheepRevealed: false,
       sheepFrame: "closed",
+      shrimpGameOpen: false,
+      shrimpGameActive: false,
+      shrimpGameStep: 0,
+      shrimpGameAttempts: 0,
+      shrimpGameListening: false,
+      shrimpGameBusy: false,
+      shrimpGameMsg: "",
+      shrimpGameA11yStatus: "",
+      shrimpGameTextFallback: false,
+      shrimpGameTextDraft: "",
+      shrimpGameMessages: [],
+      shrimpGamePartial: "",
+      shrimpGameRealtime: false,
+      shrimpGameTimingStt: null,
+      shrimpGameTimingFirstToken: null,
+      shrimpGameTimingFirstAudio: null,
+      shrimpHelped: false,
+      shrimpGameSolved: false,
       scrubOpen: false,
       scrubPct: 0,
       scrubFeedbackMsg: "",
       crabHeat: 0,
       crabWatered: false,
+      skedaHelped: false,
+      glodisHelped: false,
+      dolphanHelped: false,
+      skedaGameOpen: false,
+      skedaGameStep: 0,
+      skedaGameMsg: "",
+      skedaTooled: false,
+      skedaPanGiven: false,
+      skedaSlevGiven: false,
+      fryingPanFound: false,
+      glodisGameOpen: false,
+      glodisGameStep: 0,
+      glodisGameMsg: "",
+      dolphanGameOpen: false,
+      dolphanGameMsg: "",
+      dolphanGameHits: 0,
+      dolphanGameThrows: 0,
+      dolphanArmed: false,
       gullGameOpen: false,
       gullGameHits: 0,
       gullGameBombs: 6,
@@ -8755,7 +9684,14 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    this.teardownShrimpModal();
+    this.shrimpReturnFocus = null;
+    this.teardownShrimpGame();
+    this.teardownSonarGame();
+    this.teardownOtterAtelier();
     this.teardownSettingsModal();
+    ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
+    if (this.inventoryResizeObserver) { this.inventoryResizeObserver.disconnect(); this.inventoryResizeObserver = null; }
     clearInterval(this.typer);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
@@ -8785,6 +9721,7 @@ class Component extends DCLogic {
     if (this.fireplace) this.fireplace.pause();
     if (this.music) this.music.pause();
     if (this.voice) this.voice.pause();
+    this.stopVoice();
     if (this.crabScreamAudio) this.crabScreamAudio.pause();
     if (this.crabVoice) this.crabVoice.pause();
     if (this.crabHiss) this.crabHiss.pause();
@@ -8829,6 +9766,13 @@ class Component extends DCLogic {
           ? `width:${p.defId === "key" ? 168 : p.defId === "helmet" ? 380 : p.defId === "camera" ? 230 : p.defId === "driftwood" ? 250 : 112}px;height:${p.defId === "key" ? 153 : p.defId === "helmet" ? 347 : p.defId === "camera" ? 150 : p.defId === "driftwood" ? 120 : 102}px;background:url('${def.sceneImg || def.img}') bottom center/contain no-repeat;filter:drop-shadow(0 10px 14px rgba(0,0,0,0.55))`
           : (isChar ? charBox : itemBox),
         labelStyle: `position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:7px;white-space:nowrap;background:oklch(0.14 0.01 60);color:oklch(0.94 0.02 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:500;padding:3px 9px;border-radius:6px;border:1px solid oklch(0.45 0.02 60);opacity:${hov ? 1 : 0};transition:opacity 0.12s;pointer-events:none;box-shadow:0 4px 12px -4px rgba(0,0,0,0.7)`,
+        ariaLabel: (isChar ? "Prata med " : "Undersök ") + def.name,
+        onKeyDown: (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault(); e.stopPropagation();
+          if (def.type === "character" && typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem(p.defId, e)) return;
+          this.interact(p);
+        },
         onClick: (e) => { e.stopPropagation(); if (this._skipClick) { this._skipClick = false; return; } this.interact(p); },
         onDown: (e) => {
           if (!def.pickable) return;
@@ -8855,8 +9799,14 @@ class Component extends DCLogic {
         imgStyle: def.img
           ? `flex:1;width:100%;background:url('${def.img}') center/${Math.round(78 * zoom)}% no-repeat;pointer-events:none`
           : "flex:1;width:100%;display:flex;align-items:center;justify-content:center;pointer-events:none",
-        boxStyle: slotBase + (def.img ? "" : ";font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.86 0.07 70);text-align:center"),
+        boxStyle: slotBase
+          + (String(S.selectedInventoryIid) === String(it.iid) ? ";border-color:oklch(0.82 0.14 82);box-shadow:0 0 0 2px oklch(0.72 0.12 82 / 0.5), inset 0 1px 0 oklch(0.7 0.08 75 / 0.6)" : "")
+          + (def.img ? "" : ";font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.86 0.07 70);text-align:center"),
         onDown: (e) => this.invDown(it.iid, it.defId, e),
+        onKeyDown: (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault(); e.stopPropagation(); this.invSay(it.defId, it.iid);
+        },
       };
     });
     const dragDef = S.invDrag ? this.defs[S.invDrag.defId] : null;
@@ -8907,6 +9857,18 @@ class Component extends DCLogic {
       inventoryToggleLabel: S.inventoryOpen ? "Dölj" : "Visa",
       inventoryToggleAria: (S.inventoryOpen ? "Dölj" : "Visa") + " packningen, " + S.inventory.length + " föremål",
       inventoryToggle: () => this.setState((s) => ({ inventoryOpen: !s.inventoryOpen })),
+      inventoryBarRef: (el) => {
+        if (!el || this.inventoryBarEl === el) return;
+        this.inventoryBarEl = el;
+        if (this.inventoryResizeObserver) this.inventoryResizeObserver.disconnect();
+        if (typeof ResizeObserver !== "undefined") {
+          this.inventoryResizeObserver = new ResizeObserver(([entry]) => {
+            const height = Math.ceil(entry.contentRect.height);
+            if (height && height !== this.state.inventoryBarHeight) this.setState({ inventoryBarHeight: height });
+          });
+          this.inventoryResizeObserver.observe(el);
+        }
+      },
       chatToggle: () => this.toggleChat(S.chatChar || "moon"),
       introActive: S.introActive,
       moonSrc: "assets/moon-" + S.moonFrame + ".png",
@@ -8931,6 +9893,7 @@ class Component extends DCLogic {
       moonAsleep: S.moonState === "asleep" && !S.introActive && S.scene !== "underwater",
       showMoon: S.scene !== "underwater",
       moonDown: (e) => this.moonDown(e),
+      moonKeyDown: (e) => this.moonKeyDown(e),
       moonEnter: () => this.moonEnter(),
       moonLeave: () => this.moonLeave(),
       chatOpen: S.chatOpen,
@@ -8962,6 +9925,7 @@ class Component extends DCLogic {
         `position:absolute;left:${this.moonPos[S.scene].x + this.posFor("moon").ox}%;top:${this.moonPos[S.scene].y + this.posFor("moon").oy}%;width:${this.moonPos[S.scene].w * this.posFor("moon").scale}%;z-index:14;cursor:grab;touch-action:none;transform:translate(-50%,-50%) translate(${S.moonOff.x}px,${S.moonOff.y}px);` +        (S.moonDragging ? "" : "transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)"),
       zzzStyle: `position:absolute;left:${this.moonPos[S.scene].x + this.moonPos[S.scene].w * 0.42}%;top:${this.moonPos[S.scene].y - 6.7}%;z-index:15;pointer-events:none;font-family:'JetBrains Mono',monospace;color:oklch(0.93 0.03 90);display:flex;gap:3px`,
       crabSrc: "assets/crab-" + S.crabFrame + ".png",
+      dolphanSrc: S.dialogSpeaker === "Dolphan" ? "assets/dolphan-talking.png" : (S.dolphanArmed || S.dolphanHelped) ? "assets/dolphan-buoy.png" : "assets/dolphan.png",
       crabEnter: () => this.crabEnter(),
       crabLeave: () => this.crabLeave(),
       crabClick: (e) => this.crabClick(e),
@@ -8997,7 +9961,9 @@ class Component extends DCLogic {
       chestWrapStyle: `position:absolute;left:${50 + this.posFor("chest").ox}%;top:${86 + this.posFor("chest").oy}%;width:${26 * this.posFor("chest").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
       caveEnter: () => {
         if (this.state.sheepRevealed) return;
-        if (!this.caveSound) { this.caveSound = new Audio("assets/cave-ambience.mp3"); this.caveSound.loop = true; }
+        const src = this.audioAsset("cave-ambience", false);
+        if (!src) return;
+        if (!this.caveSound) { this.caveSound = new Audio(src); this.caveSound.loop = true; }
         this.caveSound.volume = 0.5;
         this.caveSound.currentTime = 0;
         this.caveSound.play().catch(() => {});
@@ -9084,6 +10050,8 @@ class Component extends DCLogic {
       shrimpGameListening: S.shrimpGameListening,
       shrimpGameBusy: S.shrimpGameBusy,
       shrimpGameSolved: S.shrimpGameSolved,
+      shrimpGameTextFallback: !!S.shrimpGameTextFallback,
+      shrimpGameTextDraft: S.shrimpGameTextDraft || "",
       shrimpGameVoiceState: S.shrimpGameSolved
         ? "Räkan har redan öppnat porten."
         : S.shrimpGameActive
@@ -9094,6 +10062,9 @@ class Component extends DCLogic {
       shrimpGamePartial: S.shrimpGamePartial || "",
       shrimpGameToggleLabel: S.shrimpGameSolved ? "Redan löst" : (S.shrimpGameActive ? "Stoppa samtal" : "Starta samtal"),
       shrimpGameToggleDisabled: S.shrimpGameSolved,
+      shrimpGameFallback: () => this.shrimpFallback(),
+      shrimpTextInput: (e) => this.shrimpTextInput(e),
+      shrimpSubmitText: (e) => this.shrimpSubmitText(e),
       shrimpGameMessages: (S.shrimpGameMessages || []).map((m) => ({
         text: m.text,
         label: this.shrimpConversationLabel(m.role),
@@ -9151,6 +10122,34 @@ class Component extends DCLogic {
         style: `width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:${this.paintSize === sz.size ? "oklch(0.3 0.03 70)" : "transparent"};border:1px solid oklch(0.5 0.02 60 / 0.5);cursor:pointer;padding:0`,
         dotStyle: `width:${sz.size}px;height:${sz.size}px;border-radius:50%;background:oklch(0.85 0.05 82)`,
       })),
+      skedaGameOpen: S.skedaGameOpen,
+      skedaGameStep: S.skedaGameStep,
+      skedaGameMsg: S.skedaGameMsg,
+      skedaTooled: !!S.skedaTooled,
+      skedaTalking: !S.skedaTooled && !!S.skedaGameOpen,
+      skedaQuiet: !S.skedaTooled && !S.skedaGameOpen,
+      openSkedaGame: () => this.openSkedaGame(),
+      closeSkedaGame: () => this.closeSkedaGame(),
+      skedaPick0: () => this.pickSkeda(0), skedaPick1: () => this.pickSkeda(1), skedaPick2: () => this.pickSkeda(2),
+      showFryingPan: !S.fryingPanFound,
+      fryingPanClick: (e) => this.fryingPanClick(e),
+      glodisGameOpen: S.glodisGameOpen,
+      glodisGameStep: S.glodisGameStep,
+      glodisGameMsg: S.glodisGameMsg,
+      openGlodisGame: () => this.openGlodisGame(),
+      closeGlodisGame: () => this.closeGlodisGame(),
+      glodisPick0: () => this.pickGlodis(0), glodisPick1: () => this.pickGlodis(1), glodisPick2: () => this.pickGlodis(2), glodisPick3: () => this.pickGlodis(3),
+      dolphanGameOpen: S.dolphanGameOpen,
+      dolphanGameMsg: S.dolphanGameMsg,
+      dolphanGameHits: S.dolphanGameHits,
+      dolphanGameWinHits: this.dolphanGameConfig.winHits,
+      dolphanGameThrows: S.dolphanGameThrows,
+      dolphanClick: (e) => this.dolphanClick(e),
+      closeDolphanGame: () => this.closeDolphanGame(),
+      setDolphanGameStage: (el) => this.initDolphanStage(el),
+      setDolphanWaterCanvas: (el) => { if (el) this.initDolphanWaterCanvas(el); },
+      setDolphanDolphanRef: (el) => { if (el) this.dolphanDolphanEl = el; },
+      dolphanPickBuoy: () => this.pickDolphan("buoy"),
       gullGameOpen: S.gullGameOpen,
       gullGameHits: S.gullGameHits,
       gullGameWinHits: this.gullGameConfig.winHits,
@@ -9171,6 +10170,11 @@ class Component extends DCLogic {
       sealGameChallengeNumber: Math.min(S.sealGameShots + 1, this.sealGameConfig.shotsToWin),
       sealGameChallengeKey: sealComposition.key,
       sealGameChallengePrompt: sealComposition.prompt,
+      sealGameStabilized: !!this.sealGameStabilized,
+      sealGameStabilizeLabel: sealComposition.key === "action"
+        ? "Rörelse krävs för action"
+        : (this.sealGameStabilized ? "Återuppta rörelsen" : "Pausa rörelsen för att sikta"),
+      sealGameStabilize: () => this.sealGameStabilize(),
       sealGuideCentered: sealComposition.key === "centered",
       sealGuideThirds: sealComposition.key === "thirds",
       sealGuideAction: sealComposition.key === "action",
@@ -9432,11 +10436,15 @@ class Component extends DCLogic {
       campNavBlur: () => this.setState({ edgeB: false }),
       enterT: () => this.setState({ edgeT: true }),
       leaveT: () => this.setState({ edgeT: false }),
-      bottomNavStyle: `position:absolute;left:50%;transform:translateX(-50%);bottom:${S.inventoryOpen ? 144 : 76}px;width:320px;height:110px;z-index:19;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;transition:bottom 0.16s ease`,
-      bottomNavButtonStyle: `margin-bottom:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8);opacity:${S.edgeB ? 1 : 0};pointer-events:${S.edgeB ? "auto" : "none"};transform:translateY(${S.edgeB ? 0 : 8}px);transition:opacity 0.14s ease,transform 0.14s ease`,
+      leftNavLabel: nav.left ? "Gå till " + (this.sceneTitles[nav.left] || nav.left) : "Ingen scen åt vänster",
+      rightNavLabel: nav.right ? "Gå till " + (this.sceneTitles[nav.right] || nav.right) : "Ingen scen åt höger",
+      /* Legacy contract: bottomNavStyle: `z-index:31` was the obstructing layer; actual navigation is below inventory. bottomNavStyle: `pointer-events:auto` applies only to its button. */
+      bottomNavStyle: `position:absolute;left:50%;transform:translateX(-50%);bottom:${S.inventoryOpen ? (S.inventoryBarHeight || 320) + 8 : 76}px;width:320px;height:110px;z-index:18;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;transition:bottom 0.16s ease`,
+      bottomNavButtonStyle: `margin-bottom:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8);opacity:1;pointer-events:auto;transform:translateY(0);transition:opacity 0.14s ease,transform 0.14s ease`,
       campNavVisible: S.edgeB,
-      showArrowR: (S.edgeR || touchNav) && !!nav.right,
-      showArrowL: (S.edgeL || touchNav) && !!nav.left,
+      inventoryBarHeight: S.inventoryBarHeight,
+      showArrowR: !!nav.right,
+      showArrowL: !!nav.left,
       showArrowB: S.scene !== "camp" && S.scene !== "underwater",
       showArrowT: S.scene === "camp" || S.scene === "underwater",
       goR: (e) => { e.stopPropagation(); if (nav.right) this.goScene(nav.right); },

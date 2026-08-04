@@ -47,6 +47,14 @@ test("shrimp modal is voice-only with a single toggle control", () => {
   assert.doesNotMatch(source, /shrimp: d\.shrimp/);
 });
 
+test("shrimp voice controls expose a visible batch fallback and do not await TTS", () => {
+  assert.match(source, /onClick="\{\{ shrimpGameFallback \}\}"/);
+  assert.match(source, /Byt till inspelning/);
+  assert.match(source, /if \(this\.state\.shrimpGameListening && this\.shrimpRecorder\)/);
+  assert.match(source, /Never await TTS/);
+  assert.match(source, /shrimpForceBatchRecording = true/);
+});
+
 test("shrimp answer resolution remains deterministic and sentence splitting supports TTS", () => {
   const shrimpCurrentRiddle = loadMethod("  shrimpCurrentRiddle() {", "\n  shrimpNormalizeText(text) {");
   const shrimpNormalizeText = loadMethod("  shrimpNormalizeText(text) {", "\n  shrimpTextMatchesAnswer(text, answers = this.shrimpCurrentRiddle().answers) {");
@@ -113,6 +121,27 @@ test("shrimp answer resolution remains deterministic and sentence splitting supp
   assert.equal(sentences[0], "En.");
   assert.equal(sentences[1], "Två?");
   assert.equal(sentences[2], "Tre!");
+});
+
+test("failed-service text fallback submits wrong answers and the complete deterministic sequence", async () => {
+  const submit = loadMethod("  async shrimpSubmitText(e) {", "\n  shrimpStopConversation() {");
+  const answers = [];
+  const game = {
+    state: { shrimpGameBusy: false, shrimpGameTextDraft: "fel" },
+    shrimpGameTextDraft: "fel",
+    setState(update) { this.state = { ...this.state, ...(typeof update === "function" ? update(this.state) : update) }; },
+    shrimpHandleAnswer: async (text, source) => answers.push([text, source]),
+  };
+
+  await submit.call(game, { preventDefault() {} });
+  game.state.shrimpGameTextDraft = "piano";
+  await submit.call(game, { preventDefault() {} });
+  game.state.shrimpGameTextDraft = "hål";
+  await submit.call(game, { preventDefault() {} });
+  game.state.shrimpGameTextDraft = "fel";
+  await submit.call(game, { preventDefault() {} });
+  assert.deepEqual(answers, [["fel", "text"], ["piano", "text"], ["hål", "text"], ["fel", "text"]]);
+  assert.match(source, /shrimpGameTextFallback/);
 });
 
 test("shrimp adaptive hints follow stored attempt count", () => {
