@@ -89,6 +89,9 @@
   .modal-btn { font-family:'Work Sans',sans-serif; font-size:12.5px; font-weight:600; color:oklch(0.92 0.012 80); background:oklch(0.26 0.014 60 / 0.9); border:1px solid oklch(0.55 0.02 60 / 0.5); border-radius:8px; padding:8px 14px; cursor:pointer; transition:background .15s ease, transform .12s ease; }
   .modal-btn:hover { background:oklch(0.33 0.018 62 / 0.95); }
   .modal-btn:active { transform:scale(0.96); }
+  .skeda-pot { display:inline-block; transition: transform .3s ease; }
+  .skeda-pot-watch { animation: potBubble .9s ease-in-out infinite; }
+  @keyframes potBubble { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.07); } }
   .gcube-scene { perspective: 720px; display:flex; justify-content:center; padding:18px 0 6px; }
   .gcube { position:relative; width:120px; height:120px; transform-style:preserve-3d; transform:rotateX(-18deg) rotateY(26deg); }
   .gcube-face { position:absolute; inset:0; border:2px solid rgba(255,255,255,.5); border-radius:12px; box-shadow: inset 0 0 34px rgba(255,255,255,.3), 0 0 18px rgba(255,255,255,.12); transition: transform .55s cubic-bezier(.5,.8,.3,1); backface-visibility:visible; }
@@ -256,7 +259,7 @@
           </sc-if>
           <div style="text-align:center;color:white;font-size:11px;margin-top:2px">SKEDA KAHLO</div>
         </div>
-        <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis stjärnprisma" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><img src="assets/glodis-console.svg" alt="Glödis stjärnprisma" style="width:100%;display:block"><div style="text-align:center;color:white;font-size:11px">GLÖDIS • PRISMA</div></div>
+        <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis stjärnprisma" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><div style="text-align:center;color:white;font-size:11px;text-shadow:0 1px 4px rgba(0,0,0,0.9)">GLÖDIS • PRISMA</div><img src="assets/glodis-console.svg" alt="Glödis stjärnprisma" style="width:100%;display:block"></div>
         <div class="camp-target" data-drop="dolphan" role="button" tabindex="0" aria-label="Prata med Dolphan Lundgren eller använd räddningsbojen på hen" onClick="{{ dolphanClick }}" onKeyDown="{{ dolphanKeyDown }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:5%;top:74%;width:20%;z-index:13;cursor:pointer">
           <img src="{{ dolphanSrc }}" alt="Dolphan Lundgren, dramatisk delfin-livräddare" draggable="false" style="width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))">
           <div style="text-align:center;color:white;font-size:11px">DOLPHAN LUNDGREN</div>
@@ -559,7 +562,7 @@
   </sc-if>
 
   <sc-if value="{{ skedaGameOpen }}" hint-placeholder-val="">
-    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="skeda-game" role="dialog" aria-modal="true" aria-labelledby="skeda-game-title" style="width:min(560px,calc(100vw - 24px));padding:22px;background:#241c1b;color:#fff;border-radius:16px;text-align:center"><h2 id="skeda-game-title">SKEDA KAHLOS SOPPKÖK</h2><p id="skeda-game-help">Skeda visar receptet — upprepa det i rätt ordning. Runda {{ skedaGameRoundNum }}/3 • Steg {{ skedaGameStep }}/{{ skedaSequenceLen }}.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" class="skeda-btn" data-skeda-action="0" onClick="{{ skedaPick0 }}" aria-label="Tillsätt rotfrukt">🥕</button><button type="button" class="skeda-btn" data-skeda-action="1" onClick="{{ skedaPick1 }}" aria-label="Tillsätt örter">🌿</button><button type="button" class="skeda-btn" data-skeda-action="2" onClick="{{ skedaPick2 }}" aria-label="Salta">🧂</button><button type="button" class="skeda-btn" data-skeda-action="3" onClick="{{ skedaPick3 }}" aria-label="Rör om">🥄</button><button type="button" class="skeda-btn" data-skeda-action="4" onClick="{{ skedaPick4 }}" aria-label="Låt sjuda">🔥</button><button type="button" class="skeda-btn" data-skeda-action="5" onClick="{{ skedaPick5 }}" aria-label="Smaka av">👅</button></div><div id="skeda-game-status" role="status" aria-live="polite" style="margin-top:12px;min-height:1.5em">{{ skedaGameMsg }}</div><button type="button" class="modal-btn" aria-label="Stäng soppköket" onClick="{{ closeSkedaGame }}" style="margin-top:8px">Stäng</button></div></div>
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="skeda-game" role="dialog" aria-modal="true" aria-labelledby="skeda-game-title" style="width:min(560px,calc(100vw - 24px));padding:22px;background:#241c1b;color:#fff;border-radius:16px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:12px"><img src="assets/skeda-kahlo.svg" alt="" style="width:44px;height:44px;object-fit:contain"><h2 id="skeda-game-title" style="margin:0">SKEDA KAHLOS SOPPKÖK</h2></div><div class="{{ skedaPotClass }}" aria-hidden="true" style="font-size:38px;line-height:1.2;margin-top:6px">🍲</div><div aria-hidden="true" style="display:flex;gap:6px;justify-content:center;margin:8px 0 2px"><sc-for list="{{ skedaProgress }}" as="d" hint-placeholder-count="0"><div style="{{ d.style }}"></div></sc-for></div><p id="skeda-game-help">Skeda visar receptet — upprepa det i rätt ordning. Runda {{ skedaGameRoundNum }}/3 • Steg {{ skedaGameStep }}/{{ skedaSequenceLen }}.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" class="skeda-btn" data-skeda-action="0" onClick="{{ skedaPick0 }}" aria-label="Tillsätt rotfrukt">🥕</button><button type="button" class="skeda-btn" data-skeda-action="1" onClick="{{ skedaPick1 }}" aria-label="Tillsätt örter">🌿</button><button type="button" class="skeda-btn" data-skeda-action="2" onClick="{{ skedaPick2 }}" aria-label="Salta">🧂</button><button type="button" class="skeda-btn" data-skeda-action="3" onClick="{{ skedaPick3 }}" aria-label="Rör om">🥄</button><button type="button" class="skeda-btn" data-skeda-action="4" onClick="{{ skedaPick4 }}" aria-label="Låt sjuda">🔥</button><button type="button" class="skeda-btn" data-skeda-action="5" onClick="{{ skedaPick5 }}" aria-label="Smaka av">👅</button></div><div id="skeda-game-status" role="status" aria-live="polite" style="margin-top:12px;min-height:1.5em">{{ skedaGameMsg }}</div><button type="button" class="modal-btn" aria-label="Stäng soppköket" onClick="{{ closeSkedaGame }}" style="margin-top:8px">Stäng</button></div></div>
   </sc-if>
   <sc-if value="{{ glodisGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.82);display:flex;align-items:center;justify-content:center"><div data-modal="glodis-game" role="dialog" aria-modal="true" aria-labelledby="glodis-game-title" style="width:min(620px,calc(100vw - 24px));padding:22px;background:#0a1826;color:#fff;border-radius:16px;text-align:center"><h2 id="glodis-game-title">GLÖDIS STJÄRNPRISMA</h2><p id="glodis-game-help">Vrid kristallen i 3D så att färgerna matchar målet. Runda {{ glodisGameRoundNum }}/3.</p><div class="gcube-scene"><div class="gcube"><div class="gcube-face" style="background:rgba(255,220,104,.72);{{ glodisFaceT0 }}"></div><div class="gcube-face" style="background:rgba(139,181,255,.72);{{ glodisFaceT1 }}"></div><div class="gcube-face" style="background:rgba(255,113,136,.72);{{ glodisFaceT2 }}"></div><div class="gcube-face" style="background:rgba(127,224,160,.72);{{ glodisFaceT3 }}"></div><div class="gcube-face" style="background:rgba(195,155,255,.72);{{ glodisFaceT4 }}"></div><div class="gcube-face" style="background:rgba(244,244,244,.72);{{ glodisFaceT5 }}"></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin:12px 0;font-size:15px;flex-wrap:wrap"><span>{{ glodisTargetMsg }}</span><span style="opacity:.85">{{ glodisCurrentMsg }}</span></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" class="modal-btn" onClick="{{ glodisYawLeft }}" aria-label="Vrid kristallen åt vänster">⤺ vänster</button><button type="button" class="modal-btn" onClick="{{ glodisYawRight }}" aria-label="Vrid kristallen åt höger">⤻ höger</button><button type="button" class="modal-btn" onClick="{{ glodisPitchBack }}" aria-label="Tippa kristallen uppåt">⤴ upp</button><button type="button" class="modal-btn" onClick="{{ glodisPitchForward }}" aria-label="Tippa kristallen neråt">⤵ ner</button><button type="button" class="modal-btn" onClick="{{ glodisRollLeft }}" aria-label="Rulla kristallen mot vänster">↺ rulla</button><button type="button" class="modal-btn" onClick="{{ glodisRollRight }}" aria-label="Rulla kristallen mot höger">↻ rulla</button></div><div id="glodis-game-status" role="status" aria-live="polite" style="margin-top:10px;min-height:1.5em">{{ glodisGameMsg }}</div><button type="button" class="modal-btn" aria-label="Stäng stjärnprismat" onClick="{{ closeGlodisGame }}" style="margin-top:8px">Stäng</button></div></div>
@@ -6534,7 +6537,7 @@ class Component extends DCLogic {
             this.typer = setInterval(() => {
               i++;
               this.setState({ dialogText: line.slice(0, i) });
-              if (i >= line.length) clearInterval(this.typer);
+              if (i >= line.length) { clearInterval(this.typer); this.autoHideDialog(); }
             }, ms);
           }
         };
@@ -9475,14 +9478,24 @@ class Component extends DCLogic {
 
   say(speaker, text, action, voiceId, charId) {
     clearInterval(this.typer);
+    clearTimeout(this.dialogAutoHide);
     this.playVoice(voiceId, charId);
     this.setState({ dialogSpeaker: speaker, dialogText: "", dialogAction: action || null });
     let i = 0;
     this.typer = setInterval(() => {
       i++;
       this.setState({ dialogText: text.slice(0, i) });
-      if (i >= text.length) clearInterval(this.typer);
+      if (i >= text.length) { clearInterval(this.typer); this.autoHideDialog(); }
     }, 16);
+  }
+
+  autoHideDialog() {
+    clearTimeout(this.dialogAutoHide);
+    if (this.state.dialogAction || !this.state.dialogText) return;
+    const hold = Math.min(9000, 2600 + this.state.dialogText.length * 55);
+    this.dialogAutoHide = setTimeout(() => {
+      this.setState({ dialogSpeaker: "", dialogText: "", dialogAction: null });
+    }, hold);
   }
 
   invSay(defId, iid) {
@@ -9579,6 +9592,7 @@ class Component extends DCLogic {
     ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
     this.skedaReturnFocus = this.glodisReturnFocus = this.dolphanReturnFocus = null;
     clearInterval(this.typer);
+    clearTimeout(this.dialogAutoHide);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
     clearTimeout(this.crabFlapEnd);
@@ -9821,6 +9835,7 @@ class Component extends DCLogic {
     ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
     if (this.inventoryResizeObserver) { this.inventoryResizeObserver.disconnect(); this.inventoryResizeObserver = null; }
     clearInterval(this.typer);
+    clearTimeout(this.dialogAutoHide);
     clearInterval(this.flap);
     clearTimeout(this.flapEnd);
     clearTimeout(this.introTimer);
@@ -9966,7 +9981,7 @@ class Component extends DCLogic {
       infoClose: () => this.setState({ infoBox: null }),
       infoTalkable: !!(S.infoBox && S.infoBox.charId),
       infoTalk: (e) => { e.stopPropagation(); const c = S.infoBox.charId; this.setState({ infoBox: null }); this.toggleChat(c, true); },
-      dialogClose: () => { clearInterval(this.typer); this.setState({ dialogSpeaker: "", dialogText: "", dialogAction: null }); },
+      dialogClose: () => { clearInterval(this.typer); clearTimeout(this.dialogAutoHide); this.setState({ dialogSpeaker: "", dialogText: "", dialogAction: null }); },
       emptyInventory: S.inventory.length === 0,
       dialogSpeaker: S.dialogSpeaker,
       hasSpeaker: !!S.dialogSpeaker,
@@ -10272,6 +10287,12 @@ class Component extends DCLogic {
       skedaGameMsg: S.skedaGameMsg,
       skedaGameRoundNum: (S.skedaGameRound || 0) + 1,
       skedaSequenceLen: (S.skedaSequence || []).length,
+      skedaPotClass: S.skedaGamePhase === "watch" ? "skeda-pot skeda-pot-watch" : "skeda-pot",
+      skedaProgress: (S.skedaSequence || []).map((_, ix) => ({
+        style: ix < (S.skedaGameStep || 0)
+          ? "width:10px;height:10px;border-radius:50%;background:oklch(0.78 0.14 82);box-shadow:0 0 7px oklch(0.8 0.16 82 / 0.85)"
+          : "width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.16)",
+      })),
       skedaTooled: !!S.skedaTooled,
       skedaTalking: !S.skedaTooled && !!S.skedaGameOpen,
       skedaQuiet: !S.skedaTooled && !S.skedaGameOpen,

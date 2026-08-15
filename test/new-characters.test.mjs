@@ -72,10 +72,11 @@ test("the three new characters are placed in the intended scene, use matching ar
   for (const asset of ["skeda-kahlo.svg", "glodis-console.svg", "dolphan.png", "dolphan-talking.png", "dolphan-buoy.png", "lifesaver-buoy.png"]) {
     assert.ok(source.includes(`assets/${asset}`), `${asset} must be wired into the scene`);
   }
-  assert.deepEqual(
-    [...consoleAsset.matchAll(/<circle[^>]+fill="([^"]+)"/g)].map(([, fill]) => fill),
-    ["#8bb5ff", "#ffdc68", "#ff7188", "#8bb5ff"],
-  );
+  assert.ok(consoleAsset.includes("url(#facet"), "the prism card must be built from shaded facets, not flat dots");
+  for (const tone of ["#8bb5ff", "#ffdc68", "#ff7188"]) {
+    assert.ok(consoleAsset.includes(tone), `the prism must keep the ${tone} face from the puzzle`);
+  }
+  assert.ok(!/<circle/.test(consoleAsset), "no flat lamp dots on the prism card");
 });
 
 test("new-character progress includes all personas and reset state fields", () => {

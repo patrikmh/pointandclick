@@ -1,1 +1,58 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 150"><rect x="8" y="12" width="244" height="126" rx="14" fill="#182a35" stroke="#e7b857" stroke-width="5"/><circle cx="55" cy="70" r="22" fill="#8bb5ff"/><circle cx="110" cy="70" r="22" fill="#ffdc68"/><circle cx="165" cy="70" r="22" fill="#ff7188"/><circle cx="215" cy="70" r="22" fill="#8bb5ff"/><path d="M25 30h210" stroke="#7b99a3" stroke-width="5"/><text x="130" y="128" text-anchor="middle" font-family="sans-serif" font-size="15" fill="white">GLÖDIS • LJUSKONSOL</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 150">
+  <defs>
+    <radialGradient id="prismGlow" cx="50%" cy="48%" r="52%">
+      <stop offset="0%" stop-color="#8bb5ff" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#8bb5ff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#8bb5ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="facetTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe9a8"/>
+      <stop offset="100%" stop-color="#ffdc68"/>
+    </linearGradient>
+    <linearGradient id="facetBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b9d2ff"/>
+      <stop offset="100%" stop-color="#8bb5ff"/>
+    </linearGradient>
+    <linearGradient id="facetPink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff9fb0"/>
+      <stop offset="100%" stop-color="#ff7188"/>
+    </linearGradient>
+    <linearGradient id="facetDeepL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6d94d8"/>
+      <stop offset="100%" stop-color="#4a6aa8"/>
+    </linearGradient>
+    <linearGradient id="facetDeepR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d8587a"/>
+      <stop offset="100%" stop-color="#a83a5c"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="130" cy="78" rx="118" ry="66" fill="url(#prismGlow)"/>
+
+  <!-- night-stone base -->
+  <path d="M42 128 L74 108 L118 116 L150 106 L196 112 L224 130 L224 138 L42 138 Z" fill="#232d38"/>
+  <path d="M42 128 L74 108 L118 116 L150 106 L196 112 L224 130" fill="none" stroke="#41505f" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M84 124 L112 116 M152 120 L182 114" stroke="#33404d" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- crystal prism -->
+  <g stroke="rgba(255,255,255,0.4)" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M130 12 L86 46 L130 64 Z" fill="url(#facetTop)"/>
+    <path d="M130 12 L174 46 L130 64 Z" fill="url(#facetBlue)"/>
+    <path d="M86 46 L130 64 L130 100 L86 104 Z" fill="url(#facetDeepL)"/>
+    <path d="M174 46 L130 64 L130 100 L174 104 Z" fill="url(#facetPink)"/>
+    <path d="M86 104 L130 100 L130 134 Z" fill="url(#facetDeepL)"/>
+    <path d="M174 104 L130 100 L130 134 Z" fill="url(#facetDeepR)"/>
+  </g>
+
+  <!-- facet highlights -->
+  <path d="M94 48 L126 26" stroke="rgba(255,255,255,0.75)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M90 62 L90 94" stroke="rgba(255,255,255,0.3)" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M166 60 L166 92" stroke="rgba(255,255,255,0.35)" stroke-width="2.4" stroke-linecap="round"/>
+
+  <!-- sparkles -->
+  <g fill="#ffffff">
+    <path d="M62 34 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" opacity="0.9"/>
+    <path d="M204 30 l2.2 5.2 5.2 2.2 -5.2 2.2 -2.2 5.2 -2.2 -5.2 -5.2 -2.2 5.2 -2.2 Z" opacity="0.75"/>
+    <path d="M188 66 l1.6 3.8 3.8 1.6 -3.8 1.6 -1.6 3.8 -1.6 -3.8 -3.8 -1.6 3.8 -1.6 Z" opacity="0.6"/>
+  </g>
+</svg>
