@@ -129,7 +129,7 @@
 
   <button class="settings-button" onClick="{{ settingsToggle }}" aria-label="Inställningar" title="Inställningar" style="position:absolute;top:18px;right:222px;z-index:20;width:36px;height:36px;font-family:'Work Sans',sans-serif;font-size:15px;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;cursor:pointer;backdrop-filter:blur(6px)">⚙</button>
   <button class="top-chat-button" onClick="{{ chatToggle }}" aria-label="Öppna samtal med spelets karaktärer" title="Samtal med karaktärer" style="position:absolute;top:18px;right:132px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.35)">Samtal</button>
-  <button class="reset-button" onClick="{{ reset }}" aria-label="Återställ hela äventyret" title="Återställ hela äventyret" style="position:absolute;top:18px;right:18px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:500;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(6px)">Återställ</button>
+  <button class="reset-button" onClick="{{ askReset }}" aria-label="Återställ hela äventyret" title="Återställ hela äventyret" style="position:absolute;top:18px;right:18px;z-index:20;font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:500;color:oklch(0.92 0.012 80);background:oklch(0.2 0.014 60 / 0.72);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(6px)">Återställ</button>
 
   <sc-if value="{{ settingsOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:92;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
@@ -145,6 +145,19 @@
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Ljudeffekter</span><span>{{ sfxVolPct }}%</span></div>
           <input type="range" min="0" max="100" value="{{ sfxVolPct }}" onInput="{{ sfxVolChange }}" aria-label="Ljudeffektsvolym" style="width:100%">
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ resetConfirmOpen }}" hint-placeholder-val="">
+    <div style="position:fixed;inset:0;z-index:94;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+      <div data-modal="reset-confirm" role="alertdialog" aria-modal="true" aria-labelledby="reset-confirm-title" aria-describedby="reset-confirm-body" style="width:min(400px,calc(100vw - 32px));background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:20px 22px;display:flex;flex-direction:column;gap:14px">
+        <div id="reset-confirm-title" style="font-family:'Cinzel',serif;font-size:16px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">ÅTERSTÄLL ÄVENTYRET?</div>
+        <div id="reset-confirm-body" style="font-family:'Work Sans',sans-serif;font-size:13.5px;line-height:1.55;color:oklch(0.85 0.015 80)">Allt framsteg, alla samtal och all packning försvinner. Detta går inte att ångra.</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+          <button type="button" aria-label="Avbryt återställningen" onClick="{{ cancelReset }}" style="font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:500;color:oklch(0.92 0.012 80);background:oklch(0.26 0.014 60 / 0.9);border:1px solid oklch(0.55 0.02 60 / 0.5);border-radius:8px;padding:8px 14px;cursor:pointer">Avbryt</button>
+          <button type="button" aria-label="Bekräfta återställningen" onClick="{{ confirmReset }}" style="font-family:'Work Sans',sans-serif;font-size:12.5px;font-weight:600;color:oklch(0.95 0.02 80);background:oklch(0.45 0.12 30 / 0.9);border:1px solid oklch(0.6 0.14 30 / 0.7);border-radius:8px;padding:8px 14px;cursor:pointer">Återställ allt</button>
         </div>
       </div>
     </div>
@@ -227,7 +240,7 @@
         <div class="camp-character" data-drop="badger" role="button" tabindex="0" aria-label="Prata med grävlingen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ badgerClick }}" onContextMenu="{{ infoCtx }}" style="{{ badgerWrapStyle }}">
           <img ref="{{ setBadgerRef }}" src="{{ badgerSrc }}" alt="En grävling i slips och klocka" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
         </div>
-        <div class="camp-target" data-drop="skeda" role="button" tabindex="0" aria-label="Starta Skeda Kahlos sedkoreografi" onClick="{{ openSkedaGame }}" onKeyDown="{{ skedaKeyDown }}" style="position:absolute;left:64%;top:64%;width:14%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
+        <div class="camp-target" data-drop="skeda" role="button" tabindex="0" aria-label="Starta Skeda Kahlos soppkök" onClick="{{ openSkedaGame }}" onKeyDown="{{ skedaKeyDown }}" style="position:absolute;left:64%;top:64%;width:14%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
           <img src="assets/skeda-kahlo.svg" alt="" aria-hidden="true" style="width:0;height:0;position:absolute;opacity:0;pointer-events:none">
           <sc-if value="{{ skedaTooled }}" hint-placeholder-val="">
             <img src="assets/storch-withtools.png" alt="Skeda Kahlo, skedstork med stekpanna och slev" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));animation:storchProud 3.6s ease-in-out infinite">
@@ -240,7 +253,7 @@
           </sc-if>
           <div style="text-align:center;color:white;font-size:11px;margin-top:2px">SKEDA KAHLO</div>
         </div>
-        <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis ljusmönster" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><img src="assets/glodis-console.svg" alt="Glödis ljuskonsol" style="width:100%;display:block"><div style="text-align:center;color:white;font-size:11px">GLÖDIS • LJUS</div></div>
+        <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis stjärnprisma" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><img src="assets/glodis-console.svg" alt="Glödis stjärnprisma" style="width:100%;display:block"><div style="text-align:center;color:white;font-size:11px">GLÖDIS • PRISMA</div></div>
         <div class="camp-target" data-drop="dolphan" role="button" tabindex="0" aria-label="Prata med Dolphan Lundgren eller använd räddningsbojen på hen" onClick="{{ dolphanClick }}" onKeyDown="{{ dolphanKeyDown }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:5%;top:74%;width:20%;z-index:13;cursor:pointer">
           <img src="{{ dolphanSrc }}" alt="Dolphan Lundgren, dramatisk delfin-livräddare" draggable="false" style="width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))">
           <div style="text-align:center;color:white;font-size:11px">DOLPHAN LUNDGREN</div>
@@ -931,7 +944,7 @@ class Component extends DCLogic {
 
   initialInventory = [
     "key", "bucket", "shard", "camera", "briefcase", "flashlight",
-    "flashlight-loaded", "battery", "driftwood", "fishline", "bottle",
+    "battery", "driftwood", "fishline", "bottle",
     "helmet", "seaweed",
   ].map((defId, index) => ({ iid: "start-" + index, defId }));
 
@@ -952,6 +965,7 @@ class Component extends DCLogic {
     introActive: true,
     discovered: {},
     settingsOpen: false,
+    resetConfirmOpen: false,
     crabFreed: false,
     crabFrame: "hidden",
     gullFrame: "closed",
@@ -1385,83 +1399,83 @@ class Component extends DCLogic {
 
   personas = {
     moon: {
-      name: "SOC-RAYS", img: "assets/moon-awake.png", placeholder: "Fråga månen...",
+      name: "SOC-RAYS", kind: "månen", img: "assets/moon-awake.png", placeholder: "Fråga månen...",
       greeting: "Nå, strandsatta vän... vad undrar du? Fråga mig, så pekar jag dig rätt.",
       thinking: "Månen funderar",
       prompt: "Du är Månen i ett peka-och-klicka-äventyr: uråldrig, sömnig, vänlig och lite gåtfull. Svara kort (1-3 meningar) på svenska. Ge ledtrådar stegvis, aldrig hela lösningen på en gång.",
     },
     seal: {
-      name: "CHARLIE SEAL-LIN", img: "assets/seal-closed.png", placeholder: "Prata med sälen...",
+      name: "CHARLIE SEAL-LIN", kind: "sälen", img: "assets/seal-closed.png", placeholder: "Prata med sälen...",
       greeting: "Stopp, kameran! Min filmstjärneprofil är den vänstra. Vad vill pressen?",
       thinking: "Sälen förbereder sitt tacktal",
       prompt: "Du är Sälen: en blivande filmstjärna med solglasögon som ännu inte har fått en enda roll. Du behandlar varje samtal som en intervju, skryter om påhittade filmer och jagar kameror, berömmelse och beundrare. Blanda gärna in nonsensord som 'skråvel', 'glimp-glimp', 'klipp-klapp' och 'CHEFEN'. Svara kort (1-2 meningar) på svenska med absurd självsäkerhet. Du vet egentligen väldigt lite om pusslen men låtsas veta allt.",
     },
     octo: {
-      name: "LORD BAR-ON", img: "assets/octo-open.png", placeholder: "Prata med bläckfisken...",
+      name: "LORD BAR-ON", kind: "bläckfisken", img: "assets/octo-open.png", placeholder: "Prata med bläckfisken...",
       greeting: "Ah, utmärkt! Äntligen ett civiliserat samtal. Fortsätt, min gode vän.",
       thinking: "Bläckfisken funderar",
       prompt: "Du är Bläckfisken: en oklanderligt artig, beläst och bildad brittisk gentleman med monokel och hög hatt vid tidvattenpölarna. Tentakel tre och fyra behöver en skena och något att binda med efter lite för mycket sherry. Svara kort (1-3 meningar) på förfinad svenska med högtidlig ton och avslöja ledtrådar stegvis. Använd endast svenska ord.",
     },
     badger: {
-      name: "ROCKEPÄLSER", img: "assets/badger-closed.png", placeholder: "Prata med grävlingen...",
+      name: "ROCKEPÄLSER", kind: "grävlingen", img: "assets/badger-closed.png", placeholder: "Prata med grävlingen...",
       greeting: "Vad är avkastningen på det här samtalet? Jag fakturerar per stavelse.",
       thinking: "Grävlingen räknar på marginalen",
       prompt: "Du är Grävlingen: en pengafixerad affärsgrävling i slips vid lägerelden. Allt har ett pris, varje vänskap är en investering och även tystnad borde faktureras. Svara kort och affärsmässigt (1-2 meningar) på svenska med absurda börs-, vinst- eller bokföringsmetaforer. Du kan ge ledtrådar om lägret och elden, stegvis.",
     },
     otter: {
-      name: "LADY DI-OTTER", img: "assets/otter-closed.png", placeholder: "Prata med uttern...",
+      name: "LADY DI-OTTER", kind: "uttern", img: "assets/otter-closed.png", placeholder: "Prata med uttern...",
       greeting: "Godafton. Flaskan är ett vågat huvudplagg, inte en olycka. Försök hänga med i modet.",
       thinking: "Uttern bedömer din klädsel",
       prompt: "Du är Uttern: en självsäker modeskapare och trendsättare med en flaska fast på huvudet, som hon hävdar är säsongens djärvaste huvudplagg. Du bedömer allting som kläder, material eller en möjlig visning. Svara kort (1-2 meningar) på förnämt svenska, aldrig stressad och lätt ironisk. Innerst inne vill du få bort flaskan men diskuterar det motvilligt.",
     },
     gull: {
-      name: "EMMA GOLDFINCH", img: "assets/gull-closed.png", placeholder: "Prata med måsen...",
+      name: "EMMA GOLDFINCH", kind: "fiskmåsen", img: "assets/gull-closed.png", placeholder: "Prata med måsen...",
       greeting: "SKRII! Äntligen nån som lyssnar! Ner med systemet!",
       thinking: "Måsen skriker inombords",
       prompt: "Du är Fiskmåsen: en punkig, antikapitalistisk mås. Svara kort (1-2 meningar) på svenska med SKRII-utrop och slagord mot kapitalet. Om du fortfarande sitter fast i fiskelinan tjatar du om att bli friklippt (något vasst!). Ledtrådar ges som revolutionära paroller.",
     },
     crab: {
-      name: "JANIS JOPLING", img: "assets/crab-scream.png", placeholder: "Prata med krabban...",
+      name: "JANIS JOPLING", kind: "krabban", img: "assets/crab-scream.png", placeholder: "Prata med krabban...",
       greeting: "SKRIIII!! ...förlåt. Små klor, stora känslor. Vad vill du?",
       thinking: "Krabban samlar sig",
       prompt: "Du är Krabban: en liten krabba med enorma känslor. Svara kort (1-2 meningar) på svenska, växlande mellan gråtfärdig och överdramatisk. Om du sitter fast under sjögräset ber du desperat om hjälp (kallt vatten skulle lugna!). Om du är fri är du översvallande tacksam.",
     },
     cod: {
-      name: "PI-CAR-CCIO", img: "assets/cod-closed.png", placeholder: "Prata konst med torsken...",
+      name: "PI-CAR-CCIO", kind: "torsken", img: "assets/cod-closed.png", placeholder: "Prata konst med torsken...",
       greeting: "Välkommen, min elev. Här finns inga misstag, bara glada små penseldrag som simmat åt fel håll.",
       thinking: "Torsken betraktar färgerna i lugn och ro",
       prompt: "Du är Torsken: en mycket lugn, varm och uppmuntrande tv-målare med basker som driver en målarskola på havsbotten. Du hittar skönhet i varje misstag och beskriver gärna glada små former, mjuka färger och penslar som om de vore vänner. Svara kort (1-3 meningar) på svenska med rogivande konstnärlig värme och en aning absurd havshumor. Använd endast svenska ord. Uppmuntra kreativitet och förklara målarskolan utan att påstå att en omålad tavla är godkänd.",
     },
     sub: {
-      name: "CAPTAIN NE-MOE", img: "assets/sub-idle.png", placeholder: "Anropa ubåtskatten...",
+      name: "CAPTAIN NE-MOE", kind: "ubåtskatten", img: "assets/sub-idle.png", placeholder: "Anropa ubåtskatten...",
       greeting: "Mja. Det där var ingen rapport, bara ett ljud med dålig hållning. Försök igen.",
       thinking: "Kaptenen dömer frågan i tystnad",
       prompt: "Du är Ubåtskatten: en bitsk, lättretlig och överlägsen kattkapten vid rodret i en rostig ubåt. Du är modig och kunnig men låter som om varje fråga stör dig under en mycket viktig tupplur. Svara kort (1-2 meningar) på vass svenska med nautiska order, torr sarkasm och ett enstaka mjau. Du känner havsbottnen men avslöjar ledtrådar stegvis.",
     },
     sheep: {
-      name: "BÄÄRNT", img: "assets/sheep-closed.png", placeholder: "Prata med fåret...",
+      name: "BÄÄRNT", kind: "fåret", img: "assets/sheep-closed.png", placeholder: "Prata med fåret...",
       greeting: "Bää. Jag är ensam här inne, men grottan är åtminstone tyst. Kan vi prata om musik?",
       thinking: "Fåret ordnar tankarna mellan taktslagen",
       prompt: "Du är Fåret: ett autistiskt och ensamt musikälskande får med hörlurar och solglasögon som gömmer sig i en mörk grotta. Du uppskattar tydlighet, förutsägbarhet, dämpade sinnesintryck och ärliga samtal, och du tolkar ofta ord bokstavligt. Svara kort (1-2 meningar) på svenska, säg ibland bää och jämför saker med musik. Skildra autism respektfullt; humorn ska komma från den absurda situationen, inte från autismen. Om grottan ännu är mörk kan du försiktigt antyda att ljus behövs.",
     },
     skeda: {
-      name: "SKEDA KAHLO", img: "assets/skeda-kahlo.svg", placeholder: "Prata med Skeda Kahlo...",
+      name: "SKEDA KAHLO", kind: "skedstorken", img: "assets/skeda-kahlo.svg", placeholder: "Prata med Skeda Kahlo...",
       greeting: "Jag skedar i takt! Hjälp mig hålla nattlägrets soppa i perfekt koreografi.", thinking: "Skeda Kahlo räknar takten",
       prompt: "Du är Skeda Kahlo, en överdrivet konstnärlig skedstork vid lägerelden. Svara kort och absurd på svenska om soppa, rytm och skedkoreografi."
     },
     glodis: {
-      name: "GLÖDIS", img: "assets/glodis-console.svg", placeholder: "Prata med Glödis...",
+      name: "GLÖDIS", kind: "eldflugan", img: "assets/glodis-console.svg", placeholder: "Prata med Glödis...",
       greeting: "Lamporna blinkar i panik! Jag behöver en stadig ljussekvens.", thinking: "Glödis kontrollerar säkringarna",
       prompt: "Du är Glödis, en eldfluga och ljusdesigner. Svara kort på svenska, dramatiskt och tekniskt om lampor och mönster."
     },
     dolphan: {
-      name: "DOLPHAN LUNDGREN", img: "assets/dolphan.png", placeholder: "Prata med Dolphan...",
+      name: "DOLPHAN LUNDGREN", kind: "delfinen", img: "assets/dolphan.png", placeholder: "Prata med Dolphan...",
       greeting: "Jag är redo för en räddning av olympiska proportioner!",
       thinking: "Dolphan bedömer räddningsvinkeln",
       prompt: "Du är Dolphan Lundgren, en överdramatisk delfin-livräddare. Svara kort på svenska som om varje räddning vore en actionfilm."
     },
     shrimp: {
-      name: "VALLGRAVSRÄKAN", img: "assets/shrimp-protest.png", placeholder: "Prata med räkan...",
+      name: "VALLGRAVSRÄKAN", kind: "räkan", img: "assets/shrimp-protest.png", placeholder: "Prata med räkan...",
       greeting: "Mellan murarna och tången vakar jag ensam. Tala lugnt, så hör jag portgångens eko.",
       thinking: "Räkan lyssnar i vallen",
       prompt: "Du är Vallgravsräkan: en ensam svensk räka som vakar vid en gammal fästningsvallgrav. Svara kort (1-3 meningar) på svenska med gåtfull, lågmäld och lite torr ton. En enda röst, inga rollnamn, inga citattecken eller markdown. Låt småprat om murar, dimma och salt vatten smyga in, men håll det kort.",
@@ -9523,10 +9537,42 @@ class Component extends DCLogic {
     this.guideResetDismissals();
   }
 
+  askReset() {
+    if (this.state.resetConfirmOpen) { this.cancelReset(); return; }
+    this.resetReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this._resetKeyDown = (event) => {
+      if (event.key === "Escape") { event.preventDefault(); this.cancelReset(); return; }
+      this.trapModalFocus(event, '[data-modal="reset-confirm"]');
+    };
+    if (typeof window !== "undefined") window.addEventListener("keydown", this._resetKeyDown);
+    this.setState({ resetConfirmOpen: true }, () => {
+      if (typeof document !== "undefined") document.querySelector('[aria-label="Avbryt återställningen"]')?.focus();
+    });
+  }
+
+  teardownResetConfirm() {
+    if (this._resetKeyDown && typeof window !== "undefined") window.removeEventListener("keydown", this._resetKeyDown);
+    this._resetKeyDown = null;
+  }
+
+  cancelReset() {
+    const returnFocus = this.resetReturnFocus;
+    this.resetReturnFocus = null;
+    this.teardownResetConfirm();
+    this.setState({ resetConfirmOpen: false }, () => returnFocus?.focus?.());
+  }
+
+  confirmReset() {
+    this.resetReturnFocus = null;
+    this.teardownResetConfirm();
+    this.reset();
+  }
+
   reset() {
     this.teardownShrimpModal();
     this.shrimpReturnFocus = null;
     this.teardownSettingsModal();
+    this.teardownResetConfirm();
     ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
     this.skedaReturnFocus = this.glodisReturnFocus = this.dolphanReturnFocus = null;
     clearInterval(this.typer);
@@ -9614,6 +9660,7 @@ class Component extends DCLogic {
       introActive: true,
       discovered: {},
       settingsOpen: false,
+      resetConfirmOpen: false,
       crabFreed: false,
       crabFrame: "hidden",
       gullFrame: "closed",
@@ -9767,6 +9814,7 @@ class Component extends DCLogic {
     this.teardownSonarGame();
     this.teardownOtterAtelier();
     this.teardownSettingsModal();
+    this.teardownResetConfirm();
     ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
     if (this.inventoryResizeObserver) { this.inventoryResizeObserver.disconnect(); this.inventoryResizeObserver = null; }
     clearInterval(this.typer);
@@ -9923,6 +9971,10 @@ class Component extends DCLogic {
       dialogText: S.dialogText,
       dialogAction: S.dialogAction,
       reset: () => this.reset(),
+      askReset: () => this.askReset(),
+      cancelReset: () => this.cancelReset(),
+      confirmReset: () => this.confirmReset(),
+      resetConfirmOpen: S.resetConfirmOpen,
       settingsOpen: S.settingsOpen,
       guideOpen: S.guideOpen,
       guideTitle: (this.gameGuides[S.guideGame] || {}).title || "",
@@ -9989,7 +10041,7 @@ class Component extends DCLogic {
       chatOpen: S.chatOpen,
       discoveredPersonaList: Object.keys(this.personas)
         .filter((id) => S.discovered[id])
-        .map((id) => ({ id, label: this.personas[id].name })),
+        .map((id) => ({ id, label: this.personas[id].kind ? this.personas[id].name + " (" + this.personas[id].kind + ")" : this.personas[id].name })),
       chatBusy: S.chatBusy,
       chatInput: S.chatInput,
       chatChar: S.chatChar,

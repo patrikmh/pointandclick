@@ -31,13 +31,14 @@ test("the game exposes an agent for every visible character", async () => {
 
   for (const id of characterIds) {
     assert.match(source, new RegExp(`\\n    ${id}: \\{`), `missing ${id} persona`);
+    assert.match(source, new RegExp(`\\n    ${id}: \\{\\s*\\n\\s*name: "[^"]+", kind: "[^"]+"`), `${id} persona must carry a player-facing kind`);
   }
 
   assert.match(source, /<sc-for list="\{\{ discoveredPersonaList \}\}" as="p"/);
   assert.match(source, /<option value="\{\{ p\.id \}\}">\{\{ p\.label \}\}<\/option>/);
   assert.match(source, /discoveredPersonaList: Object\.keys\(this\.personas\)/);
   assert.match(source, /\.filter\(\(id\) => S\.discovered\[id\]\)/);
-  assert.match(source, /\.map\(\(id\) => \(\{ id, label: this\.personas\[id\]\.name \}\)\)/);
+  assert.match(source, /\.map\(\(id\) => \(\{ id, label: this\.personas\[id\]\.kind \?/), "the dropdown label must pair the pun name with the creature kind";
 
   assert.match(source, /else if \(charId === "crab"\) this\.setState/);
   assert.doesNotMatch(source, /charId === "crab" && this\.state\.moonState/);

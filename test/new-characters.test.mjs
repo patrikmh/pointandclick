@@ -67,8 +67,8 @@ test("the three new characters are placed in the intended scene, use matching ar
   assert.match(source, /data-drop="skeda"[\s\S]*?assets\/skeda-kahlo\.svg/);
   assert.match(source, /data-drop="glodis"[\s\S]*?assets\/glodis-console\.svg/);
   assert.match(source, /data-drop="dolphan"[\s\S]*?\{\{ dolphanSrc \}\}/);
-  assert.match(source, /name: "GLÖDIS", img: "assets\/glodis-console\.svg"/);
-  assert.match(source, /name: "DOLPHAN LUNDGREN", img: "assets\/dolphan\.png"/);
+  assert.match(source, /name: "GLÖDIS", kind: "eldflugan", img: "assets\/glodis-console\.svg"/);
+  assert.match(source, /name: "DOLPHAN LUNDGREN", kind: "delfinen", img: "assets\/dolphan\.png"/);
   for (const asset of ["skeda-kahlo.svg", "glodis-console.svg", "dolphan.png", "dolphan-talking.png", "dolphan-buoy.png", "lifesaver-buoy.png"]) {
     assert.ok(source.includes(`assets/${asset}`), `${asset} must be wired into the scene`);
   }
