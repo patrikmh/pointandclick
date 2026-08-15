@@ -83,6 +83,12 @@
   @keyframes storchIdle { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-0.6deg); } 100% { transform: translateY(0) rotate(0deg); } }
   @keyframes storchTalk { 0% { transform: translateY(0) rotate(0deg); } 20% { transform: translateY(-2px) rotate(1.1deg); } 40% { transform: translateY(0) rotate(-0.8deg); } 60% { transform: translateY(-3px) rotate(0.9deg); } 80% { transform: translateY(0) rotate(-1deg); } 100% { transform: translateY(0) rotate(0deg); } }
   @keyframes storchProud { 0% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(-7px) rotate(-1.2deg); } 60% { transform: translateY(-3px) rotate(1deg); } 100% { transform: translateY(0) rotate(0deg); } }
+  .skeda-btn { width:54px; height:54px; font-size:26px; border-radius:12px; border:2px solid rgba(255,255,255,.25); background:rgba(255,255,255,.06); cursor:pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+  .skeda-btn:hover { background:rgba(255,255,255,.14); }
+  .skeda-btn.skeda-flash { transform: scale(1.22); background:oklch(0.72 0.15 80 / 0.85); box-shadow:0 0 22px 5px oklch(0.8 0.16 82 / 0.8); border-color:#fff; }
+  .gcube-scene { perspective: 720px; display:flex; justify-content:center; padding:18px 0 6px; }
+  .gcube { position:relative; width:120px; height:120px; transform-style:preserve-3d; transform:rotateX(-18deg) rotateY(26deg); }
+  .gcube-face { position:absolute; inset:0; border:2px solid rgba(255,255,255,.5); border-radius:12px; box-shadow: inset 0 0 34px rgba(255,255,255,.3), 0 0 18px rgba(255,255,255,.12); transition: transform .55s cubic-bezier(.5,.8,.3,1); backface-visibility:visible; }
   @media (max-width: 760px) and (hover: none), (max-width: 760px) and (pointer: coarse) {
     .camp-nav { left: auto !important; right: 10px !important; transform: none !important; width: 160px !important; }
   }
@@ -537,10 +543,10 @@
   </sc-if>
 
   <sc-if value="{{ skedaGameOpen }}" hint-placeholder-val="">
-    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="skeda-game" role="dialog" aria-modal="true" aria-labelledby="skeda-game-title" style="width:min(520px,calc(100vw - 24px));padding:22px;background:#241c1b;color:#fff;border-radius:16px;text-align:center"><h2 id="skeda-game-title">SKEDA KAHLOS SEDKOREOGRAFI</h2><p id="skeda-game-help">Följ soppans takt: 1, 2, 3, 4. Steg {{ skedaGameStep }}/4.</p><div style="display:flex;gap:10px;justify-content:center"><button type="button" onClick="{{ skedaPick0 }}" aria-label="Skeda åt vänster">🥄</button><button type="button" onClick="{{ skedaPick1 }}" aria-label="Skeda rakt fram">🥄</button><button type="button" onClick="{{ skedaPick2 }}" aria-label="Skeda åt höger">🥄</button></div><div id="skeda-game-status" role="status" aria-live="polite">{{ skedaGameMsg }}</div><button type="button" aria-label="Stäng skedkoreografin" onClick="{{ closeSkedaGame }}">Stäng</button></div></div>
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="skeda-game" role="dialog" aria-modal="true" aria-labelledby="skeda-game-title" style="width:min(560px,calc(100vw - 24px));padding:22px;background:#241c1b;color:#fff;border-radius:16px;text-align:center"><h2 id="skeda-game-title">SKEDA KAHLOS SOPPKÖK</h2><p id="skeda-game-help">Skeda visar receptet — upprepa det i rätt ordning. Runda {{ skedaGameRoundNum }}/3 • Steg {{ skedaGameStep }}/{{ skedaSequenceLen }}.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" class="skeda-btn" data-skeda-action="0" onClick="{{ skedaPick0 }}" aria-label="Tillsätt rotfrukt">🥕</button><button type="button" class="skeda-btn" data-skeda-action="1" onClick="{{ skedaPick1 }}" aria-label="Tillsätt örter">🌿</button><button type="button" class="skeda-btn" data-skeda-action="2" onClick="{{ skedaPick2 }}" aria-label="Salta">🧂</button><button type="button" class="skeda-btn" data-skeda-action="3" onClick="{{ skedaPick3 }}" aria-label="Rör om">🥄</button><button type="button" class="skeda-btn" data-skeda-action="4" onClick="{{ skedaPick4 }}" aria-label="Låt sjuda">🔥</button><button type="button" class="skeda-btn" data-skeda-action="5" onClick="{{ skedaPick5 }}" aria-label="Smaka av">👅</button></div><div id="skeda-game-status" role="status" aria-live="polite" style="margin-top:12px;min-height:1.5em">{{ skedaGameMsg }}</div><button type="button" aria-label="Stäng soppköket" onClick="{{ closeSkedaGame }}" style="margin-top:8px">Stäng</button></div></div>
   </sc-if>
   <sc-if value="{{ glodisGameOpen }}" hint-placeholder-val="">
-    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.78);display:flex;align-items:center;justify-content:center"><div data-modal="glodis-game" role="dialog" aria-modal="true" aria-labelledby="glodis-game-title" style="width:min(560px,calc(100vw - 24px));padding:22px;background:#102530;color:#fff;border-radius:16px;text-align:center"><h2 id="glodis-game-title">GLÖDIS LJUSKONSOL</h2><p>Återskapa mönstret: blå, gul, röd, blå. Steg {{ glodisGameStep }}/4.</p><div style="display:flex;gap:10px;justify-content:center"><button type="button" onClick="{{ glodisPick0 }}" aria-label="Blå lampa">🔵</button><button type="button" onClick="{{ glodisPick1 }}" aria-label="Gul lampa">🟡</button><button type="button" onClick="{{ glodisPick2 }}" aria-label="Röd lampa">🔴</button><button type="button" onClick="{{ glodisPick3 }}" aria-label="Lila lampa">🟣</button></div><div id="glodis-game-status" role="status" aria-live="polite">{{ glodisGameMsg }}</div><button type="button" aria-label="Stäng ljusmönstret" onClick="{{ closeGlodisGame }}">Stäng</button></div></div>
+    <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,.82);display:flex;align-items:center;justify-content:center"><div data-modal="glodis-game" role="dialog" aria-modal="true" aria-labelledby="glodis-game-title" style="width:min(620px,calc(100vw - 24px));padding:22px;background:#0a1826;color:#fff;border-radius:16px;text-align:center"><h2 id="glodis-game-title">GLÖDIS STJÄRNPRISMA</h2><p id="glodis-game-help">Vrid kristallen i 3D så att färgerna matchar målet. Runda {{ glodisGameRoundNum }}/3.</p><div class="gcube-scene"><div class="gcube"><div class="gcube-face" style="background:rgba(255,220,104,.72);{{ glodisFaceT0 }}"></div><div class="gcube-face" style="background:rgba(139,181,255,.72);{{ glodisFaceT1 }}"></div><div class="gcube-face" style="background:rgba(255,113,136,.72);{{ glodisFaceT2 }}"></div><div class="gcube-face" style="background:rgba(127,224,160,.72);{{ glodisFaceT3 }}"></div><div class="gcube-face" style="background:rgba(195,155,255,.72);{{ glodisFaceT4 }}"></div><div class="gcube-face" style="background:rgba(244,244,244,.72);{{ glodisFaceT5 }}"></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin:12px 0;font-size:15px;flex-wrap:wrap"><span>{{ glodisTargetMsg }}</span><span style="opacity:.85">{{ glodisCurrentMsg }}</span></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button type="button" onClick="{{ glodisYawLeft }}" aria-label="Vrid kristallen åt vänster">⤺ vänster</button><button type="button" onClick="{{ glodisYawRight }}" aria-label="Vrid kristallen åt höger">⤻ höger</button><button type="button" onClick="{{ glodisPitchBack }}" aria-label="Tippa kristallen uppåt">⤴ upp</button><button type="button" onClick="{{ glodisPitchForward }}" aria-label="Tippa kristallen neråt">⤵ ner</button><button type="button" onClick="{{ glodisRollLeft }}" aria-label="Rulla kristallen mot vänster">↺ rulla</button><button type="button" onClick="{{ glodisRollRight }}" aria-label="Rulla kristallen mot höger">↻ rulla</button></div><div id="glodis-game-status" role="status" aria-live="polite" style="margin-top:10px;min-height:1.5em">{{ glodisGameMsg }}</div><button type="button" aria-label="Stäng stjärnprismat" onClick="{{ closeGlodisGame }}" style="margin-top:8px">Stäng</button></div></div>
   </sc-if>
   <sc-if value="{{ dolphanGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
@@ -1006,6 +1012,9 @@ class Component extends DCLogic {
     dolphanHelped: false,
     skedaGameOpen: false,
     skedaGameStep: 0,
+    skedaGameRound: 0,
+    skedaGamePhase: "watch",
+    skedaSequence: [],
     skedaGameMsg: "",
     skedaTooled: false,
     skedaPanGiven: false,
@@ -1013,6 +1022,9 @@ class Component extends DCLogic {
     fryingPanFound: false,
     glodisGameOpen: false,
     glodisGameStep: 0,
+    glodisGameRound: 0,
+    glodisFaces: { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 },
+    glodisTarget: { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 },
     glodisGameMsg: "",
     dolphanGameOpen: false,
     dolphanGameMsg: "",
@@ -8309,52 +8321,111 @@ class Component extends DCLogic {
     if (typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem("skeda")) return;
     this.setupCharacterModal?.("skeda");
     this.discoverChar("skeda");
-    this.setState({ skedaGameOpen: true, skedaGameStep: 0, skedaGameMsg: "Skedarna upp! Följ takten." }, () => {
+    this.setState({ skedaGameOpen: true, skedaGameRound: 0 }, () => {
       if (typeof document !== "undefined") document.querySelector('[data-modal="skeda-game"] button')?.focus();
     });
+    this.startSkedaRound();
   }
 
   closeSkedaGame() { this.restoreCharacterModalFocus?.("skeda"); this.setState({ skedaGameOpen: false }); }
   pickSkeda(step) {
     if (!this.state.skedaGameOpen) return;
-    const sequence = [1, 2, 0, 2];
+    if (this.state.skedaGamePhase !== "input") { this.setState({ skedaGameMsg: "Titta på Skedas recept först…" }); return; }
+    const sequence = this.state.skedaSequence || [];
     if (step !== sequence[this.state.skedaGameStep]) {
-      this.setState({ skedaGameStep: 0, skedaGameMsg: "Fel takt! Soppan skvätter — börja om." });
+      this.setState({ skedaGameStep: 0, skedaGamePhase: "watch", skedaGameMsg: "Fel ingrediens! Soppan skvätter — titta igen." });
+      this.playSkedaSequence();
       return;
     }
     const next = this.state.skedaGameStep + 1;
-    if (next === sequence.length) { if (this.closeSkedaGame) this.closeSkedaGame(); else this.setState({ skedaGameOpen: false }); this.setState({ skedaGameStep: next, skedaHelped: true, skedaGameMsg: "Perfekt! Soppan dansar." });
-      // Skeda rewards the player with her old lifesaver buoy — exactly what
-      // Dolphan Lundgren needs for the great rescue out by the pier.
-      this.scheduleGameAction(() => {
-        if (this.state.inventory.some((it) => it.defId === "buoy")) return;
-        this.setState((s) => ({ inventory: [...s.inventory, { iid: "buoy-" + Date.now(), defId: "buoy" }] }));
-        this.sfx("drop");
-        this.say("Skeda Kahlo", "Perfekt takt! Som belöning får du min gamla räddningsboj. Dolphan nere vid bryggan väntar på den!", null, null, "skeda");
-      }, 650);
+    if (next === sequence.length) {
+      const round = (this.state.skedaGameRound || 0) + 1;
+      if (round >= 3) { if (this.closeSkedaGame) this.closeSkedaGame(); else this.setState({ skedaGameOpen: false }); this.setState({ skedaGameStep: next, skedaHelped: true, skedaGameMsg: "Mästarkock! Soppan är legendarisk." });
+        // Skeda rewards the player with her old lifesaver buoy — exactly what
+        // Dolphan Lundgren needs for the great rescue out by the pier.
+        this.scheduleGameAction(() => {
+          if (this.state.inventory.some((it) => it.defId === "buoy")) return;
+          this.setState((s) => ({ inventory: [...s.inventory, { iid: "buoy-" + Date.now(), defId: "buoy" }] }));
+          this.sfx("drop");
+          this.say("Skeda Kahlo", "Perfekt smak! Som belöning får du min gamla räddningsboj. Dolphan nere vid bryggan väntar på den!", null, null, "skeda");
+        }, 650);
+      } else { this.setState({ skedaGameRound: round, skedaGameStep: 0, skedaGameMsg: `Runda ${round + 1} — en längre soppa!` }); this.startSkedaRound(); }
     }
-    else this.setState({ skedaGameStep: next, skedaGameMsg: "Rätt! Nästa skedslag." });
+    else this.setState({ skedaGameStep: next, skedaGameMsg: "Rätt! Fortsätt koka." });
+  }
+
+  startSkedaRound() {
+    const len = 3 + (this.state.skedaGameRound || 0);
+    const seq = [];
+    for (let i = 0; i < len; i++) seq.push(Math.floor(Math.random() * 6));
+    this.setState({ skedaSequence: seq, skedaGameStep: 0, skedaGamePhase: "watch", skedaGameMsg: `Runda ${(this.state.skedaGameRound || 0) + 1}: Titta noga på receptet…` });
+    this.playSkedaSequence();
+  }
+
+  playSkedaSequence() {
+    const seq = this.state.skedaSequence || [];
+    seq.forEach((a, i) => { this.scheduleGameAction(() => this.flashSkedaAction(a), 460 * (i + 1)); });
+    this.scheduleGameAction(() => {
+      this.setState({ skedaGamePhase: "input", skedaGameMsg: "Din tur — koka receptet i rätt ordning!" });
+    }, 460 * (seq.length + 1));
+  }
+
+  flashSkedaAction(a) {
+    if (typeof document === "undefined") return;
+    const btn = document.querySelector(`[data-modal="skeda-game"] [data-skeda-action="${a}"]`);
+    if (!btn) return;
+    btn.classList.add("skeda-flash");
+    setTimeout(() => btn.classList.remove("skeda-flash"), 400);
   }
 
   openGlodisGame() {
     if (this.state.moonState === "asleep") { this.say("", "Månen sover fortfarande. Väcks först!", null, "narr-det-hander-ingenting"); return; }
     this.setupCharacterModal?.("glodis");
     this.discoverChar("glodis");
-    this.setState({ glodisGameOpen: true, glodisGameStep: 0, glodisGameMsg: "Konsolen väntar på mönstret." }, () => {
+    this.setState({ glodisGameOpen: true, glodisGameRound: 0 }, () => {
       if (typeof document !== "undefined") document.querySelector('[data-modal="glodis-game"] button')?.focus();
     });
+    this.setupGlodisRound();
   }
   closeGlodisGame() { this.restoreCharacterModalFocus?.("glodis"); this.setState({ glodisGameOpen: false }); }
-  pickGlodis(step) {
-    if (!this.state.glodisGameOpen) return;
-    const sequence = [0, 1, 2, 0];
-    if (step !== sequence[this.state.glodisGameStep]) {
-      this.setState({ glodisGameStep: 0, glodisGameMsg: "Fel blinkning. Mönstret återställs." });
-      return;
+  glodisRotated(faces, move) {
+    const f = { ...(faces || {}) };
+    switch (move) {
+      case "yawRight": return { U: f.U, D: f.D, F: f.R, R: f.B, B: f.L, L: f.F };
+      case "yawLeft": return { U: f.U, D: f.D, F: f.L, L: f.B, B: f.R, R: f.F };
+      case "pitchForward": return { L: f.L, R: f.R, F: f.U, D: f.F, B: f.D, U: f.B };
+      case "pitchBack": return { L: f.L, R: f.R, U: f.F, F: f.D, D: f.B, B: f.U };
+      case "rollRight": return { F: f.F, B: f.B, R: f.U, D: f.R, L: f.D, U: f.L };
+      case "rollLeft": return { F: f.F, B: f.B, U: f.R, R: f.D, D: f.L, L: f.U };
+      default: return f;
     }
-    const next = this.state.glodisGameStep + 1;
-    if (next === sequence.length) { if (this.closeGlodisGame) this.closeGlodisGame(); else this.setState({ glodisGameOpen: false }); this.setState({ glodisGameStep: next, glodisHelped: true, glodisGameMsg: "Lägret lyser tryggt!" }); }
-    else this.setState({ glodisGameStep: next, glodisGameMsg: "Rätt färg." });
+  }
+
+  setupGlodisRound() {
+    const base = { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 };
+    const scrambles = [["pitchBack"], ["yawRight", "pitchBack"], ["rollRight", "yawRight", "pitchBack"]];
+    const round = Math.min(this.state.glodisGameRound || 0, scrambles.length - 1);
+    let target = { ...base };
+    for (const mv of scrambles[round]) target = this.glodisRotated(target, mv);
+    const names = ["gult", "blått", "rött", "grönt", "lila", "vitt"];
+    this.setState({
+      glodisFaces: { ...base },
+      glodisTarget: target,
+      glodisGameStep: 0,
+      glodisGameMsg: `Runda ${round + 1}: Få ${names[target.U]} ljus uppåt, ${names[target.F]} framåt och ${names[target.R]} åt höger.`,
+    });
+  }
+
+  glodisRotate(move) {
+    if (!this.state.glodisGameOpen) return;
+    const faces = this.glodisRotated(this.state.glodisFaces, move);
+    const moves = (this.state.glodisGameStep || 0) + 1;
+    const target = this.state.glodisTarget || {};
+    const solved = faces.U === target.U && faces.F === target.F && faces.R === target.R;
+    if (!solved) { this.setState({ glodisFaces: faces, glodisGameStep: moves, glodisGameMsg: "Kristallen vrids…" }); return; }
+    const round = (this.state.glodisGameRound || 0) + 1;
+    if (round >= 3) { if (this.closeGlodisGame) this.closeGlodisGame(); else this.setState({ glodisGameOpen: false }); this.setState({ glodisFaces: faces, glodisGameStep: moves, glodisHelped: true, glodisGameMsg: "Kristallen fokuserar stjärnljuset — lägret lyser tryggt!" }); }
+    else { this.setState({ glodisFaces: faces, glodisGameStep: moves, glodisGameRound: round, glodisGameMsg: "Perfekt fokus! Nästa lins…" }); this.setupGlodisRound(); }
   }
 
   dolphanClick(e) {
@@ -9638,6 +9709,9 @@ class Component extends DCLogic {
       dolphanHelped: false,
       skedaGameOpen: false,
       skedaGameStep: 0,
+      skedaGameRound: 0,
+      skedaGamePhase: "watch",
+      skedaSequence: [],
       skedaGameMsg: "",
       skedaTooled: false,
       skedaPanGiven: false,
@@ -9645,6 +9719,9 @@ class Component extends DCLogic {
       fryingPanFound: false,
       glodisGameOpen: false,
       glodisGameStep: 0,
+      glodisGameRound: 0,
+      glodisFaces: { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 },
+      glodisTarget: { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 },
       glodisGameMsg: "",
       dolphanGameOpen: false,
       dolphanGameMsg: "",
@@ -9751,6 +9828,19 @@ class Component extends DCLogic {
     const itemBox =
       "width:54px;height:54px;border:1.5px dashed oklch(0.72 0.09 70);border-radius:5px;background:repeating-linear-gradient(45deg,oklch(0.39 0.045 70),oklch(0.39 0.045 70) 5px,oklch(0.33 0.045 70) 5px,oklch(0.33 0.045 70) 10px);display:flex;align-items:center;justify-content:center;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:oklch(0.87 0.07 70);padding:4px;box-shadow:0 12px 22px -8px rgba(0,0,0,0.75)";
 
+    const glodisSlotT = {
+      F: "rotateX(0deg) rotateY(0deg) translateZ(60px)",
+      B: "rotateX(0deg) rotateY(180deg) translateZ(60px)",
+      U: "rotateX(-90deg) rotateY(0deg) translateZ(60px)",
+      D: "rotateX(90deg) rotateY(0deg) translateZ(60px)",
+      R: "rotateX(0deg) rotateY(90deg) translateZ(60px)",
+      L: "rotateX(0deg) rotateY(-90deg) translateZ(60px)",
+    };
+    const glodisEmoji = ["🟡", "🔵", "🔴", "🟢", "🟣", "⚪"];
+    const glodisFacesNow = S.glodisFaces || { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 };
+    const glodisSlotOf = {};
+    for (const slot in glodisFacesNow) glodisSlotOf[glodisFacesNow[slot]] = slot;
+    const glodisTargetNow = S.glodisTarget || { U: 0, D: 5, F: 2, B: 3, L: 4, R: 1 };
     const placed = S.placed.filter((p) => (p.scene || "center") === S.scene).map((p) => {
       const def = this.defs[p.defId];
       const isChar = def.type === "character";
@@ -10125,20 +10215,34 @@ class Component extends DCLogic {
       skedaGameOpen: S.skedaGameOpen,
       skedaGameStep: S.skedaGameStep,
       skedaGameMsg: S.skedaGameMsg,
+      skedaGameRoundNum: (S.skedaGameRound || 0) + 1,
+      skedaSequenceLen: (S.skedaSequence || []).length,
       skedaTooled: !!S.skedaTooled,
       skedaTalking: !S.skedaTooled && !!S.skedaGameOpen,
       skedaQuiet: !S.skedaTooled && !S.skedaGameOpen,
       openSkedaGame: () => this.openSkedaGame(),
       closeSkedaGame: () => this.closeSkedaGame(),
       skedaPick0: () => this.pickSkeda(0), skedaPick1: () => this.pickSkeda(1), skedaPick2: () => this.pickSkeda(2),
+      skedaPick3: () => this.pickSkeda(3), skedaPick4: () => this.pickSkeda(4), skedaPick5: () => this.pickSkeda(5),
       showFryingPan: !S.fryingPanFound,
       fryingPanClick: (e) => this.fryingPanClick(e),
       glodisGameOpen: S.glodisGameOpen,
       glodisGameStep: S.glodisGameStep,
       glodisGameMsg: S.glodisGameMsg,
+      glodisGameRoundNum: (S.glodisGameRound || 0) + 1,
+      glodisTargetMsg: `Mål: ${glodisEmoji[glodisTargetNow.U]} upp • ${glodisEmoji[glodisTargetNow.F]} fram • ${glodisEmoji[glodisTargetNow.R]} höger`,
+      glodisCurrentMsg: `Nu: ${glodisEmoji[glodisFacesNow.U]} upp • ${glodisEmoji[glodisFacesNow.F]} fram • ${glodisEmoji[glodisFacesNow.R]} höger`,
+      glodisFaceT0: `transform: ${glodisSlotT[glodisSlotOf[0] || "U"]};`,
+      glodisFaceT1: `transform: ${glodisSlotT[glodisSlotOf[1] || "R"]};`,
+      glodisFaceT2: `transform: ${glodisSlotT[glodisSlotOf[2] || "F"]};`,
+      glodisFaceT3: `transform: ${glodisSlotT[glodisSlotOf[3] || "B"]};`,
+      glodisFaceT4: `transform: ${glodisSlotT[glodisSlotOf[4] || "L"]};`,
+      glodisFaceT5: `transform: ${glodisSlotT[glodisSlotOf[5] || "D"]};`,
       openGlodisGame: () => this.openGlodisGame(),
       closeGlodisGame: () => this.closeGlodisGame(),
-      glodisPick0: () => this.pickGlodis(0), glodisPick1: () => this.pickGlodis(1), glodisPick2: () => this.pickGlodis(2), glodisPick3: () => this.pickGlodis(3),
+      glodisYawLeft: () => this.glodisRotate("yawLeft"), glodisYawRight: () => this.glodisRotate("yawRight"),
+      glodisPitchForward: () => this.glodisRotate("pitchForward"), glodisPitchBack: () => this.glodisRotate("pitchBack"),
+      glodisRollLeft: () => this.glodisRotate("rollLeft"), glodisRollRight: () => this.glodisRotate("rollRight"),
       dolphanGameOpen: S.dolphanGameOpen,
       dolphanGameMsg: S.dolphanGameMsg,
       dolphanGameHits: S.dolphanGameHits,
