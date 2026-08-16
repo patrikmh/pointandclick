@@ -43,6 +43,7 @@
   html, body { margin: 0; padding: 0; }
   * { outline: none; -webkit-tap-highlight-color: transparent; }
   [role="button"][tabindex="0"]:focus-visible, [data-drop]:focus-visible, button:focus-visible { outline: 3px solid oklch(0.9 0.12 82) !important; outline-offset: 4px; }
+  .inventory-region:focus-visible { outline: 2px solid oklch(0.78 0.1 75) !important; outline-offset: 2px; }
   :root { --inventory-clearance: 76px; }
   @media (max-height: 760px) { :root { --inventory-clearance: 124px; } .camp-target, .camp-character { translate: 0 -24vh !important; } }
   /* Keep camp hotspots above the expanded packing strip; the strip itself stays
@@ -337,16 +338,20 @@
       <button onClick="{{ inventoryToggle }}" aria-expanded="{{ inventoryOpen }}" aria-controls="inventory-items" aria-label="{{ inventoryToggleAria }}" title="{{ inventoryToggleAria }}" style="min-width:72px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-family:'Work Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 10px;cursor:pointer">{{ inventoryToggleLabel }} ({{ inventoryCount }})</button>
     </div>
     <sc-if value="{{ inventoryStripOpen }}" hint-placeholder-val="{{ true }}">
-      <div id="inventory-items" style="display:flex;gap:10px;flex:1;flex-wrap:wrap;align-content:flex-start;max-height:212px;overflow-y:auto;overflow-x:hidden;padding:2px 0">
-        <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
-          <div data-drop="inv" data-iid="{{ it.iid }}" role="button" tabindex="0" aria-label="Använd {{ it.name }}" onKeyDown="{{ it.onKeyDown }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
-            <div style="{{ it.imgStyle }}">{{ it.art }}</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:oklch(0.8 0.05 78);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;pointer-events:none">{{ it.name }}</div>
-          </div>
-        </sc-for>
-        <sc-if value="{{ emptyInventory }}" hint-placeholder-val="{{ true }}">
-          <div style="width:96px;height:96px;flex-shrink:0;border:1.5px dashed oklch(0.45 0.02 60 / 0.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.02 70);letter-spacing:0.08em">TOM</div>
-        </sc-if>
+      <div class="inventory-region" style="display:flex;align-items:center;gap:6px;flex:1;min-width:0" role="region" aria-label="Packningens föremål" tabindex="0" onKeyDown="{{ inventoryKeyDown }}">
+        <button onClick="{{ inventoryScrollLeft }}" aria-label="Visa föregående föremål" title="Föregående föremål" style="flex:0 0 30px;width:30px;height:42px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-size:18px;line-height:1;cursor:pointer">‹</button>
+        <div id="inventory-items" ref="{{ inventoryItemsRef }}" aria-label="Föremål i packningen" style="display:flex;gap:10px;flex:1;min-width:0;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:2px 0;scroll-behavior:smooth">
+          <sc-for list="{{ inventory }}" as="it" hint-placeholder-count="0">
+            <div data-drop="inv" data-iid="{{ it.iid }}" role="button" tabindex="0" aria-label="Använd {{ it.name }}" onKeyDown="{{ it.onKeyDown }}" onPointerDown="{{ it.onDown }}" onContextMenu="{{ infoCtx }}" title="{{ it.name }}" style="{{ it.boxStyle }}" style-hover="transform:translateY(-4px);border-color:oklch(0.78 0.1 75);box-shadow:0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 oklch(0.6 0.04 75 / 0.6)">
+              <div style="{{ it.imgStyle }}">{{ it.art }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;color:oklch(0.8 0.05 78);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;pointer-events:none">{{ it.name }}</div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ emptyInventory }}" hint-placeholder-val="{{ true }}">
+            <div style="width:96px;height:96px;flex-shrink:0;border:1.5px dashed oklch(0.45 0.02 60 / 0.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.5 0.02 70);letter-spacing:0.08em">TOM</div>
+          </sc-if>
+        </div>
+        <button onClick="{{ inventoryScrollRight }}" aria-label="Visa nästa föremål" title="Nästa föremål" style="flex:0 0 30px;width:30px;height:42px;border:1px solid oklch(0.5 0.03 70 / 0.55);border-radius:7px;background:oklch(0.22 0.018 65 / 0.9);color:oklch(0.88 0.05 80);font-size:18px;line-height:1;cursor:pointer">›</button>
       </div>
     </sc-if>
   </div>
@@ -1958,6 +1963,39 @@ class Component extends DCLogic {
       try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch (_) {}
       this.setState({ moonDragging: true });
     }
+  }
+
+  inventoryScrollBy(amount) {
+    const strip = this.inventoryItemsEl;
+    if (!strip) return;
+    strip.scrollBy({ left: amount, behavior: "smooth" });
+  }
+
+  inventoryScrollLeft() {
+    const strip = this.inventoryItemsEl;
+    if (!strip) return;
+    this.inventoryScrollBy(-Math.max(120, Math.floor(strip.clientWidth * 0.8)));
+  }
+
+  inventoryScrollRight() {
+    const strip = this.inventoryItemsEl;
+    if (!strip) return;
+    this.inventoryScrollBy(Math.max(120, Math.floor(strip.clientWidth * 0.8)));
+  }
+
+  inventoryKeyDown(e) {
+    const strip = this.inventoryItemsEl;
+    if (!strip) return;
+    const page = Math.max(120, Math.floor(strip.clientWidth * 0.8));
+    if (e.key === "ArrowLeft") this.inventoryScrollBy(-120);
+    else if (e.key === "ArrowRight") this.inventoryScrollBy(120);
+    else if (e.key === "PageUp") this.inventoryScrollBy(-page);
+    else if (e.key === "PageDown") this.inventoryScrollBy(page);
+    else if (e.key === "Home") strip.scrollTo({ left: 0, behavior: "smooth" });
+    else if (e.key === "End") strip.scrollTo({ left: strip.scrollWidth, behavior: "smooth" });
+    else return;
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   invDown(iid, defId, e) {
@@ -10293,11 +10331,15 @@ class Component extends DCLogic {
       progressLabel: this.helpedCount(S) + "/" + this.helpedTotal + " HJÄLPTA",
       progressBarStyle: `height:100%;border-radius:999px;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));width:${Math.round((this.helpedCount(S) / this.helpedTotal) * 100)}%;transition:width 0.4s ease`,
       inventoryOpen: S.inventoryOpen,
-      inventoryStripOpen: S.inventoryOpen && !S.invDrag,
+      inventoryStripOpen: S.inventoryOpen,
       inventoryCount: S.inventory.length,
       inventoryToggleLabel: S.inventoryOpen ? "Dölj" : "Visa",
       inventoryToggleAria: (S.inventoryOpen ? "Dölj" : "Visa") + " packningen, " + S.inventory.length + " föremål",
       inventoryToggle: () => this.setState((s) => ({ inventoryOpen: !s.inventoryOpen })),
+      inventoryScrollLeft: () => this.inventoryScrollLeft(),
+      inventoryScrollRight: () => this.inventoryScrollRight(),
+      inventoryKeyDown: (e) => this.inventoryKeyDown(e),
+      inventoryItemsRef: (el) => { this.inventoryItemsEl = el || null; },
       inventoryBarRef: (el) => {
         if (!el || this.inventoryBarEl === el) return;
         this.inventoryBarEl = el;
