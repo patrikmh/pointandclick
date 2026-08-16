@@ -283,6 +283,7 @@ test("solved rounds are recorded to a persisted gallery keyed by round id, witho
   const markSolvedSrc = rawMethodSource("  sheepMarkSolved(id, options = {}) {", "\n  openSheepGame(");
   const HostClass = vm.runInContext(`(class {\n${loadGallerySrc}\n${markSolvedSrc}\n})`, context);
   const game = new HostClass();
+  game.sheepPuzzleContract = { rounds: [{ id: "lighthouse" }, { id: "sailboat" }, { id: "anchor" }, { id: "fish" }] };
   game.setState = (update) => Object.assign(game, update);
 
   const gallery = () => Array.from(game.sheepLoadGallery(), (entry) => ({ id: entry.id, pure: entry.pure }));
@@ -294,7 +295,7 @@ test("solved rounds are recorded to a persisted gallery keyed by round id, witho
   game.sheepMarkSolved("lighthouse", { pure: false });
   assert.deepEqual(gallery(), [{ id: "lighthouse", pure: true }], "marking the same round twice must not duplicate it, and a pure solve must not be downgraded");
   game.sheepMarkSolved("fish");
-  assert.deepEqual(gallery(), [{ id: "lighthouse", pure: true }, { id: "fish", pure: false }]);
+  assert.deepEqual(gallery(), [{ id: "lighthouse", pure: true }], "out-of-order rounds must not create a malformed gallery");
 });
 
 test("legacy bare-string gallery entries from a prior session load as assisted, not pure", () => {
@@ -306,7 +307,7 @@ test("legacy bare-string gallery entries from a prior session load as assisted, 
   const HostClass = vm.runInContext(`(class {\n${loadGallerySrc}\n})`, context);
   const game = new HostClass();
   const gallery = Array.from(game.sheepLoadGallery(), (entry) => ({ id: entry.id, pure: entry.pure }));
-  assert.deepEqual(gallery, [{ id: "lighthouse", pure: false }, { id: "sailboat", pure: false }]);
+  assert.deepEqual(gallery, [], "legacy bare-string entries are rejected as an unsafe gallery, not partially migrated");
 });
 
 test("completing a round without ever calling the full solution assist is recorded as a pure solve", () => {
@@ -352,6 +353,7 @@ test("mid-round poses persist to localStorage and are restored on startSheepRoun
   const pose = { rx: 0.4, ry: -0.2, rz: 0.1 };
   game.sheepObjects = contract.rounds[0].pieces.map((piece) => ({ ...piece, rot: { ...pose } }));
   game.sheepLastProgressSaveAt = 0;
+  game.sheepUsedFullAssistThisRound = false;
   game.sheepSaveProgress();
   const saved = JSON.parse(store.sheepRoundProgress);
   assert.equal(saved.roundId, "lighthouse");
@@ -360,12 +362,12 @@ test("mid-round poses persist to localStorage and are restored on startSheepRoun
   game.startSheepRound();
   assert.deepEqual({ ...game.sheepObjects[0].rot }, pose, "resuming the same round must restore the saved pose, not the scramble pose");
 
-  store.sheepRoundProgress = JSON.stringify({ roundId: "sailboat", poses: contract.rounds[1].scramble });
+  store.sheepRoundProgress = JSON.stringify({ roundId: "sailboat", poses: contract.rounds[1].scramble, usedFullAssistThisRound: false });
   game.startSheepRound();
   assert.deepEqual({ ...game.sheepObjects[0].rot }, { ...contract.rounds[0].scramble[0] }, "progress saved for a different round must be ignored");
 
   game.sheepObjects = contract.rounds[0].pieces.map((piece) => ({ ...piece, rot: { ...pose } }));
-  store.sheepRoundProgress = JSON.stringify({ roundId: "lighthouse", poses: [pose, pose, pose, pose] });
+  store.sheepRoundProgress = JSON.stringify({ roundId: "lighthouse", poses: [pose, pose, pose, pose], usedFullAssistThisRound: false });
   game.sheepResetRound();
   assert.equal(store.sheepRoundProgress, undefined, "resetting to scramble must clear any persisted mid-round progress");
 });
@@ -422,7 +424,7 @@ test("reopening the sheep game resumes the persisted mandatory round with its sa
   const sailboatPoses = contract.rounds[1].pieces.map((piece, index) => ({ rx: 0.3 + index * 0.1, ry: -0.4, rz: 0.2 }));
   const game = loadSheepGameOpener(contract, {
     sheepShadowGallery: JSON.stringify([{ id: "lighthouse", pure: true }]),
-    sheepRoundProgress: JSON.stringify({ roundId: "sailboat", poses: sailboatPoses }),
+    sheepRoundProgress: JSON.stringify({ roundId: "sailboat", poses: sailboatPoses, usedFullAssistThisRound: false }),
   });
   game.openSheepGame();
   assert.equal(game.state.sheepGameRound, 2, "closing during sailboat and reopening must resume round 2, not restart at round 1");
@@ -432,7 +434,7 @@ test("reopening the sheep game resumes the persisted mandatory round with its sa
 
   const crabGame = loadSheepGameOpener(contract, {
     sheepShadowGallery: JSON.stringify([{ id: "lighthouse", pure: false }, { id: "sailboat", pure: true }, { id: "anchor", pure: true }]),
-    sheepRoundProgress: JSON.stringify({ roundId: "fish", poses: contract.rounds[3].solution }),
+    sheepRoundProgress: JSON.stringify({ roundId: "fish", poses: contract.rounds[3].solution, usedFullAssistThisRound: false }),
   });
   crabGame.openSheepGame();
   assert.equal(crabGame.state.sheepGameRound, 4, "closing during fish and reopening must resume the final round");
@@ -661,7 +663,7 @@ test("reopening skips completed mandatory rounds instead of replaying them", () 
 
   const staleCompletedSave = loadSheepGameOpener(contract, {
     sheepShadowGallery: JSON.stringify([{ id: "lighthouse", pure: true }, { id: "sailboat", pure: false }]),
-    sheepRoundProgress: JSON.stringify({ roundId: "sailboat", poses: contract.rounds[1].scramble }),
+    sheepRoundProgress: JSON.stringify({ roundId: "sailboat", poses: contract.rounds[1].scramble, usedFullAssistThisRound: false }),
   });
   staleCompletedSave.openSheepGame();
   assert.equal(staleCompletedSave.state.sheepGameRound, 3, "a save for an already-completed round must be ignored in favour of the first unsolved round");
@@ -694,8 +696,8 @@ test("malformed or obsolete saved progress falls back to the first unsolved roun
     sheepRoundProgress: JSON.stringify({ roundId: "fish", poses: [{ rx: 0, ry: 0, rz: 0 }] }),
   });
   wrongShape.openSheepGame();
-  assert.equal(wrongShape.state.sheepGameRound, 4, "a valid in-progress round is still resumed even if its saved poses are unusable");
-  assert.deepEqual({ ...wrongShape.sheepObjects[0].rot }, { ...contract.rounds[3].scramble[0] }, "unusable saved poses fall back to the scramble");
+  assert.equal(wrongShape.state.sheepGameRound, 1, "wrong-shape progress must be ignored");
+  assert.deepEqual({ ...wrongShape.sheepObjects[0].rot }, { ...contract.rounds[0].scramble[0] }, "unusable saved poses fall back to the first round scramble");
 });
 
 test("reset-to-scramble snaps poses back without touching round or best-score progress", () => {

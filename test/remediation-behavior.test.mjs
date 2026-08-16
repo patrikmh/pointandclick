@@ -20,6 +20,8 @@ function method(signature, nextSignature, globals = {}) {
 function game(state = {}) {
   return {
     state: { moonState: "awake", inventory: [], sonarRound: 0, sonarSolved: [], sonarOpen: true, ...state },
+    uid: 100,
+    nextUid: method("  nextUid() {", "\n\n  defs = {"),
     setState(update) { Object.assign(this.state, typeof update === "function" ? update(this.state) : update); },
     say(...args) { this.messages.push(args); },
     messages: [],

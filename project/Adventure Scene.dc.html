@@ -1227,6 +1227,24 @@ class Component extends DCLogic {
     }, delay);
   }
 
+  nextUid() {
+    const maxUid = 1000000000;
+    const used = new Set([...(this.state.inventory || []), ...(this.state.placed || [])]
+      .map((item) => item && (item.iid ?? item.uid))
+      .filter((id) => id !== undefined && id !== null)
+      .map((id) => String(id)));
+    let candidate = Number.isSafeInteger(this.uid) && this.uid >= 0 && this.uid <= maxUid ? this.uid + 1 : 0;
+    if (candidate > maxUid) candidate = 0;
+    for (let attempts = 0; attempts <= maxUid; attempts += 1) {
+      if (!used.has(String(candidate))) {
+        this.uid = candidate;
+        return candidate;
+      }
+      candidate = candidate >= maxUid ? 0 : candidate + 1;
+    }
+    return null;
+  }
+
   defs = {
     key:      { type: "item", name: "Rostig nyckel", art: "", pickable: true, desc: "En gammal järnnyckel, orange av rost. Den kan nog fortfarande vrida om ett envist lås.", sceneImg: "assets/key-buried.png", img: "assets/key-full.png" },
     map:      { type: "item", name: "Skattkarta", art: "", img: "assets/treasure-map.png", pickable: true, desc: "Ett vattenskadat sjökort. Ett kryss, tre vrak utsatta med darrig hand — men ingen skala och ingen kompassros." },
@@ -1247,7 +1265,231 @@ class Component extends DCLogic {
     utensil:   { type: "item", name: "Slev", art: "", img: "assets/utensil.png", pickable: true, desc: "En lång slev i rostfritt stål. Kapten Ne-Moe räckte över den med förakt — ”för markens folk”, väste han — men den skopar som en dröm." },
   };
 
+  constructor() {
+    super();
+    this.state = this.restoreDurableState(this.state);
+    this._durableSignature = this.durableSignature(this.state);
+    this._durableReferences = this.durableKeys.reduce((snapshot, key) => {
+      snapshot[key] = this.state[key];
+      return snapshot;
+    }, {});
+    this._durableDirty = false;
+    this._saveTimer = null;
+    this._suppressSave = false;
+  }
+
+  durableKeys = [
+    "inventory", "placed", "scene", "returnScene", "discovered", "moonState", "moonSpeechesPlayed",
+    "crabFreed", "gullFreed", "underwaterUnlocked", "chestOpen", "sealHappy", "otterFreed", "otterAtelierUnlocked",
+    "subHelped", "otterCoutureDone", "badgerHappy", "sheepRevealed", "crabWatered", "skedaHelped", "glodisHelped",
+    "dolphanHelped", "dolphanArmed", "skedaTooled", "skedaPanGiven", "skedaSlevGiven", "fryingPanFound", "otterLook", "otterLookBox", "octoHealed",
+    "codDone", "sonarSolved", "shrimpHelped", "shrimpGameSolved",
+  ];
+  durableVersion = 1;
+  durableStorageKey = "pointAndClickAdventureSave";
+
+  durableSignature(state) {
+    return JSON.stringify(this.projectDurableState(state));
+  }
+
+  projectDurableState(state) {
+    const out = {};
+    this.durableKeys.forEach((key) => {
+      const value = state[key];
+      if (value !== undefined) out[key] = value;
+    });
+    const requiredDefaults = {
+      inventory: [], placed: [], scene: "center", returnScene: "center", discovered: {}, moonState: "asleep",
+    };
+    Object.entries(requiredDefaults).forEach(([key, value]) => {
+      if (out[key] === undefined) out[key] = value;
+    });
+    return this.sanitizeDurableState(out);
+  }
+
+  sanitizeDurableState(raw) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    const out = {};
+    const scenes = ["center", "right", "left", "camp", "underwater"];
+    const personas = this.personas ? Object.keys(this.personas) : [];
+    const itemIds = this.defs ? Object.keys(this.defs) : [];
+    const maxCollection = 64;
+    const booleanKeys = new Set([
+      "crabFreed", "gullFreed", "underwaterUnlocked", "chestOpen", "sealHappy", "otterFreed", "otterAtelierUnlocked",
+      "subHelped", "otterCoutureDone", "badgerHappy", "sheepRevealed", "crabWatered", "skedaHelped", "glodisHelped",
+      "dolphanHelped", "dolphanArmed", "skedaTooled", "skedaPanGiven", "skedaSlevGiven", "fryingPanFound", "octoHealed",
+      "codDone", "shrimpHelped", "shrimpGameSolved",
+    ]);
+    const seenItemIds = new Set();
+    const validItemId = (id) => (Number.isSafeInteger(id) && id >= 0 && id <= 1000000000)
+      || (typeof id === "string" && /^[A-Za-z][A-Za-z0-9._:-]{0,63}$/.test(id));
+    const copyArray = (value, predicate, limit = maxCollection) => Array.isArray(value) ? value.slice(0, limit).filter(predicate).map((item) => typeof item === "object" && item ? { ...item } : item) : [];
+    const plainObject = (value) => value && typeof value === "object" && !Array.isArray(value)
+      && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+    const itemId = (item, collection) => collection === "inventory" ? item?.iid : item?.uid;
+    const validItem = (item, collection) => plainObject(item) && validItemId(itemId(item, collection))
+      && itemIds.includes(item.defId) && !seenItemIds.has(String(itemId(item, collection)));
+    this.durableKeys.forEach((key) => {
+      const value = raw[key];
+      if (key === "scene" || key === "returnScene") { if (scenes.includes(value)) out[key] = value; return; }
+      if (key === "moonState") { if (["asleep", "awake"].includes(value)) out[key] = value; return; }
+      if (key === "discovered") {
+        if (plainObject(value) && Object.entries(value).every(([id, flag]) => personas.includes(id) && typeof flag === "boolean")) out[key] = { ...value };
+        return;
+      }
+      if (key === "inventory") {
+        if (!Array.isArray(value) || value.length > maxCollection || new Set(value.map((item) => String(item?.iid))).size !== value.length
+          || !value.every((item) => validItem(item, "inventory"))) return;
+        const valid = value.map((item) => ({ iid: item.iid, defId: item.defId }));
+        valid.forEach((item) => seenItemIds.add(String(item.iid)));
+        out[key] = valid;
+        return;
+      }
+      if (key === "placed") {
+        if (!Array.isArray(value) || value.length > maxCollection || new Set(value.map((item) => String(item?.uid))).size !== value.length
+          || !value.every((item) => validItem(item, "placed")
+          && typeof item.x === "number" && Number.isFinite(item.x) && typeof item.y === "number" && Number.isFinite(item.y)
+          && (!item.scene || scenes.includes(item.scene)))) return;
+        const valid = value.map((item) => ({ uid: item.uid, defId: item.defId, x: item.x, y: item.y, scene: item.scene || "center" }));
+        valid.forEach((item) => seenItemIds.add(String(item.uid)));
+        out[key] = valid;
+        return;
+      }
+      if (key === "moonSpeechesPlayed") {
+        const speeches = ["moon-intro", "moon-how-chat", "moon-dont-wake", "moon-not-all-mean"];
+        if (Array.isArray(value) && value.length <= speeches.length
+          && value.every((item, index) => item === speeches[index])) out[key] = [...value];
+        return;
+      }
+      if (key === "sonarSolved") {
+        const ids = ["slupen", "angaren", "ubaten"];
+        if (Array.isArray(value) && value.length <= 3 && value.every((item, index) => plainObject(item)
+          && item.id === ids[index] && typeof item.label === "string" && item.label.length < 120 && typeof item.pure === "boolean")) {
+          out[key] = value.map((item) => ({ id: item.id, label: item.label, pure: item.pure }));
+        }
+        return;
+      }
+      if (key === "otterLook") {
+        if (typeof value === "string" && value.length <= 300000 && /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(value)) {
+          try {
+            const encoded = value.slice("data:image/png;base64,".length);
+            const bytes = typeof atob === "function" ? atob(encoded).split("").map((char) => char.charCodeAt(0)) : [];
+            const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+            const ihdr = 8;
+            const width = bytes[ihdr + 8] * 0x1000000 + (bytes[ihdr + 9] << 16) + (bytes[ihdr + 10] << 8) + bytes[ihdr + 11];
+            const height = bytes[ihdr + 12] * 0x1000000 + (bytes[ihdr + 13] << 16) + (bytes[ihdr + 14] << 8) + bytes[ihdr + 15];
+            if (bytes.length >= 33 && pngSignature.every((byte, index) => bytes[index] === byte) && bytes[ihdr + 4] === 73 && bytes[ihdr + 5] === 72 && bytes[ihdr + 6] === 68 && bytes[ihdr + 7] === 82 && width > 0 && height > 0 && width <= 765 && height <= 326 && width * height <= 765 * 326) out[key] = value;
+          } catch (_) {}
+        }
+        return;
+      }
+      if (key === "otterLookBox") {
+        if (value && typeof value === "object" && ["left", "top", "width", "height"].every((field) => typeof value[field] === "number" && Number.isFinite(value[field]) && value[field] >= 0 && value[field] <= 100)) out[key] = { left: value.left, top: value.top, width: value.width, height: value.height };
+        return;
+      }
+      if (booleanKeys.has(key) && typeof value === "boolean") out[key] = value;
+    });
+    return out;
+  }
+
+  isDurableStateCoherent(state) {
+    const sonarIds = ["slupen", "angaren", "ubaten"];
+    const allItems = [...(state.inventory || []), ...(state.placed || [])];
+    const hasItem = (defId) => allItems.some((item) => item.defId === defId);
+    const sheepEvidence = state.sheepRevealed === true || state.discovered?.sheep === true;
+    const solved = Array.isArray(state.sonarSolved) ? state.sonarSolved : [];
+    const navigationScenes = ["center", "right", "left", "camp"];
+    if (solved.some((entry, index) => entry.id !== sonarIds[index])) return false;
+    if (state.subHelped !== undefined && (state.subHelped === true) !== (solved.length === sonarIds.length)) return false;
+    if ((state.skedaTooled !== undefined || state.skedaPanGiven !== undefined || state.skedaSlevGiven !== undefined)
+      && (state.skedaTooled === true) !== (state.skedaPanGiven === true && state.skedaSlevGiven === true)) return false;
+    if (state.skedaHelped === true && state.skedaTooled !== undefined && state.skedaTooled !== true) return false;
+    if (state.otterCoutureDone !== undefined && state.otterFreed !== undefined && (state.otterCoutureDone === true) !== (state.otterFreed === true)) return false;
+    if (state.otterCoutureDone === true && state.otterAtelierUnlocked !== undefined
+      && (state.otterAtelierUnlocked !== true || typeof state.otterLook !== "string" || !state.otterLook || !state.otterLookBox)) return false;
+    if ((state.shrimpHelped === true) !== (state.shrimpGameSolved === true)) return false;
+    if (state.crabFreed === true && state.crabWatered !== true) return false;
+    if (state.dolphanHelped === true && state.dolphanArmed !== true) return false;
+    if (state.scene === "underwater" && (state.underwaterUnlocked !== true || !navigationScenes.includes(state.returnScene))) return false;
+    if (state.scene === "underwater" && state.returnScene === "underwater") return false;
+    if (state.underwaterUnlocked === true && !hasItem("helmet")) return false;
+    if (state.gullFreed === true && !hasItem("fishline") && state.octoHealed !== true) return false;
+    if (state.codDone === true && !hasItem("briefcase") && state.badgerHappy !== true) return false;
+    if (state.sheepRevealed === true && (!hasItem("flashlight-loaded") || state.discovered?.sheep !== true)) return false;
+    if (state.chestOpen === true && !hasItem("map")) return false;
+    if (state.fryingPanFound === true && !hasItem("fryingpan") && state.skedaPanGiven !== true) return false;
+    if (state.subHelped === true && !hasItem("utensil") && state.skedaSlevGiven !== true) return false;
+    if (state.skedaHelped === true && !hasItem("buoy") && state.dolphanArmed !== true && state.dolphanHelped !== true) return false;
+    if (state.badgerHappy === true && !hasItem("flashlight") && !hasItem("flashlight-loaded") && !sheepEvidence) return false;
+    if (state.sealHappy === true && !hasItem("battery") && !hasItem("flashlight-loaded") && !sheepEvidence) return false;
+    return true;
+  }
+
+  deriveDurableVisuals(state) {
+    const frames = {
+      moonFrame: state.moonState === "awake" ? "awake" : "asleep",
+      crabFrame: state.crabFreed ? "free-closed" : "hidden",
+      gullFrame: state.gullFreed ? "freed" : "closed",
+      octoFrame: state.octoHealed ? "open" : "open",
+      chestOpen: !!state.chestOpen,
+      sealFrame: state.sealHappy ? "open" : "closed",
+      otterFrame: state.otterFreed ? "open" : "closed",
+      badgerFrame: state.badgerHappy ? "happy" : "closed",
+      sheepFrame: state.sheepRevealed ? "open" : "closed",
+    };
+    return { ...state, ...frames };
+  }
+
+  restoreDurableState(defaults) {
+    let raw = null;
+    try {
+      if (typeof localStorage !== "undefined") {
+        const stored = localStorage.getItem(this.durableStorageKey);
+        if (typeof stored === "string" && stored.length <= 500 * 1024) raw = JSON.parse(stored);
+      }
+    } catch (_) { raw = null; }
+    const validEnvelope = raw && raw.version === this.durableVersion && raw.state && typeof raw.state === "object" && !Array.isArray(raw.state);
+    const envelope = validEnvelope ? raw.state : null;
+    const restored = this.sanitizeDurableState(envelope);
+    const optionalDurableKeys = new Set(["otterLook", "otterLookBox"]);
+    const required = this.durableKeys.filter((key) => !optionalDurableKeys.has(key));
+    const coherent = envelope && required.every((key) => Object.prototype.hasOwnProperty.call(restored, key)) && (!this.isDurableStateCoherent || this.isDurableStateCoherent(restored));
+    if (!coherent) return this.deriveDurableVisuals({ ...defaults });
+    return this.deriveDurableVisuals({ ...defaults, ...restored, introActive: false });
+  }
+
+  flushDurableSave() {
+    if (this._saveTimer) { clearTimeout(this._saveTimer); this._saveTimer = null; }
+    if (this._suppressSave || !this._durableDirty) return;
+    try {
+      localStorage.setItem(this.durableStorageKey, JSON.stringify({ version: this.durableVersion, state: this.projectDurableState(this.state) }));
+      this._durableDirty = false;
+    } catch (_) {}
+  }
+
+  scheduleDurableSave() {
+    if (this._suppressSave || !this._durableDirty || this._saveTimer) return;
+    this._saveTimer = setTimeout(() => { this._saveTimer = null; this.flushDurableSave(); }, 250);
+  }
+
+  componentDidUpdate(_prevProps) {
+    const durableChanged = this.durableKeys.some((key) => this.state[key] !== this._durableReferences[key]);
+    if (!durableChanged) return;
+    this._durableReferences = this.durableKeys.reduce((snapshot, key) => {
+      snapshot[key] = this.state[key];
+      return snapshot;
+    }, {});
+    const signature = this.durableSignature(this.state);
+    if (this._suppressSave) return;
+    if (signature === this._durableSignature) return;
+    this._durableSignature = signature;
+    this._durableDirty = true;
+    this.scheduleDurableSave();
+  }
+
   componentDidMount() {
+    this._pagehide = () => this.flushDurableSave();
+    window.addEventListener("pagehide", this._pagehide);
     this.installAudioMix();
     this._mm = (e) => this.onMoonMove(e);
     this._mu = (e) => this.onMoonUp(e);
@@ -2334,7 +2576,7 @@ class Component extends DCLogic {
       chestOpen: true,
       inventory: s.inventory
         .filter((item) => item.defId !== "key")
-        .concat([{ iid: "map-" + Date.now(), defId: "map" }]),
+        .concat([{ iid: this.nextUid(), defId: "map" }]),
     }));
     this.mapShouldFall = true;
     const lockSound = new Audio("assets/key-turning-in-lock.mp3");
@@ -3958,20 +4200,27 @@ class Component extends DCLogic {
   sheepLoadGallery() {
     try {
       const raw = localStorage.getItem("sheepShadowGallery");
+      if (typeof raw === "string" && raw.length > 32 * 1024) return [];
       const list = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(list)) return [];
-      return list.map((entry) => (typeof entry === "string" ? { id: entry, pure: false } : entry));
+      const rounds = this.sheepPuzzleContract?.rounds;
+      if (!Array.isArray(list) || !Array.isArray(rounds) || list.length > rounds.length) return [];
+      const plainObject = (value) => value && typeof value === "object" && !Array.isArray(value)
+        && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+      if (!list.every((entry, index) => plainObject(entry)
+        && entry.id === rounds[index].id && typeof entry.pure === "boolean")) return [];
+      return list.map((entry) => ({ id: entry.id, pure: entry.pure }));
     } catch (err) { return []; }
   }
 
   sheepMarkSolved(id, options = {}) {
     const current = this.sheepLoadGallery();
+    const rounds = this.sheepPuzzleContract?.rounds || [];
     const existing = current.find((entry) => entry.id === id);
     if (existing) {
       existing.pure = existing.pure || !!options.pure;
-    } else {
+    } else if (rounds[current.length]?.id === id) {
       current.push({ id, pure: !!options.pure });
-    }
+    } else return;
     try { localStorage.setItem("sheepShadowGallery", JSON.stringify(current)); } catch (err) { /* storage unavailable */ }
     this.setState({ sheepSolvedGallery: current });
   }
@@ -3990,15 +4239,13 @@ class Component extends DCLogic {
     const gallery = this.sheepLoadGallery();
     const rounds = this.sheepPuzzleContract.rounds;
     const solvedIds = new Set(gallery.map((entry) => entry.id));
+    const firstUnsolvedIndex = rounds.findIndex((round) => !solvedIds.has(round.id));
     const savedProgress = this.sheepLoadProgress();
-    let resumeRound = 0;
-    if (savedProgress && typeof savedProgress.roundId === "string") {
+    let resumeRound = firstUnsolvedIndex === -1 ? 1 : firstUnsolvedIndex + 1;
+    if (firstUnsolvedIndex !== -1 && savedProgress && typeof savedProgress.roundId === "string") {
       const index = rounds.findIndex((round) => round.id === savedProgress.roundId);
-      if (index !== -1 && !solvedIds.has(savedProgress.roundId)) resumeRound = index + 1;
-    }
-    if (!resumeRound) {
-      const firstUnsolvedIndex = rounds.findIndex((round) => !solvedIds.has(round.id));
-      resumeRound = firstUnsolvedIndex === -1 ? 1 : firstUnsolvedIndex + 1;
+      if (index === firstUnsolvedIndex && !solvedIds.has(savedProgress.roundId)) resumeRound = index + 1;
+      else this.sheepClearProgress();
     }
     this.setState({ sheepGameOpen: true, sheepGameRound: resumeRound, sheepGameActiveIdx: 0, sheepGameMsg: "", sheepSolvedGallery: gallery });
     this.startSheepRound();
@@ -4035,15 +4282,21 @@ class Component extends DCLogic {
   }
 
   sheepLoadA11ySettings() {
+    const defaults = { ghostBrightness: 1, colorblind: false };
     try {
       const raw = localStorage.getItem("sheepAccessibilitySettings");
-      const parsed = raw ? JSON.parse(raw) : {};
-      return { ghostBrightness: typeof parsed.ghostBrightness === "number" ? parsed.ghostBrightness : 1, colorblind: !!parsed.colorblind };
-    } catch (err) { return { ghostBrightness: 1, colorblind: false }; }
+      if (typeof raw !== "string" || raw.length > 4 * 1024) return defaults;
+      const parsed = JSON.parse(raw);
+      const plainObject = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        && (Object.getPrototypeOf(parsed) === Object.prototype || Object.getPrototypeOf(parsed) === null);
+      if (!plainObject || ![0.5, 1, 1.6].includes(parsed.ghostBrightness) || typeof parsed.colorblind !== "boolean") return defaults;
+      return { ghostBrightness: parsed.ghostBrightness, colorblind: parsed.colorblind };
+    } catch (err) { return defaults; }
   }
 
   sheepSaveA11ySettings(settings) {
-    try { localStorage.setItem("sheepAccessibilitySettings", JSON.stringify(settings)); } catch (err) { /* storage unavailable */ }
+    if (!settings || typeof settings !== "object" || ![0.5, 1, 1.6].includes(settings.ghostBrightness) || typeof settings.colorblind !== "boolean") return;
+    try { localStorage.setItem("sheepAccessibilitySettings", JSON.stringify({ ghostBrightness: settings.ghostBrightness, colorblind: settings.colorblind })); } catch (err) { /* storage unavailable */ }
   }
 
   sheepSetGhostBrightness(value) {
@@ -4139,7 +4392,21 @@ class Component extends DCLogic {
   sheepLoadProgress() {
     try {
       const raw = localStorage.getItem("sheepRoundProgress");
-      return raw ? JSON.parse(raw) : null;
+      if (typeof raw !== "string" || raw.length > 32 * 1024) return null;
+      const value = raw ? JSON.parse(raw) : null;
+      const plainObject = (item) => item && typeof item === "object" && !Array.isArray(item)
+        && (Object.getPrototypeOf(item) === Object.prototype || Object.getPrototypeOf(item) === null);
+      if (!plainObject(value) || typeof value.roundId !== "string") return null;
+      const round = this.sheepPuzzleContract?.rounds?.find((candidate) => candidate.id === value.roundId);
+      if (!round || !Array.isArray(value.poses) || value.poses.length !== round.pieces.length
+        || typeof value.usedFullAssistThisRound !== "boolean") return null;
+      const validRotation = (number) => typeof number === "number" && Number.isFinite(number) && number >= -360 && number <= 360;
+      if (!value.poses.every((pose) => plainObject(pose) && validRotation(pose.rx) && validRotation(pose.ry) && validRotation(pose.rz))) return null;
+      return {
+        roundId: value.roundId,
+        poses: value.poses.map((pose) => ({ rx: pose.rx, ry: pose.ry, rz: pose.rz })),
+        usedFullAssistThisRound: value.usedFullAssistThisRound,
+      };
     } catch (err) { return null; }
   }
 
@@ -5349,7 +5616,7 @@ class Component extends DCLogic {
     beam.style.cssText = "position:fixed;inset:0;z-index:95;background:radial-gradient(circle at 15% 55%, rgba(255,248,220,0.75) 0%, rgba(255,248,220,0.2) 25%, transparent 55%);pointer-events:none";
     document.body.appendChild(beam);
     beam.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }], { duration: 1400, easing: "ease-in-out" }).onfinish = () => beam.remove();
-    this.setState({ sheepRevealed: true });
+    this.setState((s) => ({ sheepRevealed: true, discovered: { ...(s.discovered || {}), sheep: true } }));
     this.scheduleGameAction(() => this.sheepTalk(), 500);
   }
 
@@ -5358,7 +5625,7 @@ class Component extends DCLogic {
     this.setState({ badgerHappy: true, badgerFrame: "happy" });
     let removed = false;
     this.setState((s) => ({
-      inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: "flashlight-" + Date.now(), defId: "flashlight" }]),
+      inventory: s.inventory.filter((it) => { if (!removed && it.defId === "briefcase") { removed = true; return false; } return true; }).concat([{ iid: this.nextUid(), defId: "flashlight" }]),
     }));
     this.say("Grävlingen", "MIN portfölj! Kvartalsrapporterna! Du har räddat hela räkenskapsåret. Här — en ficklampa jag hittade på stranden. Batterier ingår inte, det vore en kostnadsfråga.", null, "badger-reward", "badger");
     if (this.badgerNode) {
@@ -5478,6 +5745,8 @@ class Component extends DCLogic {
   openSonarGame() {
     this.teardownSonarGame();
     this.sonarPings = [];
+    const solvedPrefix = Array.isArray(this.state.sonarSolved) ? this.state.sonarSolved.length : 0;
+    this.setState({ sonarRound: Math.min(solvedPrefix, this.sonarContract.rounds.length) });
     this.sonarCursor = { x: 4, y: 3 };
     this.sonarMarking = false;
     this._sonarKeyDown = (event) => this.handleSonarKeyDown(event);
@@ -5600,7 +5869,7 @@ class Component extends DCLogic {
       this.teardownSonarGame();
       // The captain pays up: a slev (ladle), hurled overboard with disdain.
       const grant = !this.state.inventory.some((it) => it.defId === "utensil");
-      this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true, inventory: grant ? [...this.state.inventory, { iid: ++this.uid, defId: "utensil" }] : this.state.inventory });
+      this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true, inventory: grant ? [...this.state.inventory, { iid: this.nextUid(), defId: "utensil" }] : this.state.inventory });
 
       this.say(
         "Kaptenen",
@@ -6292,7 +6561,7 @@ class Component extends DCLogic {
       duration: 550,
     });
     this.setState((s) => ({
-      inventory: s.inventory.concat([{ iid: ++this.uid, defId: "battery" }]),
+      inventory: s.inventory.concat([{ iid: this.nextUid(), defId: "battery" }]),
     }));
     this.say("Sälen", "Ta bilden, ta BILDEN! Min bästa sida — alla sidor! ÄNTLIGEN blir jag känd, CHEFEN! Du är min officiella fotograf nu. Här — ett batteri, en stjärna delar med sig till sitt team!", null, "seal-photo", "seal");
     if (this.sealNode && !this.sealGamePrefersReducedMotion()) {
@@ -6322,7 +6591,7 @@ class Component extends DCLogic {
       return;
     }
     this.setState((s) => ({
-      inventory: [...s.inventory.filter((it) => String(it.iid) !== String(iidA) && String(it.iid) !== String(iidB)), { iid: ++this.uid, defId: result }],
+      inventory: [...s.inventory.filter((it) => String(it.iid) !== String(iidA) && String(it.iid) !== String(iidB)), { iid: this.nextUid(), defId: result }],
     }));
     this.sfx("confirm");
     this.say("", "Du kombinerar dem till: " + this.defs[result].name + ".", null);
@@ -6904,7 +7173,7 @@ class Component extends DCLogic {
         this.setState({ paintBusy: false, paintOpen: false, paintIdx: 0, codDone: true });
         this.codTalk();
         this.say("Picasso", "Magnifikt! Du är härigenom antagen till min exklusiva konstakademi! Och vänta — jag hittade den här portföljen flytande i vattnet häromdagen. Ta den, en konstnär reser lätt!", null, "cod-accepted", "cod");
-        this.setState((s) => ({ inventory: [...s.inventory, { iid: "briefcase-" + Date.now(), defId: "briefcase" }] }));
+        this.setState((s) => ({ inventory: [...s.inventory, { iid: this.nextUid(), defId: "briefcase" }] }));
       } else {
         this.clearPaintCanvas();
         this.setState({ paintBusy: false, paintIdx: nextIdx, paintVerdict: verdict + " Nästa motiv: " + this.paintTargets[nextIdx].label + "! (Nivå " + (nextIdx + 1) + "/5)" });
@@ -8274,7 +8543,7 @@ class Component extends DCLogic {
     this.setState((s) => ({
       gullFreed: true,
       gullFrame: "freed",
-      inventory: [...s.inventory, { iid: "line-" + Date.now(), defId: "fishline" }],
+      inventory: [...s.inventory, { iid: this.nextUid(), defId: "fishline" }],
     }));
     this.say("Fiskmåsen", "Skrii...! Linan är av! Måsen skakar om fjädrarna och ser genast gladare ut. Du rullar ihop fiskelinan — den kan nog komma till nytta.", null, "gull-freed", "gull");
   }
@@ -8309,7 +8578,7 @@ class Component extends DCLogic {
     if (this.tryUseSelectedItem && this.tryUseSelectedItem("fryingpan", e)) return;
     e?.stopPropagation?.();
     if (this.state.fryingPanFound) return;
-    this.setState({ fryingPanFound: true, inventory: [...this.state.inventory, { iid: "fryingpan-" + Date.now(), defId: "fryingpan" }] });
+    this.setState({ fryingPanFound: true, inventory: [...this.state.inventory, { iid: this.nextUid(), defId: "fryingpan" }] });
     this.sfx("pickup");
     this.say("", "Mellan stenarna vid tidvattnet ligger en tjock gjutjärnsspanna, halvt begravd i sand. Du grillar den loss och lägger den i packningen. En kock nere vid lägret skulle bli glad.", null, "narr-stekpannan-pa-stranden");
   }
@@ -8360,12 +8629,17 @@ class Component extends DCLogic {
     const next = this.state.skedaGameStep + 1;
     if (next === sequence.length) {
       const round = (this.state.skedaGameRound || 0) + 1;
-      if (round >= 3) { if (this.closeSkedaGame) this.closeSkedaGame(); else this.setState({ skedaGameOpen: false }); this.setState({ skedaGameStep: next, skedaHelped: true, skedaGameMsg: "Mästarkock! Soppan är legendarisk." });
-        // Skeda rewards the player with her old lifesaver buoy — exactly what
-        // Dolphan Lundgren needs for the great rescue out by the pier.
+      if (round >= 3) {
+        // Persist the completion and its reward together so a reload cannot lose the buoy.
+        const hasBuoy = this.state.inventory.some((it) => it.defId === "buoy");
+        this.setState((s) => ({
+          skedaGameOpen: false,
+          skedaGameStep: next,
+          skedaHelped: true,
+          skedaGameMsg: "Mästarkock! Soppan är legendarisk.",
+          inventory: hasBuoy ? s.inventory : [...s.inventory, { iid: this.nextUid ? this.nextUid() : ((this.uid = (this.uid || 0) + 1)), defId: "buoy" }],
+        }));
         this.scheduleGameAction(() => {
-          if (this.state.inventory.some((it) => it.defId === "buoy")) return;
-          this.setState((s) => ({ inventory: [...s.inventory, { iid: "buoy-" + Date.now(), defId: "buoy" }] }));
           this.sfx("drop");
           this.say("Skeda Kahlo", "Perfekt smak! Som belöning får du min gamla räddningsboj. Dolphan nere vid bryggan väntar på den!", null, null, "skeda");
         }, 650);
@@ -9251,7 +9525,17 @@ class Component extends DCLogic {
   finishScrub() {
     if (this.state.crabFreed) return;
     this.teardownScrubHeat();
-    this.setState({ scrubOpen: false, crabFreed: true, crabFrame: "free" });
+    this.setState((s) => {
+      let bucketRemoved = false;
+      const inventory = s.inventory.filter((item) => {
+        if (!bucketRemoved && item.defId === "bucket") { bucketRemoved = true; return false; }
+        return true;
+      });
+      if (!inventory.some((item) => item.defId === "seaweed")) {
+        inventory.push({ iid: this.nextUid(), defId: "seaweed" });
+      }
+      return { scrubOpen: false, crabFreed: true, crabFrame: "free", inventory };
+    });
     if (this.crabNode) {
       this.crabNode.animate(
         [
@@ -9264,28 +9548,6 @@ class Component extends DCLogic {
       );
     }
     this.crabSpeak("Äntligen fri! Det där sjögräset kliade något förskräckligt. Tack, vännen! Här, ta den här biten som minne.", "assets/vo/crab-freed.mp3");
-
-    // The bucket is spent now that the water actually did its job, and
-    // the crab hands over a seaweed keepsake as a reward.
-    let removedBucket = false;
-    this.setState((s) => ({
-      inventory: s.inventory.filter((it) => {
-        if (!removedBucket && it.defId === "bucket") { removedBucket = true; return false; }
-        return true;
-      }),
-    }));
-    setTimeout(() => {
-      this.setState((s) => ({
-        inventory: [...s.inventory, {
-          uid: ++this.uid,
-          defId: "seaweed",
-          name: "Sjögräs",
-          art: "",
-          img: "assets/seaweed-item.png",
-          desc: "En bit av det sega sjögräs som höll krabban fången. Känns fortfarande lite hårt."
-        }]
-      }));
-    }, 1500);
   }
 
   crabSpeak(line, voiceSrc) {
@@ -9376,7 +9638,7 @@ class Component extends DCLogic {
         collected = true;
         return {
           placed: s.placed.filter((item) => item.uid !== p.uid),
-          inventory: [...s.inventory, { iid: ++this.uid, defId: p.defId }],
+          inventory: [...s.inventory, { iid: this.nextUid(), defId: p.defId }],
         };
       }, () => {
         this.pendingPickups.delete(p.uid);
@@ -9585,6 +9847,14 @@ class Component extends DCLogic {
   }
 
   reset() {
+    this._suppressSave = true;
+    this._durableDirty = false;
+    if (this._saveTimer) { clearTimeout(this._saveTimer); this._saveTimer = null; }
+    try {
+      localStorage.removeItem(this.durableStorageKey);
+      localStorage.removeItem("sheepShadowGallery");
+      localStorage.removeItem("sheepRoundProgress");
+    } catch (_) {}
     this.teardownShrimpModal();
     this.shrimpReturnFocus = null;
     this.teardownSettingsModal();
@@ -9819,12 +10089,23 @@ class Component extends DCLogic {
       edgeL: false,
       edgeB: false,
       edgeT: false,
+    }, () => {
+      this._durableSignature = this.durableSignature(this.state);
+      this._durableReferences = this.durableKeys.reduce((snapshot, key) => {
+        snapshot[key] = this.state[key];
+        return snapshot;
+      }, {});
+      this._durableDirty = false;
+      this._suppressSave = false;
     });
     this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
     this.setUnderwaterAudio(false, false);
   }
 
   componentWillUnmount() {
+    this.gameGeneration++;
+    this.flushDurableSave();
+    if (this._pagehide) window.removeEventListener("pagehide", this._pagehide);
     this.teardownShrimpModal();
     this.shrimpReturnFocus = null;
     this.teardownShrimpGame();

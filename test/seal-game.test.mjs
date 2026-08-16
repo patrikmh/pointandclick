@@ -65,7 +65,7 @@ test("photo challenge config preserves balance and defines three distinct Swedis
   assert.match(source, /key: "thirds"[\s\S]*?Tredjedelsregeln/);
   assert.match(source, /key: "action"[\s\S]*?Actionbild/);
   assert.match(source, /minSpeed: 120/);
-  assert.match(source, /inventory: s\.inventory\.concat\(\[\{ iid: \+\+this\.uid, defId: "battery" \}\]\)/);
+  assert.match(source, /inventory: s\.inventory\.concat\(\[\{ iid: this.nextUid\(\), defId: "battery" \}\]\)/);
 
   assert.match(source, /Android\|iPhone\|iPod\|Windows Phone\|Mobile/);
   assert.match(source, /window\.matchMedia\("\(pointer: coarse\)"\)/);
@@ -415,6 +415,6 @@ test("reopening resets progression and tears down a previous session first", () 
 });
 
 test("winning the seal game awards a numeric battery inventory id", () => {
-  assert.match(source, /inventory: s\.inventory\.concat\(\[\{ iid: \+\+this\.uid, defId: "battery" \}\]\)/);
+  assert.match(source, /inventory: s\.inventory\.concat\(\[\{ iid: this.nextUid\(\), defId: "battery" \}\]\)/);
   assert.doesNotMatch(source, /iid: "battery-" \+ Date\.now\(\)/);
 });
