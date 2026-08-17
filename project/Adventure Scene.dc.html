@@ -362,13 +362,13 @@
 
   <sc-if value="{{ scrubOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(800px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div data-modal="scrub" role="dialog" aria-modal="true" aria-labelledby="scrub-title" tabindex="-1" style="width:min(800px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
+            <div id="scrub-title" style="font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SKRUBBA BORT SJÖGRÄSET</div>
             <div style="font-family:'Work Sans',sans-serif;font-size:14px;color:oklch(0.8 0.015 80)">Gnugga med tandborsten tills krabban syns — {{ scrubPct }}%</div>
           </div>
-          <button onClick="{{ scrubClose }}" style="width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:14px;cursor:pointer">✕</button>
+          <button aria-label="Stäng skrubbspelet" onClick="{{ scrubClose }}" style="width:28px;height:28px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:14px;cursor:pointer">✕</button>
         </div>
         <div style="display:flex;gap:16px;align-items:stretch;width:min(720px,calc(100vw - 96px))">
           <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
@@ -396,7 +396,7 @@
   </sc-if>
 
   <sc-if value="{{ guideOpen }}" hint-placeholder-val="">
-    <div role="dialog" aria-modal="true" aria-labelledby="guide-title" style="position:fixed;inset:0;z-index:96;background:rgba(2,5,9,.84);display:flex;align-items:center;justify-content:center;padding:16px">
+    <div data-modal="guide" role="dialog" aria-modal="true" aria-labelledby="guide-title" tabindex="-1" style="position:fixed;inset:0;z-index:96;background:rgba(2,5,9,.84);display:flex;align-items:center;justify-content:center;padding:16px">
       <div style="width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:#18272a;border:1px solid #5c9b98;border-radius:16px;padding:22px;color:#e7eee6;font-family:'Work Sans',sans-serif">
         <button type="button" onClick="{{ guideClose }}" aria-label="Stäng guiden" style="float:right">✕</button>
         <h2 id="guide-title" style="font-family:'Cinzel',serif">{{ guideTitle }}</h2>
@@ -411,14 +411,14 @@
 
   <sc-if value="{{ paintOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:85;background:rgba(3,5,9,0.6);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(880px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div data-modal="paint" role="dialog" aria-modal="true" aria-labelledby="paint-title" tabindex="-1" style="width:min(880px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <img src="assets/cod-closed.png" alt="" style="width:34px;height:34px;object-fit:contain">
           <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">TORSKENS MÅLARSKOLA</div>
+            <div id="paint-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">TORSKENS MÅLARSKOLA</div>
             <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Måla: <b>{{ paintPrompt }}</b> &nbsp;({{ paintProgress }}/3)</div>
           </div>
-          <button onClick="{{ paintClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button aria-label="Stäng målarskolan" onClick="{{ paintClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
         <canvas ref="{{ setPaintCanvas }}" width="780" height="540" aria-label="Målarduk för {{ paintPrompt }}" style="display:block;width:min(780px,calc(100vw - 64px));height:auto;aspect-ratio:13/9;background:#f7f1e3;border-radius:10px;cursor:crosshair;touch-action:none"></canvas>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%">
@@ -443,7 +443,7 @@
 
   <sc-if value="{{ atelierOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:88;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="atelier-title" aria-describedby="atelier-theme" style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.16 0.014 60 / 0.98);border:1px solid oklch(0.5 0.05 72 / 0.5);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:14px 20px 16px;display:flex;flex-direction:column;gap:12px;align-items:center">
+      <div data-modal="atelier" role="dialog" aria-modal="true" aria-labelledby="atelier-title" aria-describedby="atelier-theme" tabindex="-1" style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.16 0.014 60 / 0.98);border:1px solid oklch(0.5 0.05 72 / 0.5);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:14px 20px 16px;display:flex;flex-direction:column;gap:12px;align-items:center">
 
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div id="atelier-title" style="flex:1;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:0.14em;color:oklch(0.62 0.04 82)">STRANDATELJÉN · {{ atelierProgress }}/3</div>
@@ -517,7 +517,7 @@
 
   <sc-if value="{{ sonarOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:88;background:rgba(2,7,10,0.78);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="sonar-title" aria-describedby="sonar-help" style="width:min(820px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.15 0.02 195 / 0.97);border:1px solid oklch(0.5 0.08 190 / 0.5);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:14px 20px 16px;display:flex;flex-direction:column;gap:11px;align-items:center">
+      <div data-modal="sonar" role="dialog" aria-modal="true" aria-labelledby="sonar-title" aria-describedby="sonar-help" tabindex="-1" style="width:min(820px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.15 0.02 195 / 0.97);border:1px solid oklch(0.5 0.08 190 / 0.5);border-radius:18px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:14px 20px 16px;display:flex;flex-direction:column;gap:11px;align-items:center">
 
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div id="sonar-title" style="flex:1;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:0.14em;color:oklch(0.66 0.07 180)">EKOLODET · VRAK {{ sonarProgress }}/3</div>
@@ -599,7 +599,7 @@
 
   <sc-if value="{{ sealGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="seal-game-title" aria-describedby="seal-game-help seal-game-challenge" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div data-modal="seal-game" role="dialog" aria-modal="true" aria-labelledby="seal-game-title" aria-describedby="seal-game-help seal-game-challenge" tabindex="-1" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div id="seal-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">SÄLENS FOTOSESSION</div>
@@ -642,7 +642,7 @@
 
   <sc-if value="{{ octoGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:radial-gradient(circle at 50% 42%,rgba(19,65,71,.34),rgba(2,5,9,.94) 68%);display:flex;align-items:center;justify-content:center;padding:10px;backdrop-filter:blur(5px)">
-      <div role="dialog" aria-modal="true" aria-labelledby="octo-game-title" aria-describedby="octo-game-help octo-game-status" style="position:relative;width:min(900px,calc(100vw - 20px));height:min(680px,calc(100vh - 20px));min-height:min(540px,calc(100vh - 20px));overflow:auto;background:#091416;border:1px solid rgba(183,151,88,.65);border-radius:18px;box-shadow:0 36px 90px rgba(0,0,0,.9),inset 0 0 80px rgba(4,13,16,.8);display:grid;grid-template-rows:auto 1fr auto;color:#f4ead1">
+      <div data-modal="octo-game" role="dialog" aria-modal="true" aria-labelledby="octo-game-title" aria-describedby="octo-game-help octo-game-status" tabindex="-1" style="position:relative;width:min(900px,calc(100vw - 20px));height:min(680px,calc(100vh - 20px));min-height:min(540px,calc(100vh - 20px));overflow:auto;background:#091416;border:1px solid rgba(183,151,88,.65);border-radius:18px;box-shadow:0 36px 90px rgba(0,0,0,.9),inset 0 0 80px rgba(4,13,16,.8);display:grid;grid-template-rows:auto 1fr auto;color:#f4ead1">
         <div aria-hidden="true" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 24%,rgba(77,139,134,.22),transparent 48%),repeating-linear-gradient(92deg,transparent 0 48px,rgba(255,255,255,.018) 49px 50px);pointer-events:none"></div>
         <header style="position:relative;z-index:3;display:grid;grid-template-columns:1fr auto;gap:12px;padding:16px 18px 12px;border-bottom:1px solid rgba(183,151,88,.24);background:linear-gradient(180deg,rgba(19,30,30,.96),rgba(9,20,22,.74))">
           <div>
@@ -731,13 +731,13 @@
   </sc-if>
   <sc-if value="{{ badgerGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div data-modal="badger-game" role="dialog" aria-modal="true" aria-labelledby="badger-game-title" tabindex="-1" style="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:10px;align-items:center">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
-            <div style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">PORTFÖLJENS KOMBINATIONSLÅS</div>
+            <div id="badger-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">PORTFÖLJENS KOMBINATIONSLÅS</div>
             <div style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Klicka på låset för att pröva koden — Försök kvar: {{ badgerGameAttemptsLeft }}</div>
           </div>
-          <button onClick="{{ badgerGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
+          <button aria-label="Stäng grävlingens kodlås" onClick="{{ badgerGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
         <div style="width:min(680px,calc(100vw - 64px));display:flex;flex-direction:column">
           <div style="position:relative;height:30px">
@@ -773,7 +773,7 @@
 
   <sc-if value="{{ shrimpGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.74);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div ref="{{ setShrimpDialogRef }}" role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status shrimp-game-prompt shrimp-game-history" tabindex="-1" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:stretch">
+      <div ref="{{ setShrimpDialogRef }}" role="dialog" aria-modal="true" aria-labelledby="shrimp-game-title" aria-describedby="shrimp-game-help shrimp-game-status shrimp-game-prompt shrimp-game-history" data-modal="shrimp-game" tabindex="-1" style="width:min(900px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:stretch">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="flex:1">
             <div id="shrimp-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">VALLGRAVSRÄKAN</div>
@@ -831,7 +831,7 @@
 
   <sc-if value="{{ sheepGameOpen }}" hint-placeholder-val="">
     <div style="position:fixed;inset:0;z-index:90;background:rgba(3,5,9,0.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
-      <div class="sheep-dialog" role="dialog" aria-modal="true" aria-labelledby="sheep-game-title" aria-describedby="sheep-game-help" style="width:min(1140px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:16px 18px 14px;display:flex;flex-direction:column;gap:8px;align-items:center">
+      <div data-modal="sheep-game" class="sheep-dialog" role="dialog" aria-modal="true" aria-labelledby="sheep-game-title" aria-describedby="sheep-game-help" style="width:min(1140px,calc(100vw - 24px));max-height:calc(100vh - 20px);overflow:auto;background:oklch(0.17 0.014 60 / 0.97);border:1px solid oklch(0.55 0.05 72 / 0.6);border-radius:16px;box-shadow:0 30px 70px -20px rgba(0,0,0,0.95);padding:16px 18px 14px;display:flex;flex-direction:column;gap:8px;align-items:center">
         <div style="display:flex;align-items:flex-start;gap:10px;width:100%">
           <div style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0">
             <div id="sheep-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BÄÄRNTS SKUGGTEATER</div>
@@ -1226,6 +1226,9 @@ class Component extends DCLogic {
   uid = 100;
   nodes = {};
   gameGeneration = 0;
+  skedaSessionGeneration = 0;
+  gullSessionGeneration = 0;
+  dolphanSessionGeneration = 0;
   pendingPickups = new Set();
 
   scheduleGameAction(callback, delay) {
@@ -2201,11 +2204,11 @@ class Component extends DCLogic {
   };
   _guideKey(key) { return "guideDismissed:" + key; }
   _guideDismissed(key) { if (typeof localStorage === "undefined") return false; try { return localStorage.getItem(this._guideKey(key)) === "1"; } catch (_) { return false; } }
-  _guideGate(key, proceed) { if (!this.gameGuides[key] || this._guideDismissed(key)) return false; this._guideProceed = proceed; this.setState({ guideOpen: true, guideGame: key, guideDismissChecked: false }); return true; }
-  _guideOrOpen(key, proceed) { if (!this._guideGate(key, proceed)) proceed(); }
+  _guideGate(key, proceed, returnFocus) { if (!this.gameGuides[key] || this._guideDismissed(key)) return false; const target = returnFocus !== undefined ? returnFocus : (typeof document !== "undefined" ? document.activeElement : null); this._guidePendingFocus = target; this._guideProceed = proceed; this._guideReturnFocus = target; this.setupModalLifecycle?.("guide", '[data-modal="guide"]', () => this.guideClose(), 'button'); this.setState({ guideOpen: true, guideGame: key, guideDismissChecked: false }); return true; }
+  _guideOrOpen(key, proceed, returnFocus) { if (this._guideGate(key, proceed, returnFocus)) return; const target = returnFocus !== undefined ? returnFocus : (typeof document !== "undefined" ? document.activeElement : null); this._guidePendingFocus = target; proceed(); if (this._guidePendingFocus === target) this._guidePendingFocus = null; }
   guideToggleDismiss() { this.setState({ guideDismissChecked: !this.state.guideDismissChecked }); }
-  guideStart() { const key = this.state.guideGame; if (this.state.guideDismissChecked && typeof localStorage !== "undefined") { try { localStorage.setItem(this._guideKey(key), "1"); } catch (_) {} } const proceed = this._guideProceed; this._guideProceed = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); if (proceed) proceed(); }
-  guideClose() { this._guideProceed = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); }
+  guideStart() { const key = this.state.guideGame; if (this.state.guideDismissChecked && typeof localStorage !== "undefined") { try { localStorage.setItem(this._guideKey(key), "1"); } catch (_) {} } const proceed = this._guideProceed; const target = this._guideReturnFocus; this._guideProceed = null; this._guidePendingFocus = target; this.teardownModalLifecycle?.("guide", false); this._guideReturnFocus = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); if (proceed) proceed(); if (this._guidePendingFocus === target) this._guidePendingFocus = null; }
+  guideClose() { this._guideProceed = null; this._guidePendingFocus = null; this.teardownModalLifecycle?.("guide"); this._guideReturnFocus = null; this.setState({ guideOpen: false, guideGame: "", guideDismissChecked: false }); }
   guideResetDismissals() { if (typeof localStorage === "undefined") return; Object.keys(this.gameGuides).forEach((key) => { try { localStorage.removeItem(this._guideKey(key)); } catch (_) {} }); }
 
 
@@ -2228,6 +2231,7 @@ class Component extends DCLogic {
   }
 
   openOctoGame() {
+    this.setupModalLifecycle?.("octo-game", '[data-modal="octo-game"]', null, '[role="application"]');
     this.teardownOctoGame();
     clearInterval(this.octoCycle);
     this.octoCycle = null;
@@ -2262,12 +2266,10 @@ class Component extends DCLogic {
   }
 
   closeOctoGame() {
+    this.teardownModalLifecycle?.("octo-game");
     this.teardownOctoGame();
     this.setState({ octoGameOpen: false, octoGameHolding: false });
-    if (this._octoGameReturnFocus) {
-      try { this._octoGameReturnFocus.focus({ preventScroll: true }); } catch (err) { this._octoGameReturnFocus.focus(); }
-      this._octoGameReturnFocus = null;
-    }
+    this._octoGameReturnFocus = null;
   }
 
   teardownOctoGame() {
@@ -2573,6 +2575,7 @@ class Component extends DCLogic {
 
   octoGameComplete() {
     if (this.state.octoGameDone) return;
+    this.teardownModalLifecycle?.("octo-game");
     this.teardownOctoGame();
     let removedWood = false;
     let removedLine = false;
@@ -2601,10 +2604,7 @@ class Component extends DCLogic {
       );
     }
     this.say("Bläckfisken", "Kära nån — en skena av drivved och ett bandage av fiskelina! Tentakel tre och fyra fungerar igen. Du har min eviga tacksamhet, min gode vän!", null, "octo-healed", "octo");
-    if (this._octoGameReturnFocus) {
-      try { this._octoGameReturnFocus.focus({ preventScroll: true }); } catch (err) { this._octoGameReturnFocus.focus(); }
-      this._octoGameReturnFocus = null;
-    }
+    this._octoGameReturnFocus = null;
   }
 
   octoGamePrefersReducedMotion() {
@@ -2690,6 +2690,7 @@ class Component extends DCLogic {
   }
 
   openBadgerGame() {
+    this.setupModalLifecycle?.("badger-game", '[data-modal="badger-game"]', () => this.closeBadgerGame(), 'button');
     this.setState({
       badgerGameOpen: true,
       badgerGameCode: [0, 1, 2].map(() => 1 + Math.floor(Math.random() * 9)),
@@ -2701,6 +2702,7 @@ class Component extends DCLogic {
   }
 
   closeBadgerGame() {
+    this.teardownModalLifecycle?.("badger-game");
     this.setState({ badgerGameOpen: false });
   }
 
@@ -2719,7 +2721,8 @@ class Component extends DCLogic {
     const solved = feedback.every((f) => f === "✓");
 
     if (solved) {
-      this.setState({ badgerGameOpen: false, badgerGameFeedback: feedback });
+      this.setState({ badgerGameFeedback: feedback, badgerGameOpen: false });
+      this.teardownModalLifecycle?.("badger-game");
       this.finishBadgerReturn();
       return;
     }
@@ -3032,7 +3035,8 @@ class Component extends DCLogic {
 
   openShrimpGame() {
     this.teardownShrimpGame();
-    this.shrimpReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this.shrimpReturnFocus = this._guidePendingFocus || (typeof document !== "undefined" ? document.activeElement : null);
+    this._guidePendingFocus = null;
     this.shrimpGameSession = (this.shrimpGameSession || 0) + 1;
     const alreadyHelped = !!this.state.shrimpHelped;
     const intro = alreadyHelped
@@ -3128,7 +3132,7 @@ class Component extends DCLogic {
     this.shrimpReturnFocus = null;
     this.teardownShrimpModal();
     this.teardownShrimpGame();
-    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null }, () => returnFocus?.focus?.());
+    this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null }, () => this.restoreFocusTarget?.(returnFocus));
   }
 
   teardownShrimpGame() {
@@ -4268,6 +4272,7 @@ class Component extends DCLogic {
   }
 
   openSheepGame() {
+    this.setupModalLifecycle?.("sheep-game", '[data-modal="sheep-game"]', null, 'canvas');
     this.teardownSheepGame();
     this.sheepGameGen++;
     this.sheepActiveIdx = 0;
@@ -4596,6 +4601,7 @@ class Component extends DCLogic {
   }
 
   closeSheepGame() {
+    this.teardownModalLifecycle?.("sheep-game");
     this.teardownSheepGame();
     this.setState({ sheepGameOpen: false });
   }
@@ -5642,6 +5648,7 @@ class Component extends DCLogic {
       this.setState({ sheepGameMsg: `${rounds[round - 1].label}s skugga är perfekt!` });
       this.scheduleGameAction(() => {
         if (generation !== this.sheepGameGen) return;
+        this.teardownModalLifecycle?.("sheep-game");
         this.teardownSheepGame();
         this.setState({ sheepGameOpen: false });
         this.revealSheep();
@@ -5785,6 +5792,7 @@ class Component extends DCLogic {
   }
 
   openSonarGame() {
+    this.setupModalLifecycle?.("sonar", '[data-modal="sonar"]', null, 'canvas');
     this.teardownSonarGame();
     this.sonarPings = [];
     const solvedPrefix = Array.isArray(this.state.sonarSolved) ? this.state.sonarSolved.length : 0;
@@ -5802,6 +5810,7 @@ class Component extends DCLogic {
   }
 
   closeSonarGame() {
+    this.teardownModalLifecycle?.("sonar");
     this.teardownSonarGame();
     this.setState({ sonarOpen: false });
   }
@@ -5908,7 +5917,9 @@ class Component extends DCLogic {
     this.sfx("confirm");
 
     if (nextRound >= this.sonarContract.rounds.length) {
+      this.teardownModalLifecycle?.("sonar");
       this.teardownSonarGame();
+      this.setState({ sonarOpen: false });
       // The captain pays up: a slev (ladle), hurled overboard with disdain.
       const grant = !this.state.inventory.some((it) => it.defId === "utensil");
       this.setState({ sonarOpen: false, sonarSolved: solved, sonarRound: 0, subHelped: true, inventory: grant ? [...this.state.inventory, { iid: this.nextUid(), defId: "utensil" }] : this.state.inventory });
@@ -6219,6 +6230,7 @@ class Component extends DCLogic {
   };
 
   openSealGame() {
+    this.setupModalLifecycle?.("seal-game", '[data-modal="seal-game"]', null, '[tabindex="0"]');
     const cfg = this.sealGameConfig;
     this.teardownSealGame();
     if (this.sealHoverSound) this.sealHoverSound.pause();
@@ -6234,12 +6246,10 @@ class Component extends DCLogic {
   }
 
   closeSealGame() {
+    this.teardownModalLifecycle?.("seal-game");
     this.teardownSealGame();
     this.setState({ sealGameOpen: false });
-    if (this._sealGameReturnFocus) {
-      try { this._sealGameReturnFocus.focus({ preventScroll: true }); } catch (err) { this._sealGameReturnFocus.focus(); }
-      this._sealGameReturnFocus = null;
-    }
+    this._sealGameReturnFocus = null;
   }
 
   teardownSealGame() {
@@ -6556,6 +6566,7 @@ class Component extends DCLogic {
         this.sealGameSeal.vy *= cfg.speedBoostPerShot;
       }
       if (shots >= cfg.shotsToWin) {
+        this.teardownModalLifecycle?.("seal-game");
         this.teardownSealGame();
         this.setState({ sealGameOpen: false, sealGameShots: shots });
         this.finishSealPhotoshoot();
@@ -6921,7 +6932,7 @@ class Component extends DCLogic {
     this.say(
       "Torsken",
       "God dag! Jag är havets mest exklusiva målare. Vill du bli min elev? Måla fem motiv och visa konstnärligt djup. Bara de bästa antas. Visst?",
-      { label: "Börja måla", onClick: () => this._guideOrOpen("paint", () => this.setState({ paintOpen: true, paintVerdict: "", paintIdx: this.state.paintIdx || 0 })) }
+      { label: "Börja måla", onClick: () => this._guideOrOpen("paint", () => this.openPaintGame()) }
     );
   }
 
@@ -7105,6 +7116,17 @@ class Component extends DCLogic {
     this.codFlapStop = () => { clearInterval(iv); this.setState({ codFrame: "closed" }); };
   }
 
+  teardownPaintCanvas() {
+    const el = this.paintCanvasEl;
+    if (el) {
+      el.onpointerdown = null;
+      el.onpointermove = null;
+      el.onpointerup = null;
+    }
+    this.paintCanvasEl = null;
+    this.paintUndoStack = [];
+  }
+
   initPaintCanvas(el) {
     if (!el || el === this.paintCanvasEl) return;
     this.paintCanvasEl = el;
@@ -7155,6 +7177,18 @@ class Component extends DCLogic {
     ctx.fillStyle = "#f7f1e3";
     ctx.fillRect(0, 0, el.width, el.height);
     this.paintUndoStack = [];
+  }
+
+  openPaintGame() {
+    this.setupModalLifecycle?.("paint", '[data-modal="paint"]', () => this.closePaintGame(), 'button[aria-label="Stäng målarskolan"]');
+    this.setState({ paintOpen: true, paintBusy: false, paintVerdict: "", paintIdx: this.state.paintIdx || 0 });
+  }
+
+  closePaintGame() {
+    this.paintGeneration = (this.paintGeneration || 0) + 1;
+    this.teardownPaintCanvas?.();
+    this.teardownModalLifecycle?.("paint");
+    this.setState({ paintOpen: false, paintBusy: false });
   }
 
   async submitPainting() {
@@ -7212,7 +7246,8 @@ class Component extends DCLogic {
     if (ok) {
       const nextIdx = this.state.paintIdx + 1;
       if (nextIdx >= 5) {
-        this.setState({ paintBusy: false, paintOpen: false, paintIdx: 0, codDone: true });
+        this.closePaintGame();
+        this.setState({ paintBusy: false, paintIdx: 0, codDone: true });
         this.codTalk();
         this.say("Picasso", "Magnifikt! Du är härigenom antagen till min exklusiva konstakademi! Och vänta — jag hittade den här portföljen flytande i vattnet häromdagen. Ta den, en konstnär reser lätt!", null, "cod-accepted", "cod");
         this.setState((s) => ({ inventory: [...s.inventory, { iid: this.nextUid(), defId: "briefcase" }] }));
@@ -7399,6 +7434,7 @@ class Component extends DCLogic {
   }
 
   openOtterAtelier() {
+    this.setupModalLifecycle?.("atelier", '[data-modal="atelier"]', null, 'canvas');
     this.teardownOtterAtelier();
     this.teardownSonarGame();
     this.sonarPings = [];
@@ -7424,6 +7460,7 @@ class Component extends DCLogic {
 
   closeOtterAtelier() {
     this.teardownOtterAtelier();
+    this.teardownModalLifecycle?.("atelier");
     this.setState({ atelierOpen: false, atelierSelectedLabel: "" });
   }
 
@@ -8026,6 +8063,7 @@ class Component extends DCLogic {
 
   finishOtterCouture(critique) {
     const look = this.captureOtterLook();
+    this.teardownModalLifecycle?.("atelier");
     this.teardownOtterAtelier();
     this.sfx("pickup");
     this.setState({
@@ -8149,7 +8187,9 @@ class Component extends DCLogic {
 
   openGullGame() {
     if (this.state.gullFreed) return;
-    this.gullReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this.gullSessionGeneration = (this.gullSessionGeneration || 0) + 1;
+    this.gullReturnFocus = this._guidePendingFocus || (typeof document !== "undefined" ? document.activeElement : null);
+    this._guidePendingFocus = null;
     this.gullGameHitsCount = 0;
     this.gullGameLastThrow = 0;
     this.setState({
@@ -8161,18 +8201,21 @@ class Component extends DCLogic {
   }
 
   closeGullGame() {
+    this.gullSessionGeneration = (this.gullSessionGeneration || 0) + 1;
     const returnFocus = this.gullReturnFocus;
     this.gullReturnFocus = null;
     this.teardownGullGame();
-    this.setState({ gullGameOpen: false }, () => returnFocus?.focus?.());
+    this.setState({ gullGameOpen: false }, () => this.restoreFocusTarget?.(returnFocus));
+    // Focus restoration is centralized in restoreFocusTarget (formerly returnFocus?.focus?.()).
   }
 
   initGullStage(el) {
     if (!el || el === this.gullGameStageEl) return;
     this.gullGameStageEl = el;
     this.startGullGame();
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => el.focus?.());
-    else el.focus?.();
+    if (el.isConnected !== false && typeof requestAnimationFrame === "function") {
+      this.gullGameFocusRAF = requestAnimationFrame(() => el.focus?.());
+    } else if (el.isConnected !== false) el.focus?.();
   }
 
   startGullGame() {
@@ -8219,6 +8262,7 @@ class Component extends DCLogic {
 
   teardownGullGame(clearRefs) {
     this.gullGameRunning = false;
+    if (this.gullGameFocusRAF) { cancelAnimationFrame(this.gullGameFocusRAF); this.gullGameFocusRAF = null; }
     if (this.gullGameRAF) { cancelAnimationFrame(this.gullGameRAF); this.gullGameRAF = null; }
     if (this.gullEngineSnd) this.gullEngineSnd.pause();
     if (this._gullKeyDown) {
@@ -8552,7 +8596,9 @@ class Component extends DCLogic {
         this.gullLaughSnd.currentTime = 0;
         this.gullLaughSnd.volume = 0.85;
         this.gullLaughSnd.play().catch(() => {});
+        const session = this.gullSessionGeneration;
         this.scheduleGameAction(() => {
+          if (session !== this.gullSessionGeneration || !this.state.gullGameOpen) return;
           this.closeGullGame();
           this.cutLine();
         }, 850);
@@ -8562,7 +8608,11 @@ class Component extends DCLogic {
     this.sfx("splash");
     if (this.state.gullGameBombs <= 0) {
       this.setState({ gullGameMsg: "Slut på bomber! Måsen svänger runt för en ny inflygning..." });
-      this.scheduleGameAction(() => this.resetGullRound(), 1200);
+      const session = this.gullSessionGeneration;
+      this.scheduleGameAction(() => {
+        if (session !== this.gullSessionGeneration || !this.state.gullGameOpen) return;
+        this.resetGullRound();
+      }, 1200);
     }
   }
 
@@ -8594,7 +8644,8 @@ class Component extends DCLogic {
     this.teardownCharacterModal(name);
     const focusProp = name + "ReturnFocus";
     const keyProp = "_" + name + "KeyDown";
-    this[focusProp] = typeof document !== "undefined" ? document.activeElement : null;
+    this[focusProp] = this._guidePendingFocus || (typeof document !== "undefined" ? document.activeElement : null);
+    this._guidePendingFocus = null;
     this[keyProp] = (event) => {
       if (event.key === "Escape") { event.preventDefault(); this["close" + name[0].toUpperCase() + name.slice(1) + "Game"](); return; }
       this.trapModalFocus(event, '[data-modal="' + name + '-game"]');
@@ -8613,7 +8664,7 @@ class Component extends DCLogic {
     const returnFocus = this[focusProp];
     this[focusProp] = null;
     this.teardownCharacterModal(name);
-    if (returnFocus?.focus) returnFocus.focus({ preventScroll: true });
+    this.restoreFocusTarget?.(returnFocus);
   }
 
   fryingPanClick(e) {
@@ -8651,6 +8702,7 @@ class Component extends DCLogic {
     if (this.state.moonState === "asleep") { this.say("", "Månen sover fortfarande. Väcks först!", null, "narr-det-hander-ingenting"); return; }
     if (typeof this.tryUseSelectedItem === "function" && this.tryUseSelectedItem("skeda")) return;
     this.setupCharacterModal?.("skeda");
+    this.skedaSessionGeneration = (this.skedaSessionGeneration || 0) + 1;
     this.discoverChar("skeda");
     this.setState({ skedaGameOpen: true, skedaGameRound: 0 }, () => {
       if (typeof document !== "undefined") document.querySelector('[data-modal="skeda-game"] button')?.focus();
@@ -8658,7 +8710,7 @@ class Component extends DCLogic {
     this.startSkedaRound();
   }
 
-  closeSkedaGame() { this.restoreCharacterModalFocus?.("skeda"); this.setState({ skedaGameOpen: false }); }
+  closeSkedaGame() { this.skedaSessionGeneration = (this.skedaSessionGeneration || 0) + 1; this.restoreCharacterModalFocus?.("skeda"); this.setState({ skedaGameOpen: false }); }
   pickSkeda(step) {
     if (!this.state.skedaGameOpen) return;
     if (this.state.skedaGamePhase !== "input") { this.setState({ skedaGameMsg: "Titta på Skedas recept först…" }); return; }
@@ -8673,6 +8725,7 @@ class Component extends DCLogic {
       const round = (this.state.skedaGameRound || 0) + 1;
       if (round >= 3) {
         // Persist the completion and its reward together so a reload cannot lose the buoy.
+        this.restoreCharacterModalFocus?.("skeda");
         const hasBuoy = this.state.inventory.some((it) => it.defId === "buoy");
         this.setState((s) => ({
           skedaGameOpen: false,
@@ -8681,7 +8734,9 @@ class Component extends DCLogic {
           skedaGameMsg: "Mästarkock! Soppan är legendarisk.",
           inventory: hasBuoy ? s.inventory : [...s.inventory, { iid: this.nextUid ? this.nextUid() : ((this.uid = (this.uid || 0) + 1)), defId: "buoy" }],
         }));
+        const session = this.skedaSessionGeneration;
         this.scheduleGameAction(() => {
+          if (session !== this.skedaSessionGeneration) return;
           this.sfx("drop");
           this.say("Skeda Kahlo", "Perfekt smak! Som belöning får du min gamla räddningsboj. Dolphan nere vid bryggan väntar på den!", null, null, "skeda");
         }, 650);
@@ -8700,8 +8755,15 @@ class Component extends DCLogic {
 
   playSkedaSequence() {
     const seq = this.state.skedaSequence || [];
-    seq.forEach((a, i) => { this.scheduleGameAction(() => this.flashSkedaAction(a), 460 * (i + 1)); });
+    const session = this.skedaSessionGeneration = (this.skedaSessionGeneration || 0) + 1;
+    seq.forEach((a, i) => {
+      this.scheduleGameAction(() => {
+        if (session !== this.skedaSessionGeneration || !this.state.skedaGameOpen) return;
+        this.flashSkedaAction(a);
+      }, 460 * (i + 1));
+    });
     this.scheduleGameAction(() => {
+      if (session !== this.skedaSessionGeneration || !this.state.skedaGameOpen) return;
       this.setState({ skedaGamePhase: "input", skedaGameMsg: "Din tur — koka receptet i rätt ordning!" });
     }, 460 * (seq.length + 1));
   }
@@ -8782,7 +8844,7 @@ class Component extends DCLogic {
       this.say("Dolphan", "Jag står redo — men jag saknar min räddningsboj. Skeda Kahlo vid lägerelden har kanske en att avvara.", null, null, "dolphan");
     }
   }
-  closeDolphanGame() { this.restoreCharacterModalFocus?.("dolphan"); this.teardownDolphanGame(); this.setState({ dolphanGameOpen: false }); }
+  closeDolphanGame() { this.dolphanSessionGeneration = (this.dolphanSessionGeneration || 0) + 1; this.restoreCharacterModalFocus?.("dolphan"); this.teardownDolphanGame(); this.setState({ dolphanGameOpen: false }); }
   pickDolphan(item) {
     // Kept for backwards-compatibility with any saved binding; the great rescue
     // is now driven by useItemOn(buoy -> dolphan) and the throw-the-lifesaver game.
@@ -8811,7 +8873,7 @@ class Component extends DCLogic {
 
   openDolphanGame() {
     if (this.state.dolphanHelped) return;
-    this.dolphanReturnFocus = typeof document !== "undefined" ? document.activeElement : null;
+    this.dolphanSessionGeneration = (this.dolphanSessionGeneration || 0) + 1;
     this.dolphanGameHitsCount = 0;
     this.dolphanGameLastThrow = 0;
     this.setupCharacterModal?.("dolphan");
@@ -8828,8 +8890,9 @@ class Component extends DCLogic {
     if (!el || el === this.dolphanGameStageEl) return;
     this.dolphanGameStageEl = el;
     this.startDolphanGame();
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => el.focus?.());
-    else el.focus?.();
+    if (el.isConnected !== false && typeof requestAnimationFrame === "function") {
+      this.dolphanGameFocusRAF = requestAnimationFrame(() => el.focus?.());
+    } else if (el.isConnected !== false) el.focus?.();
   }
 
   startDolphanGame() {
@@ -8858,6 +8921,7 @@ class Component extends DCLogic {
 
   teardownDolphanGame(clearRefs) {
     this.dolphanGameRunning = false;
+    if (this.dolphanGameFocusRAF) { cancelAnimationFrame(this.dolphanGameFocusRAF); this.dolphanGameFocusRAF = null; }
     if (this.dolphanGameRAF) { cancelAnimationFrame(this.dolphanGameRAF); this.dolphanGameRAF = null; }
     if (this._dolphanKeyDown) {
       window.removeEventListener("keydown", this._dolphanKeyDown);
@@ -9139,14 +9203,23 @@ class Component extends DCLogic {
       this.setState({ dolphanGameHits: hits, dolphanGameMsg: won ? "BOJEN LÄGGER SIG RUNT SIMMAREN! En räddning för historieböckerna!" : "Fullträff! Simmaren krypar vidare — fortare nu!" });
       if (won) {
         this.dolphanGameRunning = false;
-        this.scheduleGameAction(() => { this.closeDolphanGame(); this.dolphanWin(); }, 900);
+        const session = this.dolphanSessionGeneration;
+        this.scheduleGameAction(() => {
+          if (session !== this.dolphanSessionGeneration || !this.state.dolphanGameOpen) return;
+          this.closeDolphanGame();
+          this.dolphanWin();
+        }, 900);
       }
       return;
     }
     this.sfx("splash");
     if (this.state.dolphanGameThrows <= 0) {
       this.setState({ dolphanGameMsg: "Slut på bojar! Dolphan hämtar en ny sats — simma lugnt!" });
-      this.scheduleGameAction(() => this.resetDolphanRound(), 1200);
+      const session = this.dolphanSessionGeneration;
+      this.scheduleGameAction(() => {
+        if (session !== this.dolphanSessionGeneration || !this.state.dolphanGameOpen) return;
+        this.resetDolphanRound();
+      }, 1200);
     }
   }
 
@@ -9238,7 +9311,7 @@ class Component extends DCLogic {
       return;
     }
     if (this.state.crabWatered) {
-      this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 }));
+      this._guideOrOpen("scrub", () => this.openScrubGame(true));
       this.say("", "Sjögräset är fortfarande mjukt av vattnet. Skrubba försiktigt - krabban är känslig!", null, "narr-sjograset-ar-fortfarande-mjukt-av");
       return;
     }
@@ -9255,8 +9328,9 @@ class Component extends DCLogic {
   }
 
   throwWater() {
+    const returnFocus = typeof document !== "undefined" ? document.activeElement : null;
     if (this.state.crabWatered) {
-      this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0 }));
+      this._guideOrOpen("scrub", () => this.openScrubGame());
       return;
     }
     const splash = new Audio("assets/water-splash.mp3");
@@ -9269,12 +9343,14 @@ class Component extends DCLogic {
     // the scrub game early shouldn't cost the player their water.
     this.setState({ crabWatered: true });
     // water loosens the seaweed — now scrub it off
-    this.scheduleGameAction(() => this._guideOrOpen("scrub", () => this.setState({ scrubOpen: true, scrubPct: 0 })), 600);
+    this.scheduleGameAction(() => this._guideOrOpen("scrub", () => this.openScrubGame(), returnFocus), 600);
     this.say("", "Vattnet mjukar upp sjögräset! Nu går det att skrubba bort.", null, "narr-vattnet-mjukar-upp-sjograset-nu");
   }
 
   initScrubCanvas(el) {
     if (!el || el === this.scrubCanvasEl) return;
+    this.scrubGeneration = (this.scrubGeneration || 0) + 1;
+    const scrubGeneration = this.scrubGeneration;
     this.scrubCanvasEl = el;
     const ctx = el.getContext("2d");
 
@@ -9340,7 +9416,10 @@ class Component extends DCLogic {
     // load/error — waiting for every single image before the first draw
     // meant one failed request (common on a cold first page load) could
     // leave the whole canvas blank forever.
-    const checkLoaded = () => this.drawScrubLayers(ctx, el.width, el.height);
+    const checkLoaded = () => {
+      if (this.scrubGeneration !== scrubGeneration || this.scrubCanvasEl !== el) return;
+      this.drawScrubLayers(ctx, el.width, el.height);
+    };
 
     // Reset canvas state when opening the mini-game
     this.setState({ scrubPct: 0, crabHeat: 0 });
@@ -9349,8 +9428,8 @@ class Component extends DCLogic {
       if (layer.img.complete) {
         layer.loaded = true;
       } else {
-        layer.img.onload = () => { layer.loaded = true; checkLoaded(); };
-        layer.img.onerror = () => checkLoaded();
+        layer.img.onload = () => { if (this.scrubGeneration !== scrubGeneration) return; layer.loaded = true; checkLoaded(); };
+        layer.img.onerror = () => { if (this.scrubGeneration === scrubGeneration) checkLoaded(); };
       }
     });
     checkLoaded();
@@ -9429,6 +9508,23 @@ class Component extends DCLogic {
     };
     el.onpointerup = (ev) => { scrubbing = false; moveBrush(ev); this.checkScrubProgress(); };
     el.onpointerleave = () => { if (this.scrubBrushEl) this.scrubBrushEl.style.opacity = "0"; };
+  }
+
+  teardownScrubCanvas() {
+    this.scrubGeneration = (this.scrubGeneration || 0) + 1;
+    const el = this.scrubCanvasEl;
+    if (el) {
+      el.onpointerdown = null;
+      el.onpointermove = null;
+      el.onpointerup = null;
+      el.onpointerleave = null;
+    }
+    (this.scrubLayers || []).forEach((layer) => {
+      if (layer.img) { layer.img.onload = null; layer.img.onerror = null; }
+    });
+    this.scrubLayers = [];
+    this.scrubCanvasEl = null;
+    this.scrubBrushEl = null;
   }
 
   drawScrubLayers(ctx, width, height) {
@@ -9558,15 +9654,27 @@ class Component extends DCLogic {
     if (this.scrubHeatTimer) { clearInterval(this.scrubHeatTimer); this.scrubHeatTimer = null; }
   }
 
-  failScrub() {
+  openScrubGame(includeHeat = false) {
+    this.setupModalLifecycle?.("scrub", '[data-modal="scrub"]', () => this.closeScrubGame(), 'button[aria-label="Stäng skrubbspelet"]');
+    this.setState({ scrubOpen: true, scrubPct: 0, crabHeat: 0 });
+  }
+
+  closeScrubGame() {
+    this.teardownModalLifecycle?.("scrub");
     this.teardownScrubHeat();
+    this.teardownScrubCanvas?.();
     this.setState({ scrubOpen: false, scrubPct: 0, crabHeat: 0 });
+  }
+
+  failScrub() {
+    this.closeScrubGame();
+    this.setState({ scrubPct: 0, crabHeat: 0 });
     this.crabSpeak("AJ! Nu blev det för hårt! Krabban har gömt sig djupare i sjögräset igen.", "assets/vo/crab-toohard.mp3");
   }
 
   finishScrub() {
     if (this.state.crabFreed) return;
-    this.teardownScrubHeat();
+    this.closeScrubGame();
     this.setState((s) => {
       let bucketRemoved = false;
       const inventory = s.inventory.filter((item) => {
@@ -9576,7 +9684,7 @@ class Component extends DCLogic {
       if (!inventory.some((item) => item.defId === "seaweed")) {
         inventory.push({ iid: this.nextUid(), defId: "seaweed" });
       }
-      return { scrubOpen: false, crabFreed: true, crabFrame: "free", inventory };
+      return { crabFreed: true, crabFrame: "free", inventory };
     });
     if (this.crabNode) {
       this.crabNode.animate(
@@ -9812,24 +9920,73 @@ class Component extends DCLogic {
     if (event.key !== "Tab" || typeof document === "undefined") return false;
     const dialog = document.querySelector(selector);
     if (!dialog) return false;
-    const focusable = Array.from(dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'))
-      .filter((element) => element.getClientRects().length > 0);
+    const focusable = Array.from(dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')).filter((element) => element.getClientRects().length > 0);
     if (!focusable.length) { event.preventDefault(); dialog.focus?.(); return true; }
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    const current = document.activeElement;
-    if (event.shiftKey && (current === first || !dialog.contains(current))) {
-      event.preventDefault();
-      last.focus();
-      return true;
-    }
-    if (!event.shiftKey && (current === last || !dialog.contains(current))) {
-      event.preventDefault();
-      first.focus();
-      return true;
-    }
+    const first = focusable[0], last = focusable[focusable.length - 1], current = document.activeElement;
+    if (event.shiftKey && (current === first || current === dialog || !dialog.contains(current))) { event.preventDefault(); last.focus(); return true; }
+    if (!event.shiftKey && (current === last || current === dialog || !dialog.contains(current))) { event.preventDefault(); first.focus(); return true; }
     return false;
   }
+
+  setupModalLifecycle(name, selector, close, initial) {
+    const key = "_modalKeyDown_" + name;
+    const focus = "_modalReturnFocus_" + name;
+    const focusJob = "_modalFocusJob_" + name;
+    this.teardownModalLifecycle?.(name, false);
+    this[focus] = this._guidePendingFocus || (typeof document !== "undefined" ? document.activeElement : null);
+    this._guidePendingFocus = null;
+    this[key] = (event) => {
+      if (event.key === "Escape" && close) { event.preventDefault(); close(); return; }
+      this.trapModalFocus(event, selector);
+    };
+    if (typeof window !== "undefined") window.addEventListener("keydown", this[key]);
+    const focusInitial = () => {
+      if (this[focusJob] !== job) return;
+      this[focusJob] = null;
+      if (typeof document === "undefined") return;
+      const dialog = document.querySelector(selector);
+      if (!dialog) return;
+      (dialog.querySelector(initial || "button, [tabindex]:not([tabindex=\"-1\"])") || dialog).focus?.({ preventScroll: true });
+    };
+    let job;
+    if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+      job = { type: "raf", id: window.requestAnimationFrame(focusInitial) };
+    } else {
+      job = { type: "timer", id: setTimeout(focusInitial, 0) };
+    }
+    this[focusJob] = job;
+  }
+
+  teardownModalLifecycle(name, restore = true) {
+    const key = "_modalKeyDown_" + name;
+    const focus = "_modalReturnFocus_" + name;
+    const focusJob = "_modalFocusJob_" + name;
+    const job = this[focusJob];
+    if (job) {
+      if (job.type === "raf" && typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function") window.cancelAnimationFrame(job.id);
+      else clearTimeout(job.id);
+      this[focusJob] = null;
+    }
+    if (this[key] && typeof window !== "undefined") window.removeEventListener("keydown", this[key]);
+    this[key] = null;
+    const target = this[focus];
+    this[focus] = null;
+    if (restore) {
+      if (this.restoreFocusTarget) this.restoreFocusTarget(target);
+      else if (target?.isConnected !== false && typeof target?.focus === "function" && !target.disabled) {
+        try { target.focus({ preventScroll: true }); } catch (_) {}
+      }
+    }
+  }
+
+  teardownAllModalLifecycles() {
+    ["guide", "octo-game", "badger-game", "shrimp-game", "sheep-game", "sonar", "seal-game", "atelier", "paint", "scrub", "gull-game", "skeda-game", "glodis-game", "dolphan-game", "settings", "reset-confirm"].forEach((name) => this.teardownModalLifecycle(name, false));
+    this._guideProceed = null;
+    this._guidePendingFocus = null;
+    this._guideReturnFocus = null;
+    ["settingsReturnFocus", "resetReturnFocus", "shrimpReturnFocus", "gullReturnFocus", "octoGameReturnFocus", "_octoGameReturnFocus", "sealGameReturnFocus", "_sealGameReturnFocus", "skedaReturnFocus", "glodisReturnFocus", "dolphanReturnFocus"].forEach((prop) => { this[prop] = null; });
+  }
+
 
   toggleSettings() {
     if (this.state.settingsOpen) { this.closeSettings(); return; }
@@ -9844,6 +10001,11 @@ class Component extends DCLogic {
     });
   }
 
+  restoreFocusTarget(target) {
+    if (target?.isConnected === false || typeof target?.focus !== "function" || target.disabled) return;
+    try { target.focus({ preventScroll: true }); } catch (_) {}
+  }
+
   teardownSettingsModal() {
     if (this._settingsKeyDown && typeof window !== "undefined") window.removeEventListener("keydown", this._settingsKeyDown);
     this._settingsKeyDown = null;
@@ -9853,7 +10015,8 @@ class Component extends DCLogic {
     const returnFocus = this.settingsReturnFocus;
     this.settingsReturnFocus = null;
     this.teardownSettingsModal();
-    this.setState({ settingsOpen: false }, () => returnFocus?.focus?.());
+    this.setState({ settingsOpen: false }, () => this.restoreFocusTarget?.(returnFocus));
+    // Focus restoration is centralized in restoreFocusTarget (formerly returnFocus?.focus?.()).
     this.guideResetDismissals();
   }
 
@@ -9879,16 +10042,17 @@ class Component extends DCLogic {
     const returnFocus = this.resetReturnFocus;
     this.resetReturnFocus = null;
     this.teardownResetConfirm();
-    this.setState({ resetConfirmOpen: false }, () => returnFocus?.focus?.());
+    this.setState({ resetConfirmOpen: false }, () => this.restoreFocusTarget?.(returnFocus));
   }
 
   confirmReset() {
+    const returnFocus = this.resetReturnFocus;
     this.resetReturnFocus = null;
     this.teardownResetConfirm();
-    this.reset();
+    this.reset(() => this.restoreFocusTarget?.(returnFocus));
   }
 
-  reset() {
+  reset(onComplete) {
     this._suppressSave = true;
     this._durableDirty = false;
     if (this._saveTimer) { clearTimeout(this._saveTimer); this._saveTimer = null; }
@@ -9897,6 +10061,7 @@ class Component extends DCLogic {
       localStorage.removeItem("sheepShadowGallery");
       localStorage.removeItem("sheepRoundProgress");
     } catch (_) {}
+    this.teardownAllModalLifecycles();
     this.teardownShrimpModal();
     this.shrimpReturnFocus = null;
     this.teardownSettingsModal();
@@ -9954,9 +10119,9 @@ class Component extends DCLogic {
     this.subClicking = false;
     this.paintColor = "#2a2118";
     this.paintSize = 7;
-    this.paintCanvasEl = null;
-    this.scrubCanvasEl = null;
-    this.scrubBrushEl = null;
+    this.paintGeneration = (this.paintGeneration || 0) + 1;
+    this.teardownPaintCanvas();
+    this.teardownScrubCanvas();
     this.teardownOtterAtelier();
     this.atelierPlaced = [];
     this.atelierSelectedId = null;
@@ -10139,6 +10304,7 @@ class Component extends DCLogic {
       }, {});
       this._durableDirty = false;
       this._suppressSave = false;
+      onComplete?.();
     });
     this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
     this.setUnderwaterAudio(false, false);
@@ -10148,6 +10314,7 @@ class Component extends DCLogic {
     this.gameGeneration++;
     this.flushDurableSave();
     if (this._pagehide) window.removeEventListener("pagehide", this._pagehide);
+    this.teardownAllModalLifecycles();
     this.teardownShrimpModal();
     this.shrimpReturnFocus = null;
     this.teardownShrimpGame();
@@ -10155,6 +10322,9 @@ class Component extends DCLogic {
     this.teardownOtterAtelier();
     this.teardownSettingsModal();
     this.teardownResetConfirm();
+    this.paintGeneration = (this.paintGeneration || 0) + 1;
+    this.teardownPaintCanvas();
+    this.teardownScrubCanvas();
     ["skeda", "glodis", "dolphan"].forEach((name) => this.teardownCharacterModal(name));
     if (this.inventoryResizeObserver) { this.inventoryResizeObserver.disconnect(); this.inventoryResizeObserver = null; }
     clearInterval(this.typer);
@@ -10585,7 +10755,7 @@ class Component extends DCLogic {
       scrubPct: S.scrubPct,
       crabHeatBarStyle: `width:100%;height:${Math.min(100, S.crabHeat || 0).toFixed(1)}%;background:linear-gradient(180deg, oklch(0.62 0.24 27), oklch(0.5 0.19 27));transition:height 0.1s linear`,
       scrubFeedbackMsg: S.scrubFeedbackMsg,
-      scrubClose: () => { this.teardownScrubHeat(); this.setState({ scrubOpen: false }); },
+      scrubClose: () => this.closeScrubGame(),
       setScrubCanvas: (el) => this.initScrubCanvas(el),
       scrubBarStyle: `height:100%;width:${Math.min(100, Math.round((S.scrubPct / 82) * 100))}%;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));transition:width 0.3s ease`,
       scrubCanvasStyle: `position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;image-rendering:pixelated`,
@@ -10595,7 +10765,7 @@ class Component extends DCLogic {
       paintProgress: S.paintIdx + 1,
       paintVerdict: S.paintVerdict,
       paintSubmitLabel: S.paintBusy ? "Torsken granskar..." : "Klar!",
-      paintClose: () => this.setState({ paintOpen: false }),
+      paintClose: () => this.closePaintGame(),
       paintClear: () => this.clearPaintCanvas(),
       paintUndo: () => this.undoPaintCanvas(),
       paintSubmit: () => this.submitPainting(),
