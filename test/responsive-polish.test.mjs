@@ -14,10 +14,12 @@ test("mobile browsers are allowed to load the game", () => {
 
 test("scene title and seal art have narrow viewport safeguards", () => {
   assert.match(source, /\.scene-title \{[^}]*width: 118px; max-width: 118px/);
-  assert.match(source, /\.scene-title-name \{[^}]*overflow-wrap: anywhere[^}]*white-space: normal[^}]*font-size: clamp\(12px, 4vw, 16px\)/);
+  assert.match(source, /\.scene-title-name \{[^}]*overflow-wrap: break-word[^}]*white-space: normal[^}]*font-size: clamp\(11px, 3vw, 13px\)/);
+  assert.match(source, /\.settings-button \{ right: 222px/);
   assert.match(source, /\.scene-title-progress > div:first-child \{ width: 36px/);
   assert.match(source, /\.scene-title-progress > div:last-child \{[^}]*font-size: 8px[^}]*letter-spacing: -0\.02em/);
   assert.match(source, /class="scene-title-name"/);
+  assert.match(source, /sceneTitleDisplay:[\s\S]*TIDVATTEN\\u200bPÖLARNA/);
   assert.match(source, /class="scene-title-progress"/);
   assert.match(source, /style="width: 100%; max-width: 590px; height: auto/);
 });
