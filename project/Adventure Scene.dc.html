@@ -9,28 +9,6 @@
 <script src="./support.js"></script>
 </head>
 <body>
-<script>
-(function () {
-  var ua = navigator.userAgent || "";
-  var isMobileUA = /Android|iPhone|iPod|Windows Phone|Mobile|IEMobile|BlackBerry|Opera Mini/i.test(ua);
-  var isCoarseAndNarrow = window.matchMedia
-    && window.matchMedia("(pointer: coarse)").matches
-    && Math.min(window.innerWidth, window.innerHeight) < 700;
-  if (!isMobileUA && !isCoarseAndNarrow) return;
-
-  var overlay = document.createElement("div");
-  overlay.style.cssText = "position:fixed;inset:0;z-index:999999;background:#05080e;color:oklch(0.9 0.012 80);"
-    + "display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;"
-    + "font-family:'Work Sans',Helvetica,Arial,sans-serif";
-  overlay.innerHTML =
-    '<div style="max-width:420px;display:flex;flex-direction:column;gap:14px;align-items:center">'
-    + '<div style="font-family:Georgia,serif;font-weight:700;font-size:22px;letter-spacing:0.04em;color:oklch(0.95 0.03 90)">DET SJUNKNA ÄVENTYRET</div>'
-    + '<div style="font-size:15px;line-height:1.6;color:oklch(0.85 0.015 80)">Det här äventyret styrs med tangentbord och mus och går just nu bara att spela på en dator. Kom tillbaka på en större skärm!</div>'
-    + "</div>";
-  document.documentElement.classList.add("mobile-blocked");
-  document.body.appendChild(overlay);
-})();
-</script>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,8 +84,11 @@
   @media (max-width: 600px) {
     .chat-panel { left: 10px !important; right: 10px !important; top: 64px !important; width: auto !important; }
     .dialog-panel { bottom: 156px !important; width: calc(100% - 20px) !important; }
-    .scene-title { left: 10px !important; top: 10px !important; }
-    .scene-title > div { max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px !important; }
+    .scene-title { left: 10px !important; top: 10px !important; width: 118px; max-width: 118px; gap: 4px !important; }
+    .scene-title-name { max-width: 118px; overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; font-size: clamp(12px, 4vw, 16px) !important; line-height: 1.05; }
+    .scene-title-progress { width: 118px; max-width: 118px; box-sizing: border-box; gap: 4px !important; padding: 3px 6px !important; }
+    .scene-title-progress > div:first-child { width: 36px !important; flex: 0 0 36px; }
+    .scene-title-progress > div:last-child { overflow: visible; white-space: nowrap; font-size: 8px !important; letter-spacing: -0.02em; }
     .top-chat-button { right: 92px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
     .reset-button { right: 8px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
   }
@@ -129,8 +110,8 @@
 <div style="position:fixed;inset:0;overflow:hidden;background:#05080e;font-family:'Work Sans',sans-serif;color:oklch(0.9 0.012 80)">
 
   <div class="scene-title" style="position:absolute;top:16px;left:18px;z-index:20;pointer-events:none;display:flex;flex-direction:column;gap:6px">
-    <div style="font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:0.05em;color:oklch(0.95 0.03 90);text-shadow:0 2px 8px rgba(0,0,0,0.8)">{{ sceneTitle }}</div>
-    <div title="{{ progressLabel }}" style="display:flex;align-items:center;gap:6px;background:oklch(0.15 0.011 60 / 0.6);border:1px solid oklch(0.5 0.02 60 / 0.4);border-radius:999px;padding:4px 10px 4px 8px;backdrop-filter:blur(4px)">
+    <div class="scene-title-name" style="font-family:'Cinzel',serif;font-weight:700;font-size:20px;letter-spacing:0.05em;color:oklch(0.95 0.03 90);text-shadow:0 2px 8px rgba(0,0,0,0.8)">{{ sceneTitle }}</div>
+    <div class="scene-title-progress" title="{{ progressLabel }}" style="display:flex;align-items:center;gap:6px;background:oklch(0.15 0.011 60 / 0.6);border:1px solid oklch(0.5 0.02 60 / 0.4);border-radius:999px;padding:4px 10px 4px 8px;backdrop-filter:blur(4px)">
       <div style="width:64px;height:5px;border-radius:999px;background:oklch(0.3 0.015 60 / 0.7);overflow:hidden">
         <div style="{{ progressBarStyle }}"></div>
       </div>
@@ -221,7 +202,7 @@
         </div>
         <div data-drop="seal" role="button" tabindex="0" aria-label="Prata med sälen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ sealClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ sealEnter }}" onMouseLeave="{{ sealLeave }}" style="{{ sealWrapStyle }}">
           
-        <img ref="{{ setSealRef }}" src="{{ sealSrc }}" alt="En säl med solglasögon och cigarett" draggable="false" style="width: 590px; height: 250px; display: block; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5))"></div>
+        <img ref="{{ setSealRef }}" src="{{ sealSrc }}" alt="En säl med solglasögon och cigarett" draggable="false" style="width: 100%; max-width: 590px; height: auto; display: block; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5))"></div>
       </sc-if>
 
       <sc-if value="{{ inRight }}" hint-placeholder-val="">
@@ -1499,6 +1480,21 @@ class Component extends DCLogic {
     this.scheduleDurableSave();
   }
 
+  initMusicAudioContext() {
+    if (this.musicCtx || !this.music) return;
+    try {
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextCtor) return;
+      this.musicCtx = new AudioContextCtor();
+      this.musicSrc = this.musicCtx.createMediaElementSource(this.music);
+      this.musicFilter = this.musicCtx.createBiquadFilter();
+      this.musicFilter.type = "lowpass";
+      this.musicFilter.frequency.value = 20000;
+      this.musicSrc.connect(this.musicFilter);
+      this.musicFilter.connect(this.musicCtx.destination);
+    } catch (e) { this.musicFilter = null; }
+  }
+
   componentDidMount() {
     this._pagehide = () => this.flushDurableSave();
     window.addEventListener("pagehide", this._pagehide);
@@ -1518,15 +1514,6 @@ class Component extends DCLogic {
     this.music.loop = true;
     this.music.volume = 0;
     this.musicVolumeNormal = 0.23;
-    try {
-      this.musicCtx = new (window.AudioContext || window.webkitAudioContext)();
-      this.musicSrc = this.musicCtx.createMediaElementSource(this.music);
-      this.musicFilter = this.musicCtx.createBiquadFilter();
-      this.musicFilter.type = "lowpass";
-      this.musicFilter.frequency.value = 20000;
-      this.musicSrc.connect(this.musicFilter);
-      this.musicFilter.connect(this.musicCtx.destination);
-    } catch (e) { this.musicFilter = null; }
     this._fadeMusic = () => {
       if (this.musicFading) return;
       this.musicFading = true;
@@ -1536,13 +1523,15 @@ class Component extends DCLogic {
         if (this.music.volume >= target) clearInterval(this.musicFade);
       }, 120);
     };
-    this._tryPlay = () => {
+    this._tryPlay = (fromUserGesture = false) => {
+      if (fromUserGesture) this.initMusicAudioContext();
       if (this.ambience.paused && this.state.scene !== "underwater") this.ambience.play().catch(() => {});
       if (this.music.paused) this.music.play().then(this._fadeMusic).catch(() => {});
       if (this.musicCtx && this.musicCtx.state === "suspended") this.musicCtx.resume().catch(() => {});
     };
     this._tryPlay();
-    window.addEventListener("pointerdown", this._tryPlay);
+    this._audioGesture = () => this._tryPlay(true);
+    window.addEventListener("pointerdown", this._audioGesture);
     // preload every scene background + character/item frame so scene switches are instant
     this._imgCache = [];
     Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
@@ -10334,7 +10323,7 @@ class Component extends DCLogic {
     clearTimeout(this.introTimer);
     window.removeEventListener("pointermove", this._mm);
     window.removeEventListener("pointerup", this._mu);
-    window.removeEventListener("pointerdown", this._tryPlay);
+    window.removeEventListener("pointerdown", this._audioGesture);
     clearInterval(this.musicFade);
     if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
     if (typeof this.crabFlap === "function") this.crabFlap(); else clearInterval(this.crabFlap);

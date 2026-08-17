@@ -67,9 +67,6 @@ test("photo challenge config preserves balance and defines three distinct Swedis
   assert.match(source, /minSpeed: 120/);
   assert.match(source, /inventory: s\.inventory\.concat\(\[\{ iid: this.nextUid\(\), defId: "battery" \}\]\)/);
 
-  assert.match(source, /Android\|iPhone\|iPod\|Windows Phone\|Mobile/);
-  assert.match(source, /window\.matchMedia\("\(pointer: coarse\)"\)/);
-  assert.match(source, /Math\.min\(window\.innerWidth, window\.innerHeight\) < 700/);
 });
 
 test("seal geometry scales independently with the rendered stage dimensions", () => {

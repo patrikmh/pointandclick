@@ -65,9 +65,3 @@ test("inventory drop targets stay mounted while an item is dragged", () => {
   assert.doesNotMatch(source, /inventoryStripOpen: S\.inventoryOpen && !S\.invDrag/);
   assert.match(source, /if \(kind === "inv"\) \{[\s\S]*this\.combine\(info\.iid, t\.dataset\.iid\);/);
 });
-
-test("true-mobile block remains before the game UI", () => {
-  assert.match(source, /isMobileUA = \/Android\|iPhone\|iPod\|Windows Phone\|Mobile/);
-  assert.match(source, /matchMedia\("\(pointer: coarse\)"\)/);
-  assert.match(source, /if \(!isMobileUA && !isCoarseAndNarrow\) return;/);
-});
