@@ -24,6 +24,12 @@ test("scene title and seal art have narrow viewport safeguards", () => {
   assert.match(source, /style="width: 100%; max-width: 590px; height: auto/);
 });
 
+test("the gull keeps its artwork size while exposing a 44px touch target", () => {
+  assert.match(source, /class="gull-hotspot" data-drop="gull"/);
+  assert.match(source, /\.gull-hotspot::before \{[^}]*width: max\(100%, 44px\); height: max\(100%, 44px\)/);
+  assert.match(source, /\.gull-hotspot > img \{[^}]*position: relative/);
+});
+
 test("music Web Audio graph is created only from the user gesture path", () => {
   const mountStart = source.indexOf("  componentDidMount() {");
   const mountEnd = source.indexOf("\n  // true audio-synced", mountStart);

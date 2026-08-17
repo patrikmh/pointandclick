@@ -26,6 +26,9 @@
   }
   [role="button"][tabindex="0"]:focus-visible, [data-drop]:focus-visible, button:focus-visible { outline: 3px solid oklch(0.9 0.12 82) !important; outline-offset: 4px; }
   .inventory-region:focus-visible { outline: 2px solid oklch(0.78 0.1 75) !important; outline-offset: 2px; }
+  .gull-hotspot { position: relative; }
+  .gull-hotspot::before { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); z-index: 0; pointer-events: auto; }
+  .gull-hotspot > img { position: relative; z-index: 1; }
   :root { --inventory-clearance: 76px; }
   @media (max-height: 760px) { :root { --inventory-clearance: 124px; } .camp-target, .camp-character { translate: 0 -24vh !important; } }
   /* Keep camp hotspots above the expanded packing strip; the strip itself stays
@@ -182,7 +185,7 @@
       </sc-if>
 
       <sc-if value="{{ inCenter }}" hint-placeholder-val="">
-        <div data-drop="gull" role="button" tabindex="0" aria-label="Prata med fiskmåsen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ gullClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ gullEnter }}" onMouseLeave="{{ gullLeave }}" style="{{ gullWrapStyle }}">
+        <div class="gull-hotspot" data-drop="gull" role="button" tabindex="0" aria-label="Prata med fiskmåsen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ gullClick }}" onContextMenu="{{ infoCtx }}" onMouseEnter="{{ gullEnter }}" onMouseLeave="{{ gullLeave }}" style="{{ gullWrapStyle }}">
           <img ref="{{ setGullRef }}" src="{{ gullSrc }}" alt="En punkig fiskmås" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.5))">
         </div>
       </sc-if>
