@@ -803,7 +803,7 @@
             </sc-for>
           </div>
           <div style="position:relative;width:100%;aspect-ratio:2752/1536">
-            <img src="assets/briefcase-lock.png" alt="Portföljens kombinationslås" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+            <img src="assets/briefcase-lock.jpg" alt="Portföljens kombinationslås" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
             <sc-for list="{{ badgerGameDials }}" as="d" hint-placeholder-count="0">
               <div style="position:absolute;left:{{ d.pctX }}%;top:53.3%;transform:translate(-50%,-50%);width:4.94%;height:24.6%;background:linear-gradient(180deg, oklch(0.78 0.07 75), oklch(0.68 0.08 68));box-shadow:inset 0 2px 3px rgba(0,0,0,0.35), inset 0 -1px 2px rgba(255,255,255,0.25);pointer-events:none"></div>
               <div style="position:absolute;left:{{ d.pctX }}%;top:53.3%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:clamp(18px,4.2vw,32px);font-weight:700;color:oklch(0.4 0.06 65);text-shadow:-1px -1px 1px rgba(0,0,0,0.5), 1px 1px 1px rgba(255,255,255,0.55);pointer-events:none">{{ d.value }}</div>
@@ -1616,7 +1616,7 @@ class Component extends DCLogic {
     // preload every scene background + character/item frame so scene switches are instant
     this._imgCache = [];
     Object.values(this.backgrounds).forEach((src) => { const i = new Image(); i.src = src; this._imgCache.push(i); });
-    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","octo-splinted","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full","rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings","dolphan","dolphan-talking","dolphan-buoy","lifesaver-buoy"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + ".png"; this._imgCache.push(i); });
+    ["moon-asleep","moon-awake","moon-talk","seal-open","seal-closed","gull-open","gull-closed","gull-freed","crab-scream","crab-grump1","crab-grump2","crab-free","crab-free-closed","octo-open","octo-blink","octo-splinted","otter-open","otter-closed","badger-open","badger-closed","badger-happy","cod-closed","cod-open-1","cod-open-2","sub-idle","chest-open","chest-closed","snorkel","sheep-open","sheep-closed","shrimp-protest","campfire-1","campfire-2","campfire-3","treasure-map","bucket","shard","helmet","camera","camera-viewfinder","battery","briefcase","briefcase-lock","flashlight","key-buried","key-full","rope","fishing-line","cap","cork","patriks-currency-2024","gull-droppings","dolphan","dolphan-talking","dolphan-buoy","lifesaver-buoy"].forEach((n) => { const i = new Image(); i.src = "assets/" + n + (n === "briefcase-lock" ? ".jpg" : ".png"); this._imgCache.push(i); });
     // preload interaction sounds so first click/hover has zero latency (defensive — must never block mount/render)
     try {
       this._preloaded = ["seal-voice-1","seal-voice-2","seal-voice-3","seal-sad","gull-voice","seagull-short","badger-voice","badger-voice-2","badger-voice-3","badger-voice-4","otter-voice-1","otter-voice-2","otter-voice-3","octo-voice-1","octo-voice-2","octo-voice-3","octo-voice-4","uboat-ringtone","underwater-default","key-turning-in-lock","fireplace","moon-intro","moon-how-chat","moon-dont-wake","moon-not-all-mean","moon-talk","moon-snore","crab-hiss"].map((n) => { const src = this.audioAsset(n, n === "moon-snore"); if (!src) return null; const a = new Audio(src); a.preload = "auto"; return a; }).filter(Boolean);
@@ -4723,7 +4723,7 @@ class Component extends DCLogic {
     element.addEventListener("wheel", this._sheepWheel, { passive: false });
     if (!this.sheepCaveBg) {
       this.sheepCaveBg = new Image();
-      this.sheepCaveBg.src = "assets/cave-bg.png";
+      this.sheepCaveBg.src = "assets/cave-bg.jpg";
     }
     if (this.state.sheepGameOpen) {
       try { element.focus({ preventScroll: true }); } catch (err) { element.focus(); }
