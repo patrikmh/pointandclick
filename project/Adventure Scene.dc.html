@@ -26,6 +26,43 @@
   }
   [role="button"][tabindex="0"]:focus-visible, [data-drop]:focus-visible, button:focus-visible { outline: 3px solid oklch(0.9 0.12 82) !important; outline-offset: 4px; }
   .inventory-region:focus-visible { outline: 2px solid oklch(0.78 0.1 75) !important; outline-offset: 2px; }
+  /* a11y: high contrast & text-size modes */
+  :root { --text-scale: 1; }
+  body.ts-large { --text-scale: 1.25; }
+  body.ts-xlarge { --text-scale: 1.5; }
+  body.hc .dialog-panel { background: rgba(4,5,8,0.95) !important; backdrop-filter: none !important; border-color: oklch(0.82 0.07 85 / 0.9) !important; box-shadow: 0 0 0 2px oklch(0.55 0.05 80 / 0.8) !important; }
+  body.hc .dialog-panel .dialog-text { color: oklch(0.99 0.01 85) !important; text-shadow: 0 1px 3px rgba(0,0,0,0.95); font-weight: 500; }
+  body.hc .dialog-panel .dialog-speaker-name { color: oklch(0.92 0.12 88) !important; }
+  body.hc .scene-title-progress { background: rgba(5,5,8,0.92) !important; backdrop-filter: none !important; border-color: oklch(0.7 0.06 80 / 0.85) !important; }
+  body.hc .scene-title-progress > div:last-child { color: oklch(0.95 0.03 85) !important; }
+  /* themed settings range sliders (painted brass look) */
+  input[type="range"].set-range { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; padding: 0; margin: 0; }
+  input[type="range"].set-range::-webkit-slider-runnable-track { height: 7px; border-radius: 999px; background: linear-gradient(90deg, oklch(0.62 0.09 76 / 0.95), oklch(0.34 0.028 64 / 0.92)); border: 1px solid oklch(0.45 0.02 62 / 0.6); box-shadow: inset 0 1px 2px rgba(0,0,0,0.55); }
+  input[type="range"].set-range::-moz-range-track { height: 7px; border-radius: 999px; background: linear-gradient(90deg, oklch(0.62 0.09 76 / 0.95), oklch(0.34 0.028 64 / 0.92)); border: 1px solid oklch(0.45 0.02 62 / 0.6); box-shadow: inset 0 1px 2px rgba(0,0,0,0.55); }
+  input[type="range"].set-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, oklch(0.93 0.09 86), oklch(0.66 0.13 74)); border: 2px solid oklch(0.28 0.03 58); box-shadow: 0 2px 7px rgba(0,0,0,0.65), 0 0 10px oklch(0.75 0.14 82 / 0.45); transition: transform .15s ease; }
+  input[type="range"].set-range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, oklch(0.93 0.09 86), oklch(0.66 0.13 74)); border: 2px solid oklch(0.28 0.03 58); box-shadow: 0 2px 7px rgba(0,0,0,0.65), 0 0 10px oklch(0.75 0.14 82 / 0.45); }
+  input[type="range"].set-range:active::-webkit-slider-thumb { transform: scale(1.18); }
+  input[type="range"].set-range:hover::-webkit-slider-thumb { box-shadow: 0 2px 7px rgba(0,0,0,0.65), 0 0 14px oklch(0.78 0.15 84 / 0.65); }
+  /* themed settings rows */
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: 'Work Sans', sans-serif; font-size: 13px; color: oklch(0.85 0.015 80); }
+  .set-row-label { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .set-row-label small { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.08em; color: oklch(0.58 0.02 78); text-transform: uppercase; }
+  .set-switch { position: relative; flex: 0 0 auto; width: 46px; height: 26px; border-radius: 999px; border: 1px solid oklch(0.5 0.02 60 / 0.55); background: oklch(0.22 0.014 60 / 0.85); cursor: pointer; padding: 0; transition: background .18s ease, border-color .18s ease; }
+  .set-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: oklch(0.68 0.05 70 / 0.92); transition: transform .18s cubic-bezier(.4,.9,.4,1.2), background .18s ease, box-shadow .18s ease; }
+  .set-switch[aria-checked="true"] { background: oklch(0.52 0.11 80 / 0.92); border-color: oklch(0.68 0.11 82 / 0.75); }
+  .set-switch[aria-checked="true"]::after { transform: translateX(20px); background: radial-gradient(circle at 32% 30%, oklch(0.94 0.1 88), oklch(0.72 0.14 80)); box-shadow: 0 0 12px oklch(0.8 0.15 84 / 0.75); }
+  .set-seg { display: inline-flex; flex: 0 0 auto; border: 1px solid oklch(0.5 0.02 60 / 0.55); border-radius: 8px; overflow: hidden; background: oklch(0.2 0.014 60 / 0.8); }
+  .set-seg button { font-family: 'Work Sans', sans-serif; font-size: 11.5px; font-weight: 500; color: oklch(0.78 0.015 80); background: transparent; border: none; padding: 7px 11px; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .set-seg button[aria-pressed="true"] { background: oklch(0.55 0.1 76 / 0.88); color: oklch(0.95 0.02 85); font-weight: 600; }
+  .settings-divider { height: 1px; background: linear-gradient(90deg, transparent, oklch(0.5 0.03 68 / 0.5), transparent); border: none; margin: 2px 0; }
+  /* mobile: larger settings touch targets */
+  @media (max-width: 600px) {
+    .set-row { font-size: 13.5px; }
+    .set-switch { width: 50px; height: 28px; }
+    .set-switch::after { width: 22px; height: 22px; }
+    .set-switch[aria-checked="true"]::after { transform: translateX(22px); }
+    .set-seg button { padding: 9px 12px; font-size: 12px; }
+  }
   .gull-hotspot { position: relative; }
   .gull-hotspot::before { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); z-index: 0; pointer-events: auto; }
   .gull-hotspot > img { position: relative; z-index: 1; }
@@ -136,11 +173,28 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Musik &amp; ambiens</span><span>{{ musicVolPct }}%</span></div>
-          <input type="range" min="0" max="100" value="{{ musicVolPct }}" onInput="{{ musicVolChange }}" aria-label="Musikvolym" style="width:100%">
+          <input type="range" class="set-range" min="0" max="100" value="{{ musicVolPct }}" onInput="{{ musicVolChange }}" aria-label="Musikvolym" style="width:100%">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="display:flex;justify-content:space-between;font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.85 0.015 80)"><span>Ljudeffekter</span><span>{{ sfxVolPct }}%</span></div>
-          <input type="range" min="0" max="100" value="{{ sfxVolPct }}" onInput="{{ sfxVolChange }}" aria-label="Ljudeffektsvolym" style="width:100%">
+          <input type="range" class="set-range" min="0" max="100" value="{{ sfxVolPct }}" onInput="{{ sfxVolChange }}" aria-label="Ljudeffektsvolym" style="width:100%">
+        </div>
+        <hr class="settings-divider">
+        <div class="set-row">
+          <div class="set-row-label"><span>Textläge</span><small>Visa text direkt — ingen skrivmaskin</small></div>
+          <button type="button" class="set-switch" role="switch" aria-checked="{{ a11yTextMode }}" aria-label="Textläge: visa dialogtext direkt" onClick="{{ a11yTextModeToggle }}"></button>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label"><span>Hög kontrast</span><small>Starkare text och ramar</small></div>
+          <button type="button" class="set-switch" role="switch" aria-checked="{{ a11yHighContrast }}" aria-label="Hög kontrast" onClick="{{ a11yHighContrastToggle }}"></button>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label"><span>Textstorlek</span><small>Dialoger och statusfält</small></div>
+          <div class="set-seg" role="group" aria-label="Textstorlek">
+            <button type="button" aria-pressed="{{ a11yTextNormal }}" aria-label="Normal textstorlek" onClick="{{ a11yTextSizeNormal }}">A</button>
+            <button type="button" aria-pressed="{{ a11yTextLarge }}" aria-label="Stor textstorlek" onClick="{{ a11yTextSizeLarge }}">A</button>
+            <button type="button" aria-pressed="{{ a11yTextXlarge }}" aria-label="Extra stor textstorlek" onClick="{{ a11yTextSizeXlarge }}">A</button>
+          </div>
         </div>
       </div>
     </div>
@@ -309,9 +363,9 @@
     <div class="dialog-panel" role="status" aria-live="polite" style="position:absolute;left:50%;bottom:230px;transform:translateX(-50%);z-index:20;width:min(640px,calc(100% - 48px));background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.5 0.02 60 / 0.45);border-radius:12px;padding:14px 38px 14px 18px;backdrop-filter:blur(9px);box-shadow:0 16px 44px -16px rgba(0,0,0,0.85)">
       <button onClick="{{ dialogClose }}" title="Stäng" style="position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;line-height:1;cursor:pointer">✕</button>
       <sc-if value="{{ hasSpeaker }}" hint-placeholder-val="">
-        <div style="font-family:'Cinzel',serif;font-size:12.5px;font-weight:600;letter-spacing:0.06em;color:oklch(0.85 0.09 80);text-transform:uppercase;margin-bottom:5px">{{ dialogSpeaker }}</div>
+        <div class="dialog-speaker-name" style="font-family:'Cinzel',serif;font-size:12.5px;font-weight:600;letter-spacing:0.06em;color:oklch(0.85 0.09 80);text-transform:uppercase;margin-bottom:5px">{{ dialogSpeaker }}</div>
       </sc-if>
-      <div style="font-size:15px;line-height:1.5;color:oklch(0.93 0.012 80)">{{ dialogText }}<span style="display:inline-block;width:8px;color:oklch(0.85 0.09 80);animation:blink 1s step-end infinite">▍</span></div>
+      <div class="dialog-text" style="font-size:calc(15px * var(--text-scale, 1));line-height:1.5;color:oklch(0.93 0.012 80)">{{ dialogText }}<span style="display:inline-block;width:8px;color:oklch(0.85 0.09 80);animation:blink 1s step-end infinite">▍</span></div>
       <sc-if value="{{ dialogAction }}" hint-placeholder-val="">
         <button onClick="{{ dialogAction.onClick }}" style="align-self:flex-start;margin-top:11px;font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:7px;padding:8px 16px;cursor:pointer">{{ dialogAction.label }}</button>
       </sc-if>
@@ -1503,6 +1557,8 @@ class Component extends DCLogic {
     this._pagehide = () => this.flushDurableSave();
     window.addEventListener("pagehide", this._pagehide);
     this.installAudioMix();
+    this.a11y = this.loadA11ySettings();
+    this.applyA11yBody();
     this._mm = (e) => this.onMoonMove(e);
     this._mu = (e) => this.onMoonUp(e);
     window.addEventListener("pointermove", this._mm);
@@ -6974,6 +7030,39 @@ class Component extends DCLogic {
     }
   }
 
+  loadA11ySettings() {
+    try {
+      const raw = JSON.parse(localStorage.getItem("gullA11ySettings") || "{}");
+      return {
+        textMode: !!raw.textMode,
+        highContrast: !!raw.highContrast,
+        textSize: raw.textSize === "large" || raw.textSize === "xlarge" ? raw.textSize : "normal",
+      };
+    } catch (e) {
+      return { textMode: false, highContrast: false, textSize: "normal" };
+    }
+  }
+
+  saveA11ySettings() {
+    try { localStorage.setItem("gullA11ySettings", JSON.stringify(this.a11y || {})); } catch (e) {}
+  }
+
+  applyA11yBody() {
+    if (typeof document === "undefined") return;
+    const a = this.a11y || this.loadA11ySettings();
+    document.body.classList.toggle("hc", !!a.highContrast);
+    document.body.classList.remove("ts-normal", "ts-large", "ts-xlarge");
+    document.body.classList.add(a.textSize === "large" ? "ts-large" : a.textSize === "xlarge" ? "ts-xlarge" : "ts-normal");
+  }
+
+  setA11y(patch) {
+    if (!this.a11y) this.a11y = this.loadA11ySettings();
+    this.a11y = Object.assign({}, this.a11y, patch);
+    this.saveA11ySettings();
+    this.applyA11yBody();
+    this.forceUpdate();
+  }
+
   saveAudioSettings() {
     try {
       localStorage.setItem("gullAudioSettings", JSON.stringify(window.__audioMix));
@@ -9885,6 +9974,11 @@ class Component extends DCLogic {
     clearInterval(this.typer);
     clearTimeout(this.dialogAutoHide);
     this.playVoice(voiceId, charId);
+    if (this.a11y && this.a11y.textMode) {
+      this.setState({ dialogSpeaker: speaker, dialogText: text, dialogAction: action || null });
+      this.autoHideDialog();
+      return;
+    }
     this.setState({ dialogSpeaker: speaker, dialogText: "", dialogAction: action || null });
     let i = 0;
     this.typer = setInterval(() => {
@@ -10495,6 +10589,16 @@ class Component extends DCLogic {
       sfxVolPct: Math.round((window.__audioMix ? window.__audioMix.sfx : 1) * 100),
       musicVolChange: (e) => this.setMusicVol(Number(e.target.value) / 100),
       sfxVolChange: (e) => this.setSfxVol(Number(e.target.value) / 100),
+      a11yTextMode: !!(this.a11y && this.a11y.textMode),
+      a11yHighContrast: !!(this.a11y && this.a11y.highContrast),
+      a11yTextModeToggle: () => this.setA11y({ textMode: !(this.a11y && this.a11y.textMode) }),
+      a11yHighContrastToggle: () => this.setA11y({ highContrast: !(this.a11y && this.a11y.highContrast) }),
+      a11yTextNormal: !(this.a11y && this.a11y.textSize && this.a11y.textSize !== "normal"),
+      a11yTextLarge: this.a11y && this.a11y.textSize === "large",
+      a11yTextXlarge: this.a11y && this.a11y.textSize === "xlarge",
+      a11yTextSizeNormal: () => this.setA11y({ textSize: "normal" }),
+      a11yTextSizeLarge: () => this.setA11y({ textSize: "large" }),
+      a11yTextSizeXlarge: () => this.setA11y({ textSize: "xlarge" }),
       progressLabel: this.helpedCount(S) + "/" + this.helpedTotal + " HJÄLPTA",
       progressBarStyle: `height:100%;border-radius:999px;background:linear-gradient(90deg, oklch(0.65 0.12 150), oklch(0.75 0.14 130));width:${Math.round((this.helpedCount(S) / this.helpedTotal) * 100)}%;transition:width 0.4s ease`,
       inventoryOpen: S.inventoryOpen,
