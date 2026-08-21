@@ -261,3 +261,13 @@ test("voice lines restore ducked audio when playback ends", () => {
   assert.match(source, /stopVoice\(\) \{\s*this\.duckAudioForVoice\(false\);/);
   assert.match(source, /playMoonAudio\(audioName\) \{[\s\S]*?this\.duckAudioForVoice\(true\);[\s\S]*?releaseMoonDuck\(\);/);
 });
+
+test("voice fallback stings rotate through each character's clip pool", () => {
+  const sting = method("  voiceFallbackClip(charId) {", "\n  invSay(defId, iid) {");
+  const g = {};
+  const first = ["badger-voice-2", "badger-voice-3", "badger-voice-4", "badger-voice", "badger-voice-2"];
+  first.forEach((expected) => assert.equal(sting.call(g, "badger"), expected));
+  assert.equal(sting.call(g, "gull"), "seagull-laugh-single");
+  assert.equal(sting.call(g, "crab"), "");
+  assert.equal(sting.call(g, undefined), "");
+});

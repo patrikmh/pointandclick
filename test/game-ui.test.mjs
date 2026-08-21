@@ -206,7 +206,7 @@ test("the inventory is collapsible and camp navigation appears on hover", async 
   assert.doesNotMatch(source, /opacity:\$\{S\.edgeB \|\| touchNav/);
   assert.match(source, /optionalAudioMissing = new Set\(\[[\s\S]*"cave-ambience"[\s\S]*"narr-det-hander-ingenting"[\s\S]*"narr-salen-ligger-och-slumrar-cigaretten"/);
   assert.match(source, /audioAsset\("moon-snore", true\)[\s\S]*assets\/moon-snore\.mp3/);
-  assert.match(source, /const src = this\.audioAsset\(voiceId\);[\s\S]*if \(!src\) return;/);
+  assert.match(source, /let src = this\.audioAsset\(voiceId\);[\s\S]*?voiceFallbackClip\(charId\)[\s\S]*?if \(!src\) return;/);
   assert.match(source, /const src = this\.audioAsset\("cave-ambience", false\);[\s\S]*if \(!src\) return;/);
   assert.match(source, /bottomNavStyle:/);
 });

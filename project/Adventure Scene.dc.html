@@ -9948,7 +9948,8 @@ class Component extends DCLogic {
 
   playVoice(voiceId, charId) {
     if (!voiceId || voiceId === "narr-en-intrasslad-mas-den-kastar") return;
-    const src = this.audioAsset(voiceId);
+    let src = this.audioAsset(voiceId);
+    if (!src && charId) src = this.audioAsset(this.voiceFallbackClip(charId));
     if (!src) return;
     this.stopVoice();
     const audio = new Audio(src);
@@ -10042,7 +10043,25 @@ class Component extends DCLogic {
     const hold = Math.min(9000, 2600 + this.state.dialogText.length * 55);
     this.dialogAutoHide = setTimeout(() => {
       this.setState({ dialogSpeaker: "", dialogText: "", dialogAction: null });
+      this.stopVoice();
     }, hold);
+  }
+
+  // Karaktärer utan inspelad replik får en kort röst-sting från sin egen klippool,
+  // roterat så samma varant inte spelas två gånger i rad.
+  voiceFallbackClip(charId) {
+    const pools = {
+      badger: ["badger-voice", "badger-voice-2", "badger-voice-3", "badger-voice-4"],
+      otter: ["otter-voice-1", "otter-voice-2", "otter-voice-3"],
+      octo: ["octo-voice-1", "octo-voice-2", "octo-voice-3", "octo-voice-4"],
+      seal: ["seal-voice-1", "seal-voice-2", "seal-voice-3"],
+      gull: ["seagull-short", "seagull-laugh-single"],
+    };
+    const pool = pools[charId];
+    if (!pool) return "";
+    this._stingIdx = this._stingIdx || {};
+    this._stingIdx[charId] = ((this._stingIdx[charId] || 0) + 1) % pool.length;
+    return pool[this._stingIdx[charId]];
   }
 
   invSay(defId, iid) {
