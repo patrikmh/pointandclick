@@ -64,7 +64,7 @@
     .set-seg button { padding: 9px 12px; font-size: 12px; }
   }
   .gull-hotspot { position: relative; }
-  .gull-hotspot::before { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); z-index: 0; pointer-events: auto; }
+  .gull-hotspot::before { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: max(100%, 48px); transform: translate(-50%, -50%); z-index: 0; pointer-events: auto; }
   .gull-hotspot > img { position: relative; z-index: 1; }
   :root { --inventory-clearance: 76px; }
   @media (max-height: 760px) { :root { --inventory-clearance: 124px; } .camp-target, .camp-character { translate: 0 -24vh !important; } }
@@ -87,6 +87,10 @@
   @keyframes lidTop { 0% { transform: translateY(0); } 14% { transform: translateY(-42%); } 24% { transform: translateY(-2%); } 40% { transform: translateY(-70%); } 50% { transform: translateY(-8%); } 66% { transform: translateY(-88%); } 100% { transform: translateY(-101%); } }
   @keyframes lidBottom { 0% { transform: translateY(0); } 14% { transform: translateY(42%); } 24% { transform: translateY(2%); } 40% { transform: translateY(70%); } 50% { transform: translateY(8%); } 66% { transform: translateY(88%); } 100% { transform: translateY(101%); } }
   @keyframes introBlur { 0% { backdrop-filter: blur(14px); opacity: 1; } 60% { backdrop-filter: blur(8px); opacity: 1; } 100% { backdrop-filter: blur(0px); opacity: 0; } }
+  /* Reduced motion: shorten the eye-opening intro to a brief fade instead of 8.5s of movement. */
+  @media (prefers-reduced-motion: reduce) {
+    div[style*="introBlur"], div[style*="lidTop"], div[style*="lidBottom"] { animation-duration: 1.2s !important; }
+  }
   @keyframes fireFlicker1 { 0% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); } 18% { opacity: 0.9; transform: scale(0.98) translateY(0.5%) rotate(-0.5deg); } 30% { opacity: 0.2; } 36% { opacity: 0; } 92% { opacity: 0; } 100% { opacity: 1; } }
   @keyframes fireFlicker2 { 0% { opacity: 0; } 30% { opacity: 0.75; transform: scale(1.03) translateY(-1%) rotate(0.5deg); } 36% { opacity: 1; } 48% { opacity: 0.92; transform: scale(1.01) translateY(-0.5%) rotate(-0.3deg); } 62% { opacity: 1; } 68% { opacity: 0.2; } 74% { opacity: 0; } 100% { opacity: 0; } }
   @keyframes fireFlicker3 { 0% { opacity: 0; } 62% { opacity: 0; } 68% { opacity: 0.75; transform: scale(1.025) translateY(-0.8%) rotate(0.4deg); } 74% { opacity: 1; } 84% { opacity: 0.9; transform: scale(1.0) translateY(0) rotate(-0.2deg); } 92% { opacity: 1; } 100% { opacity: 0.2; } }
@@ -121,6 +125,15 @@
   @media (max-width: 760px) and (hover: none), (max-width: 760px) and (pointer: coarse) {
     .camp-nav { left: auto !important; right: 10px !important; transform: none !important; width: 160px !important; }
   }
+  /* Portrait phones: cover-crop misaligns painted sky features that sit behind
+     interactive art on wide screens — nudge the window left so nothing peeks in
+     at the edge. */
+  @media (max-width: 620px) and (orientation: portrait) {
+    div[style*="bk3.jpg"] { background-position: 38% center !important; }
+    div[style*="bk2.jpg"] { background-position: 80% center !important; }
+    div[style*="bk1.jpeg"] { background-position: 50% center !important; }
+    div[style*="bk4.jpg"] { background-position: 50% center !important; }
+  }
   @media (max-width: 600px) {
     .chat-panel { left: 10px !important; right: 10px !important; top: 64px !important; width: auto !important; }
     .dialog-panel { bottom: 156px !important; width: calc(100% - 20px) !important; }
@@ -132,6 +145,11 @@
     .settings-button { right: 222px !important; }
     .top-chat-button { right: 92px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
     .reset-button { right: 8px !important; top: 10px !important; padding: 6px 9px !important; font-size: 11px !important; }
+    /* inventory bar: stack the label block above the scroller so item cards get width */
+    [data-inv-bar] { flex-direction: column !important; align-items: stretch !important; gap: 6px !important; padding: 8px 12px 10px !important; }
+    [data-inv-bar] > div:first-child { border-right: none !important; padding-right: 0 !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
+    /* camp "↑ TILLBAKA": drop below the header row so it clears the gear button */
+    .camp-back-nav { top: 56px !important; height: 60px !important; }
   }
   .sheep-dialog button:focus-visible,
   .sheep-dialog canvas:focus-visible,
@@ -352,7 +370,7 @@
           <button data-camp-nav-button="1" onClick="{{ goB }}" onFocus="{{ campNavFocus }}" onBlur="{{ campNavBlur }}" aria-label="Gå till nattlägret" title="Gå till nattlägret" style="{{ bottomNavButtonStyle }}">NATTLÄGRET ↓</button>
         </sc-if>
       </div>
-      <div onMouseEnter="{{ enterT }}" onMouseLeave="{{ leaveT }}" style="position:absolute;left:50%;transform:translateX(-50%);top:0;width:320px;height:110px;z-index:19;display:flex;align-items:flex-start;justify-content:center">
+      <div class="camp-back-nav" onMouseEnter="{{ enterT }}" onMouseLeave="{{ leaveT }}" style="position:absolute;left:50%;transform:translateX(-50%);top:0;width:320px;height:110px;z-index:19;display:flex;align-items:flex-start;justify-content:center">
         <sc-if value="{{ showArrowT }}" hint-placeholder-val="">
           <button onClick="{{ goT }}" aria-label="Gå tillbaka" title="Gå tillbaka" style="margin-top:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">↑ TILLBAKA</button>
         </sc-if>
@@ -1564,6 +1582,9 @@ class Component extends DCLogic {
     window.addEventListener("pointermove", this._mm);
     window.addEventListener("pointerup", this._mu);
     this.introTimer = setTimeout(() => this.setState({ introActive: false }), 8700);
+    this._introSkip = () => { if (this.state.introActive) { clearTimeout(this.introTimer); this.setState({ introActive: false }); } };
+    document.addEventListener("pointerdown", this._introSkip);
+    document.addEventListener("keydown", this._introSkip);
     this.ambience = new Audio("assets/ambience.mp3");
     this.ambience.__channel = "music";
     this.ambience.loop = true;
@@ -6845,11 +6866,18 @@ class Component extends DCLogic {
       if (!src) return;
       const audio = new Audio(src);
       audio.__channel = "sfx";
-      audio.play().catch(() => {});
-      this.setState({ moonFrame: "talk" });
+      this._activeMoonAudio = (this._activeMoonAudio || 0) + 1;
+      this.duckAudioForVoice(true);
+      const releaseMoonDuck = () => {
+        this._activeMoonAudio = Math.max(0, (this._activeMoonAudio || 1) - 1);
+        if (!this._activeMoonAudio) this.duckAudioForVoice(false);
+      };
       audio.onended = () => {
+        releaseMoonDuck();
         this.setState({ moonFrame: "awake" });
       };
+      audio.play().catch(() => { releaseMoonDuck(); });
+      this.setState({ moonFrame: "talk" });
     } catch (e) {
       console.error("Failed to play moon audio:", e);
     }
@@ -9928,14 +9956,33 @@ class Component extends DCLogic {
     audio.volume = 0.95;
     this._voAudio = audio;
     this._voChar = charId || null;
+    this.duckAudioForVoice(true);
+    audio.onended = () => { if (this._voAudio === audio) this.stopVoice(); };
     audio.play().catch(() => this.stopVoice());
     if (charId) this._voStop = this.lipSyncFor(audio, (open) => this.setCharMouth(charId, open), 140);
   }
 
   stopVoice() {
+    this.duckAudioForVoice(false);
     if (this._voStop) { this._voStop(); this._voStop = null; }
     if (this._voAudio) { try { this._voAudio.pause(); } catch (err) { /* redan stoppad */ } this._voAudio = null; }
     if (this._voChar) { this.setCharMouth(this._voChar, false); this._voChar = null; }
+  }
+
+  // AAA-standard: sänk musik/ambiens medan en röstlinje spelas, återställ efteråt.
+  duckAudioForVoice(on) {
+    const targets = [this.music, this.ambience, this.fireplace].filter(Boolean);
+    if (on) {
+      if (this._ducked) return;
+      this._ducked = true;
+      this._duckPrev = targets.map((el) => (el.__baseVolume != null ? el.__baseVolume : el.volume));
+      targets.forEach((el) => { el.volume = (el.__baseVolume != null ? el.__baseVolume : el.volume) * 0.4; });
+    } else {
+      if (!this._ducked) return;
+      this._ducked = false;
+      targets.forEach((el, i) => { if (this._duckPrev[i] != null && !el.paused) el.volume = this._duckPrev[i]; });
+      this._duckPrev = null;
+    }
   }
 
   // Chattsvaren är AI-genererade och obegränsade, så de kan inte förinspelas. De talas i stället
@@ -9959,9 +10006,10 @@ class Component extends DCLogic {
       const audio = new Audio(url);
       audio.__channel = "voice";
       audio.volume = 0.95;
-      audio.onended = () => { try { URL.revokeObjectURL(url); } catch (err) { /* ignorerad */ } };
+      audio.onended = () => { try { URL.revokeObjectURL(url); } catch (err) { /* ignorerad */ } if (this._voAudio === audio) this.stopVoice(); };
       this._voAudio = audio;
       this._voChar = charId || null;
+      this.duckAudioForVoice(true);
       await audio.play();
       if (charId) this._voStop = this.lipSyncFor(audio, (open) => this.setCharMouth(charId, open), 140);
       return true;
@@ -10170,6 +10218,10 @@ class Component extends DCLogic {
     clearTimeout(this.badgerClickEnd);
     clearTimeout(this.scrubFeedbackClear);
     clearTimeout(this.introTimer);
+    if (this._introSkip) {
+      document.removeEventListener("pointerdown", this._introSkip);
+      document.removeEventListener("keydown", this._introSkip);
+    }
     clearInterval(this.ambienceFade);
     clearInterval(this.fireplaceFade);
     if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);

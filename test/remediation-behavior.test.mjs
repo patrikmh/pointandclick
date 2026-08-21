@@ -237,3 +237,27 @@ test("shrimp answer path retains deterministic fallback text when the bridge is 
   assert.match(body, /assistantText = this\.shrimpBuildFallbackReply\(result\)/);
   assert.match(source, /if \(typeof window !== \"undefined\" && window\.speechSynthesis/);
 });
+
+test("voice playback ducks music channels and restores them afterwards", () => {
+  const duck = method("  duckAudioForVoice(on) {", "\n  // Chattsvaren är AI-genererade");
+  const makeEl = (v) => ({ volume: v, paused: false });
+  const g = { music: makeEl(0.3), ambience: makeEl(0.5), fireplace: makeEl(0.2) };
+  duck.call(g, true);
+  assert.ok(Math.abs(g.music.volume - 0.12) < 1e-9);
+  assert.ok(Math.abs(g.ambience.volume - 0.2) < 1e-9);
+  assert.ok(Math.abs(g.fireplace.volume - 0.08) < 1e-9);
+  duck.call(g, true); // idempotent while already ducked
+  assert.ok(Math.abs(g.music.volume - 0.12) < 1e-9);
+  duck.call(g, false);
+  assert.equal(g.music.volume, 0.3);
+  assert.equal(g.ambience.volume, 0.5);
+  assert.equal(g.fireplace.volume, 0.2);
+  duck.call(g, false); // idempotent while already restored
+  assert.equal(g.music.volume, 0.3);
+});
+
+test("voice lines restore ducked audio when playback ends", () => {
+  assert.match(source, /playVoice\(voiceId, charId\) \{[\s\S]*?this\.duckAudioForVoice\(true\);[\s\S]*?audio\.onended = \(\) => \{ if \(this\._voAudio === audio\) this\.stopVoice\(\); \}/);
+  assert.match(source, /stopVoice\(\) \{\s*this\.duckAudioForVoice\(false\);/);
+  assert.match(source, /playMoonAudio\(audioName\) \{[\s\S]*?this\.duckAudioForVoice\(true\);[\s\S]*?releaseMoonDuck\(\);/);
+});
