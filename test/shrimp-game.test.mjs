@@ -347,7 +347,7 @@ test("shrimp avatar stage and timing chips reflect conversation state", () => {
   const shrimpAvatarState = loadMethod("  shrimpAvatarState() {", "\n  shrimpAvatarStateLabel() {");
   const shrimpAvatarStateLabel = loadMethod("  shrimpAvatarStateLabel() {", "\n  shrimpAvatarStyle() {");
   const shrimpAvatarStyle = loadMethod("  shrimpAvatarStyle() {", "\n  shrimpAvatarTranscript() {");
-  const shrimpAvatarTranscript = loadMethod("  shrimpAvatarTranscript() {", "\n  shrimpGameTimingChips() {");
+  const shrimpAvatarTranscript = loadMethod("  shrimpAvatarTranscript() {", "\n  shrimpDebugTelemetry() {");
   const shrimpGameTimingChips = loadMethod("  shrimpGameTimingChips() {", "\n  shrimpCurrentRiddle() {");
 
   const game = {

@@ -2862,6 +2862,16 @@ class Component extends DCLogic {
     return s.shrimpGameA11yStatus || s.shrimpGameMsg || (s.shrimpGameActive ? "Säg något till räkan." : "Tryck Starta samtal när du är redo.");
   }
 
+  shrimpDebugTelemetry() {
+    try {
+      if (typeof window === "undefined") return false;
+      if (new URLSearchParams(window.location.search).has("debug")) return true;
+      return window.localStorage.getItem("gullDebug") === "1";
+    } catch {
+      return false;
+    }
+  }
+
   shrimpGameTimingChips() {
     const s = this.state || {};
     const chips = [];
@@ -10906,7 +10916,7 @@ class Component extends DCLogic {
       shrimpAvatarListening: this.shrimpAvatarState() === "listening",
       shrimpAvatarStyle: this.shrimpAvatarStyle(),
       shrimpAvatarTranscript: this.shrimpAvatarTranscript(),
-      shrimpGameTimingChips: this.shrimpGameTimingChips(),
+      shrimpGameTimingChips: this.shrimpDebugTelemetry() ? this.shrimpGameTimingChips() : [],
       shrimpGameClose: () => this.closeShrimpGame(),
       shrimpClick: (e) => this.shrimpClick(e),
       shrimpKeyDown: (e) => this.shrimpKeyDown(e),
