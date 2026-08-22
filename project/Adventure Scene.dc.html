@@ -7990,7 +7990,10 @@ class Component extends DCLogic {
     const item = { id: ++this.atelierUid, defId, x: anchor.x, y: anchor.y, scale: 1, rot: 0 };
     this.atelierSnapshot();
     this.atelierPlaced.push(item);
-    this.atelierSelectedId = item.id;
+    // Leave the new piece unselected so switching zones to place the next
+    // find doesn't silently drag this one along (atelierSetZone moves the
+    // selected garment). Players re-select via canvas click or the stepper.
+    this.atelierSelectedId = null;
     this.sfx("click");
     this.syncAtelierSelection();
     this.drawAtelier();
