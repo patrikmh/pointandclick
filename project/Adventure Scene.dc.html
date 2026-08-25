@@ -1347,6 +1347,9 @@ class Component extends DCLogic {
     this._suppressSave = false;
   }
 
+  // NOTE: adding/removing durable keys or tightening coherence invalidates old saves.
+  // Bump durableVersion (and add a migration) whenever this list changes, or every
+  // existing player's progress resets to defaults on next load.
   durableKeys = [
     "inventory", "placed", "scene", "returnScene", "discovered", "moonState", "moonSpeechesPlayed",
     "crabFreed", "gullFreed", "underwaterUnlocked", "chestOpen", "sealHappy", "otterFreed", "otterAtelierUnlocked",
