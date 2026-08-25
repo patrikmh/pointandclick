@@ -308,7 +308,7 @@
         <div class="camp-character" data-drop="badger" role="button" tabindex="0" aria-label="Prata med grävlingen" onKeyDown="{{ sceneHotspotKeyDown }}" onClick="{{ badgerClick }}" onContextMenu="{{ infoCtx }}" style="{{ badgerWrapStyle }}">
           <img ref="{{ setBadgerRef }}" src="{{ badgerSrc }}" alt="En grävling i slips och klocka" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5))">
         </div>
-        <div class="camp-target" data-drop="skeda" role="button" tabindex="0" aria-label="Starta Skeda Kahlos soppkök" onClick="{{ openSkedaGame }}" onKeyDown="{{ skedaKeyDown }}" style="position:absolute;left:64%;top:64%;width:14%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
+        <div class="camp-target" data-drop="skeda" role="button" tabindex="0" aria-label="Starta Skeda Kahlos soppkök" onClick="{{ openSkedaGame }}" onKeyDown="{{ skedaKeyDown }}" style="position:absolute;left:65%;top:78%;width:22%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
           <img src="assets/skeda-kahlo.svg" alt="" aria-hidden="true" style="width:0;height:0;position:absolute;opacity:0;pointer-events:none">
           <sc-if value="{{ skedaTooled }}" hint-placeholder-val="">
             <img src="assets/storch-withtools.png" alt="Skeda Kahlo, skedstork med stekpanna och slev" draggable="false" style="width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));animation:storchProud 3.6s ease-in-out infinite">
@@ -322,7 +322,7 @@
           <div style="text-align:center;color:white;font-size:11px;margin-top:2px">SKEDA KAHLO</div>
         </div>
         <div class="camp-target" data-drop="glodis" role="button" tabindex="0" aria-label="Starta Glödis stjärnprisma" onClick="{{ openGlodisGame }}" onKeyDown="{{ glodisKeyDown }}" style="position:absolute;left:72%;top:70%;width:18%;z-index:13;cursor:pointer"><div style="text-align:center;color:white;font-size:11px;text-shadow:0 1px 4px rgba(0,0,0,0.9)">GLÖDIS • PRISMA</div><img src="assets/glodis-console.svg" alt="Glödis stjärnprisma" style="width:100%;display:block"></div>
-        <div class="camp-target" data-drop="dolphan" role="button" tabindex="0" aria-label="Prata med Dolphan Lundgren eller använd räddningsbojen på hen" onClick="{{ dolphanClick }}" onKeyDown="{{ dolphanKeyDown }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:5%;top:74%;width:20%;z-index:13;cursor:pointer">
+        <div class="camp-target" data-drop="dolphan" role="button" tabindex="0" aria-label="Prata med Dolphan Lundgren eller använd räddningsbojen på hen" onClick="{{ dolphanClick }}" onKeyDown="{{ dolphanKeyDown }}" onContextMenu="{{ infoCtx }}" style="position:absolute;left:9%;top:78%;width:16%;transform:translate(-50%,-100%);z-index:13;cursor:pointer">
           <img src="{{ dolphanSrc }}" alt="Dolphan Lundgren, dramatisk delfin-livräddare" draggable="false" style="width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))">
           <div style="text-align:center;color:white;font-size:11px">DOLPHAN LUNDGREN</div>
         </div>
@@ -11146,7 +11146,7 @@ class Component extends DCLogic {
       badgerSrc: S.badgerHappy ? "assets/badger-happy.png" : ("assets/badger-" + S.badgerFrame + ".png"),
       setBadgerRef: (el) => { if (el) this.badgerNode = el; },
       badgerClick: (e) => this.badgerClick(e),
-      badgerWrapStyle: `position:absolute;left:${34 + this.posFor("badger").ox}%;top:${74 + this.posFor("badger").oy}%;width:${30 * this.posFor("badger").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
+      badgerWrapStyle: `position:absolute;left:${36 + this.posFor("badger").ox}%;top:${75 + this.posFor("badger").oy}%;width:${26 * this.posFor("badger").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
       octoEnter: () => this.octoEnter(),
       octoLeave: () => this.octoLeave(),
       octoClick: (e) => this.octoClick(e),
