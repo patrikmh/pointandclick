@@ -233,7 +233,7 @@
 
   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
     
-  <div onMouseMove="{{ stagePointerMove }}" onPointerDown="{{ stagePointerDown }}" onMouseLeave="{{ stagePointerLeave }}" style="{{ stageStyle }}">
+  <div ref="{{ setStageRef }}" onMouseMove="{{ stagePointerMove }}" onPointerDown="{{ stagePointerDown }}" onMouseLeave="{{ stagePointerLeave }}" style="{{ stageStyle }}">
       <sc-for list="{{ placed }}" as="e" hint-placeholder-count="0">
         <div data-drop="entity" data-uid="{{ e.uid }}" data-pick="{{ e.pick }}" role="button" tabindex="0" aria-label="{{ e.ariaLabel }}" style="{{ e.wrapStyle }}" onClick="{{ e.onClick }}" onKeyDown="{{ e.onKeyDown }}" onPointerDown="{{ e.onDown }}" onContextMenu="{{ e.onCtx }}" onMouseEnter="{{ e.onEnter }}" onMouseLeave="{{ e.onLeave }}">
           <div style="{{ e.labelStyle }}">{{ e.name }}</div>
@@ -1209,6 +1209,8 @@ class Component extends DCLogic {
       edgeR: false, edgeL: false, edgeB: false, edgeT: false,
       hoveredId: null,
     }));
+    // scene-change juice: quick fade-in of the new backdrop (reduced-motion aware)
+    this.webAnimate?.(this.stageNode, [{ opacity: 0.15 }, { opacity: 1 }], { duration: 420, easing: "ease-out" });
     if (this.snore) this.snore.pause();
     if (typeof this.crabCycle === "function") this.crabCycle(); else clearInterval(this.crabCycle);
     this.crabCycle = null;
@@ -11269,6 +11271,7 @@ class Component extends DCLogic {
       sealSrc: "assets/seal-" + S.sealFrame + ".png",
       sealWrapStyle: `position:absolute;left:${80 + this.posFor("seal").ox}%;top:${82 + this.posFor("seal").oy}%;width:${52 * this.posFor("seal").scale}%;z-index:12;cursor:pointer;transform:translate(-50%,-100%)`,
       stageStyle: `position:absolute;inset:0;background:#05080e url('${this.backgrounds[S.scene]}') center/cover no-repeat`,
+      setStageRef: (el) => { if (el) this.stageNode = el; },
       invGhost: !!dragDef,
       invGhostText: dragDef && !dragDef.img ? dragDef.art : "",
       invGhostStyle: dragDef
