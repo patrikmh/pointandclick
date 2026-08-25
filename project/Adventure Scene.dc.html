@@ -7378,7 +7378,7 @@ class Component extends DCLogic {
           { type: "text", text: "Eleven skulle måla: " + target.label + ". Bedöm 'godkand' bara utifrån om motivet går att känna igen. Kommentera gärna kreativitet och originalitet i 'kommentar', men låt det inte påverka godkand." },
           { type: "image", source: { type: "base64", media_type: "image/png", data: dataUrl.split(",")[1] } },
         ] }],
-        max_tokens: 200,
+        max_tokens: 500,
       });
     } catch (err) {
       verdict = "Torsken kan inte nå OpenRouters bildgranskare just nu. Försök igen om en stund.";
