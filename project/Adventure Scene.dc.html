@@ -3203,7 +3203,14 @@ class Component extends DCLogic {
   async shrimpSubmitText(e) {
     e?.preventDefault?.();
     const text = String(this.state.shrimpGameTextDraft ?? this.shrimpGameTextDraft ?? "").trim();
-    if (!text || this.state.shrimpGameBusy) return;
+    if (!text) return;
+    if (this.state.shrimpGameBusy) {
+      // Queue instead of dropping: the reply may still be streaming or speaking,
+      // and a silent Enter would look broken to the player.
+      this.shrimpPendingTextAnswer = text;
+      this.shrimpSetStatus("Räkan svarar fortfarande — ditt svar skickas så snart hon är klar.");
+      return;
+    }
     this.shrimpGameTextDraft = "";
     this.setState({ shrimpGameTextDraft: "" });
     await this.shrimpHandleAnswer(text, "text");
@@ -3224,6 +3231,7 @@ class Component extends DCLogic {
   closeShrimpGame() {
     const returnFocus = this.shrimpReturnFocus;
     this.shrimpReturnFocus = null;
+    this.shrimpPendingTextAnswer = null;
     this.teardownShrimpModal();
     this.teardownShrimpGame();
     this.setState({ shrimpGameOpen: false, shrimpGameActive: false, shrimpGameListening: false, shrimpGameBusy: false, shrimpGamePartial: "", shrimpGameRealtime: false, shrimpGameTimingStt: null, shrimpGameTimingFirstToken: null, shrimpGameTimingFirstAudio: null }, () => this.restoreFocusTarget?.(returnFocus));
@@ -3426,6 +3434,18 @@ class Component extends DCLogic {
     }
     this.setState(nextState);
     this.shrimpSetStatus(message || this.shrimpBuildFallbackReply(result));
+    const pendingAnswer = this.shrimpPendingTextAnswer;
+    this.shrimpPendingTextAnswer = null;
+    if (pendingAnswer && !nextState.shrimpGameSolved) {
+      setTimeout(() => {
+        if (!this.state.shrimpGameOpen || this.state.shrimpGameBusy || this.state.shrimpGameSolved) return;
+        if (String(this.state.shrimpGameTextDraft ?? this.shrimpGameTextDraft ?? "").trim() === pendingAnswer) {
+          this.shrimpGameTextDraft = "";
+          this.setState({ shrimpGameTextDraft: "" });
+        }
+        void this.shrimpHandleAnswer(pendingAnswer, "text");
+      }, 0);
+    }
   }
 
   async shrimpAdvanceRiddle(nextStep, reply) {

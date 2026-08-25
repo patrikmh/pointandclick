@@ -144,6 +144,30 @@ test("failed-service text fallback submits wrong answers and the complete determ
   assert.match(source, /shrimpGameTextFallback/);
 });
 
+test("answers typed while the shrimp is busy queue and flush after the turn ends", async () => {
+  const submit = loadMethod("  async shrimpSubmitText(e) {", "\n  shrimpStopConversation() {");
+  const finalize = loadMethod("  shrimpFinalizeConversationTurn(result, assistantText, transcript, source = \"voice\", serverAttempts = null) {", "\n  async shrimpAdvanceRiddle(", { setTimeout });
+  const answers = [];
+  const statuses = [];
+  const game = {
+    state: { shrimpGameOpen: true, shrimpGameBusy: true, shrimpGameTextDraft: "hål" },
+    shrimpGameTextDraft: "hål",
+    setState(update) { this.state = { ...this.state, ...(typeof update === "function" ? update(this.state) : update) }; },
+    shrimpSetStatus: (s) => statuses.push(s),
+    shrimpBuildFallbackReply: () => "",
+    shrimpHandleAnswer: async (text, src) => answers.push([text, src]),
+  };
+
+  await submit.call(game, { preventDefault() {} });
+  assert.deepEqual(answers, [], "a busy submit must not reach handleAnswer directly");
+  assert.equal(game.shrimpPendingTextAnswer, "hål");
+  assert.match(statuses.at(-1), /skickas så snart/);
+
+  finalize.call(game, { kind: "wrong" }, "Nej.", "banan");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.deepEqual(answers, [["hål", "text"]], "queued answer flushes when the turn ends");
+});
+
 test("shrimp adaptive hints follow stored attempt count", () => {
   const shrimpAdaptiveHint = loadMethod("  shrimpAdaptiveHint() {", "\n  shrimpAppendConversationMessage(message) {");
   const game = {
