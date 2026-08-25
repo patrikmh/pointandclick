@@ -133,6 +133,12 @@
     div[style*="bk2.jpg"] { background-position: 80% center !important; }
     div[style*="bk1.jpeg"] { background-position: 50% center !important; }
     div[style*="bk4.jpg"] { background-position: 50% center !important; }
+    /* Camp characters: spread the compressed row so sprites stay clear of each
+       other and of painted props (ship wheel, log pile, tent). */
+    .camp-character[aria-label*="grävlingen"] { left: 46% !important; }
+    .camp-target[aria-label^="Prata med Dolphan"] { left: 13% !important; top: 79% !important; }
+    .camp-target[aria-label^="Starta Skeda"] { left: 63% !important; top: 84% !important; width: 19% !important; }
+    .camp-target[aria-label^="Starta Glödis"] { left: 81% !important; }
   }
   @media (max-width: 600px) {
     .chat-panel { left: 10px !important; right: 10px !important; top: 64px !important; width: auto !important; }
