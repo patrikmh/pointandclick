@@ -997,10 +997,10 @@
           <div style="align-self:flex-start;font-size:12.5px;color:oklch(0.65 0.012 80);font-style:italic;padding:2px 4px">{{ chatThinking }}<span style="animation:blink 1s step-end infinite">...</span></div>
         </sc-if>
       </div>
-      <div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid oklch(0.4 0.02 60 / 0.5)">
-        <input value="{{ chatInput }}" onChange="{{ chatOnInput }}" onKeyDown="{{ chatKey }}" maxlength="1000" aria-label="Skriv ett meddelande" placeholder="{{ chatPlaceholder }}" style="flex:1;min-width:0;background:oklch(0.22 0.014 60);border:1px solid oklch(0.42 0.02 60);border-radius:8px;padding:9px 11px;font-family:'Work Sans',sans-serif;font-size:13.5px;color:oklch(0.92 0.012 80);outline:none">
+      <form onSubmit="{{ chatSubmit }}" style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid oklch(0.4 0.02 60 / 0.5)">
+        <input value="{{ chatInput }}" onChange="{{ chatOnInput }}" maxlength="1000" aria-label="Skriv ett meddelande" placeholder="{{ chatPlaceholder }}" style="flex:1;min-width:0;background:oklch(0.22 0.014 60);border:1px solid oklch(0.42 0.02 60);border-radius:8px;padding:9px 11px;font-family:'Work Sans',sans-serif;font-size:13.5px;color:oklch(0.92 0.012 80);outline:none">
         <button onClick="{{ chatSend }}" disabled="{{ chatBusy }}" aria-disabled="{{ chatBusy }}" title="Skicka meddelande" style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:oklch(0.2 0.02 70);background:oklch(0.8 0.12 75);border:none;border-radius:8px;padding:9px 14px;cursor:pointer;opacity:{{ chatSendOpacity }}">Skicka</button>
-      </div>
+      </form>
     </div>
   </sc-if>
 
@@ -1905,7 +1905,17 @@ class Component extends DCLogic {
       chatChar: char,
       chatMsgs: this.chatLogs[char],
     }));
+    if (typeof document !== "undefined" && !this._chatKeyDown) {
+      this._chatKeyDown = (e) => { if (e.key === "Escape") { e.preventDefault(); this.closeChat(); } };
+      document.addEventListener("keydown", this._chatKeyDown);
+    }
     this.scrollChat();
+  }
+
+  closeChat() {
+    if (this._chatKeyDown && typeof document !== "undefined") document.removeEventListener("keydown", this._chatKeyDown);
+    this._chatKeyDown = null;
+    this.setState({ chatOpen: false });
   }
 
   charSystemPrompt(charId) {
@@ -10217,6 +10227,8 @@ class Component extends DCLogic {
   teardownSettingsModal() {
     if (this._settingsKeyDown && typeof window !== "undefined") window.removeEventListener("keydown", this._settingsKeyDown);
     this._settingsKeyDown = null;
+    if (this._chatKeyDown && typeof document !== "undefined") document.removeEventListener("keydown", this._chatKeyDown);
+    this._chatKeyDown = null;
   }
 
   closeSettings() {
@@ -10795,8 +10807,9 @@ class Component extends DCLogic {
       })),
       chatOnInput: (e) => this.setState({ chatInput: e.target.value }),
       chatSelect: (e) => this.toggleChat(e.target.value, true),
-      chatKey: (e) => { if (e.key === "Enter") this.sendChat(); },
+      chatSubmit: (e) => { e?.preventDefault?.(); this.sendChat(); },
       chatSend: () => this.sendChat(),
+      chatClose: () => this.closeChat(),
       chatSendOpacity: S.chatBusy ? 0.55 : 1,
       chatClose: () => this.setState({ chatOpen: false }),
       chatListRef: (el) => { this.chatListEl = el; },
