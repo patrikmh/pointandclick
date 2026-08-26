@@ -376,11 +376,11 @@
           <button data-camp-nav-button="1" onClick="{{ goB }}" onFocus="{{ campNavFocus }}" onBlur="{{ campNavBlur }}" aria-label="Gå till nattlägret" title="Gå till nattlägret" style="{{ bottomNavButtonStyle }}">NATTLÄGRET ↓</button>
         </sc-if>
       </div>
-      <div class="camp-back-nav" onMouseEnter="{{ enterT }}" onMouseLeave="{{ leaveT }}" style="position:absolute;left:50%;transform:translateX(-50%);top:0;width:320px;height:110px;z-index:19;display:flex;align-items:flex-start;justify-content:center">
-        <sc-if value="{{ showArrowT }}" hint-placeholder-val="">
-          <button onClick="{{ goT }}" aria-label="Gå tillbaka" title="Gå tillbaka" style="margin-top:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">↑ TILLBAKA</button>
-        </sc-if>
+      <sc-if value="{{ showArrowT }}" hint-placeholder-val="">
+      <div class="camp-back-nav" style="position:absolute;left:50%;transform:translateX(-50%);top:0;width:320px;height:110px;z-index:19;display:flex;align-items:flex-start;justify-content:center">
+        <button onClick="{{ goT }}" aria-label="Gå tillbaka" title="Gå tillbaka" style="margin-top:12px;height:42px;border-radius:999px;background:oklch(0.15 0.011 60 / 0.86);border:1px solid oklch(0.6 0.02 60 / 0.62);color:oklch(0.95 0.02 80);font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:0.08em;line-height:1;padding:0 16px;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(0,0,0,0.8)">↑ TILLBAKA</button>
       </div>
+      </sc-if>
     </div></div>
 
   <sc-if value="{{ hasDialog }}" hint-placeholder-val="">
@@ -617,7 +617,7 @@
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div id="gull-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">BOMBANFALL ÖVER VIKEN</div>
-            <div id="gull-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter styr, MELLANSLAG släpper — Träffar: {{ gullGameHits }}/{{ gullGameWinHits }} &nbsp;·&nbsp; Bomber kvar: {{ gullGameBombs }}</div>
+            <div id="gull-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter eller dra på skärmen styr, MELLANSLAG eller tryck släpper — Träffar: {{ gullGameHits }}/{{ gullGameWinHits }} &nbsp;·&nbsp; Bomber kvar: {{ gullGameBombs }}</div>
           </div>
           <button type="button" aria-label="Stäng måsens bombuppdrag" onClick="{{ gullGameClose }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
@@ -645,7 +645,7 @@
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <div style="flex:1">
             <div id="dolphan-game-title" style="font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.05em;color:oklch(0.88 0.07 82)">DOLPHANS STORRÄDDNING</div>
-            <div id="dolphan-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter siktar, MELLANSLAG kastar — Träffar: {{ dolphanGameHits }}/{{ dolphanGameWinHits }} &nbsp;·&nbsp; Bojar kvar: {{ dolphanGameThrows }}</div>
+            <div id="dolphan-game-help" style="font-family:'Work Sans',sans-serif;font-size:13px;color:oklch(0.8 0.015 80)">Piltangenter eller dra på skärmen siktar, MELLANSLAG eller tryck kastar — Träffar: {{ dolphanGameHits }}/{{ dolphanGameWinHits }} &nbsp;·&nbsp; Bojar kvar: {{ dolphanGameThrows }}</div>
           </div>
           <button type="button" aria-label="Stäng Dolphans räddning" onClick="{{ closeDolphanGame }}" style="width:24px;height:24px;border-radius:50%;border:1px solid oklch(0.5 0.02 60 / 0.5);background:transparent;color:oklch(0.8 0.012 80);font-size:12px;cursor:pointer">✕</button>
         </div>
@@ -8380,6 +8380,30 @@ class Component extends DCLogic {
     if (!el || el === this.gullGameStageEl) return;
     this.gullGameStageEl = el;
     this.startGullGame();
+    const cfgG = this.gullGameConfig;
+    const toStageG = (ev) => {
+      const r = el.getBoundingClientRect();
+      return { x: (ev.clientX - r.left) * (cfgG.stageW / r.width), y: (ev.clientY - r.top) * (cfgG.stageH / r.height) };
+    };
+    let tapG = null;
+    el.onpointerdown = (ev) => {
+      try { el.setPointerCapture(ev.pointerId); } catch (_) {}
+      const p = toStageG(ev);
+      tapG = { x: p.x, y: p.y, t: performance.now() };
+      this.gullPointerTarget = p;
+    };
+    el.onpointermove = (ev) => {
+      if (tapG) this.gullPointerTarget = toStageG(ev);
+    };
+    el.onpointerup = (ev) => {
+      if (!tapG) return;
+      const p = toStageG(ev);
+      const moved = Math.hypot(p.x - tapG.x, p.y - tapG.y);
+      if (performance.now() - tapG.t < 300 && moved < 16) this.dropGullBomb();
+      tapG = null;
+      this.gullPointerTarget = null;
+    };
+    el.onpointercancel = () => { tapG = null; this.gullPointerTarget = null; };
     if (el.isConnected !== false && typeof requestAnimationFrame === "function") {
       this.gullGameFocusRAF = requestAnimationFrame(() => el.focus?.());
     } else if (el.isConnected !== false) el.focus?.();
@@ -8556,10 +8580,18 @@ class Component extends DCLogic {
     const k = this.gullKeys;
     const dx = (k.right ? 1 : 0) - (k.left ? 1 : 0);
     const dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
-    const inputLen = Math.hypot(dx, dy);
+    // touch/pointer steering: fly toward the pressed point while it is held
+    let px = dx, py = dy;
+    const pt = this.gullPointerTarget;
+    if (pt) {
+      const pdx = pt.x - this.gullPlane.x, pdy = pt.y - this.gullPlane.y;
+      const pd = Math.hypot(pdx, pdy);
+      if (pd > 8) { px = pdx / pd; py = pdy / pd; } else { px = 0; py = 0; }
+    }
+    const inputLen = Math.hypot(px, py);
     if (inputLen > 0) {
-      this.gullPlane.vx += (dx / inputLen) * cfg.planeAccel * dt;
-      this.gullPlane.vy += (dy / inputLen) * cfg.planeAccel * dt;
+      this.gullPlane.vx += (px / inputLen) * cfg.planeAccel * dt;
+      this.gullPlane.vy += (py / inputLen) * cfg.planeAccel * dt;
     } else {
       const damp = Math.max(0, 1 - cfg.planeDrag * dt);
       this.gullPlane.vx *= damp;
@@ -9057,6 +9089,36 @@ class Component extends DCLogic {
     if (!el || el === this.dolphanGameStageEl) return;
     this.dolphanGameStageEl = el;
     this.startDolphanGame();
+    const cfgD = this.dolphanGameConfig;
+    const toStageD = (ev) => {
+      const r = el.getBoundingClientRect();
+      return {
+        x: Math.max(22, Math.min(cfgD.stageW - 22, (ev.clientX - r.left) * (cfgD.stageW / r.width))),
+        y: Math.max(22, Math.min(cfgD.stageH - 22, (ev.clientY - r.top) * (cfgD.stageH / r.height))),
+      };
+    };
+    let tapD = null;
+    el.onpointerdown = (ev) => {
+      try { el.setPointerCapture(ev.pointerId); } catch (_) {}
+      const p = toStageD(ev);
+      tapD = { x: p.x, y: p.y, t: performance.now() };
+      if (this.dolphanReticle) { this.dolphanReticle.x = p.x; this.dolphanReticle.y = p.y; }
+    };
+    el.onpointermove = (ev) => {
+      if (!tapD || !this.dolphanReticle) return;
+      const p = toStageD(ev);
+      this.dolphanReticle.x = p.x;
+      this.dolphanReticle.y = p.y;
+    };
+    el.onpointerup = (ev) => {
+      if (!tapD) return;
+      const p = toStageD(ev);
+      const moved = Math.hypot(p.x - tapD.x, p.y - tapD.y);
+      if (this.dolphanReticle) { this.dolphanReticle.x = p.x; this.dolphanReticle.y = p.y; }
+      if (performance.now() - tapD.t < 300 && moved < 16) this.throwDolphanBuoy();
+      tapD = null;
+    };
+    el.onpointercancel = () => { tapD = null; };
     if (el.isConnected !== false && typeof requestAnimationFrame === "function") {
       this.dolphanGameFocusRAF = requestAnimationFrame(() => el.focus?.());
     } else if (el.isConnected !== false) el.focus?.();
